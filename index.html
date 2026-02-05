@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zonos API Learning Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: #374151;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: #6b7280;
+            font-size: 1.15em;
+        }
+
+        /* Journey Section */
+        .journey {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .journey h2 {
+            color: #4f46e5;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .journey-steps {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 180px;
+            background: linear-gradient(145deg, #fafafa 0%, #f3f4f6 100%);
+            border-radius: 16px;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .step:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+            border-color: #a5b4fc;
+        }
+
+        .step.active {
+            background: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%);
+            border-color: #6366f1;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            font-size: 1.1em;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .step h3 {
+            color: #1f2937;
+            font-size: 1.05em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .step p {
+            color: #6b7280;
+            font-size: 0.88em;
+        }
+
+        .step-arrow {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a5b4fc;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .step:last-child .step-arrow {
+            display: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #4f46e5;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .query-list {
+            list-style: none;
+        }
+
+        .query-list li {
+            margin-bottom: 10px;
+        }
+
+        .query-btn {
+            width: 100%;
+            padding: 14px 16px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            color: #374151;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .query-btn:hover {
+            background: #f3f4f6;
+            border-color: #a5b4fc;
+            transform: translateX(4px);
+        }
+
+        .query-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .query-btn small {
+            display: block;
+            color: #9ca3af;
+            font-size: 0.8em;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .query-btn.active small {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* Explanation Panel */
+        .explanation {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .explanation h3 {
+            color: #4f46e5;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .explanation-content {
+            color: #4b5563;
+        }
+
+        .explanation-content h4 {
+            color: #1f2937;
+            margin: 18px 0 10px;
+            font-weight: 600;
+        }
+
+        .explanation-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .explanation-content li {
+            margin-bottom: 6px;
+            color: #4b5563;
+        }
+
+        .analogy {
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            border-left: 4px solid #8b5cf6;
+            padding: 18px;
+            margin: 18px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .analogy strong {
+            color: #7c3aed;
+        }
+
+        /* Editor Area */
+        .editor-area {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .editor-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .editor-header h3 {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .run-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .run-btn:disabled {
+            background: #9ca3af;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .editor-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 400px;
+        }
+
+        @media (max-width: 1100px) {
+            .editor-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .editor-pane {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .editor-pane:last-child {
+            border-right: none;
+        }
+
+        .pane-header {
+            background: #f9fafb;
+            padding: 12px 18px;
+            font-size: 0.8em;
+            color: #6b7280;
+            border-bottom: 1px solid #e5e7eb;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 350px;
+            background: #fafafa;
+            border: none;
+            color: #5b21b6;
+            font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
+            font-size: 13px;
+            padding: 18px;
+            resize: none;
+        }
+
+        textarea:focus {
+            outline: none;
+            background: #f5f3ff;
+        }
+
+        .response-area {
+            padding: 18px;
+            background: #fafafa;
+            height: 350px;
+            overflow: auto;
+            font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
+            font-size: 13px;
+        }
+
+        .response-area pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .response-success {
+            color: #059669;
+        }
+
+        .response-error {
+            color: #dc2626;
+        }
+
+        /* Config Section */
+        .config-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .config-section h3 {
+            color: #4f46e5;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .config-row label {
+            min-width: 100px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .config-row input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            color: #374151;
+            font-family: monospace;
+            transition: all 0.2s ease;
+        }
+
+        .config-row input:focus {
+            outline: none;
+            border-color: #a5b4fc;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.2);
+        }
+
+        /* Quick Reference */
+        .quick-ref {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .quick-ref h3 {
+            color: #4f46e5;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .ref-card {
+            background: linear-gradient(145deg, #fafafa 0%, #f3f4f6 100%);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+
+        .ref-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: #c7d2fe;
+        }
+
+        .ref-card h4 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .ref-card p {
+            color: #6b7280;
+            font-size: 0.88em;
+            margin-bottom: 6px;
+        }
+
+        .ref-card code {
+            background: #eef2ff;
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: #6366f1;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Friendly View */
+        .friendly-view {
+            background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px solid #a7f3d0;
+            display: none;
+        }
+
+        .friendly-view.visible {
+            display: block;
+        }
+
+        .friendly-view h3 {
+            color: #047857;
+            margin-bottom: 20px;
+            font-size: 1.15em;
+            font-weight: 600;
+        }
+
+        .friendly-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .friendly-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .friendly-section {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .friendly-section h4 {
+            color: #6b7280;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            font-weight: 600;
+        }
+
+        .friendly-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .friendly-row:last-child {
+            border-bottom: none;
+        }
+
+        .friendly-label {
+            color: #6b7280;
+            font-size: 0.92em;
+        }
+
+        .friendly-value {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 0.92em;
+        }
+
+        .friendly-value.money {
+            color: #059669;
+        }
+
+        .friendly-total {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 15px 18px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #a7f3d0;
+        }
+
+        .friendly-total .friendly-label {
+            color: #047857;
+            font-weight: 600;
+        }
+
+        .friendly-total .friendly-value {
+            font-size: 1.15em;
+            color: #047857;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Status indicator */
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-left: 12px;
+            font-weight: 600;
+        }
+
+        .status.connected {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #047857;
+        }
+
+        .status.disconnected {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Zonos API Learning Tool</h1>
+            <p>Understand how merchants integrate with Zonos - No coding required!</p>
+        </header>
+
+        <!-- The Merchant Journey -->
+        <section class="journey">
+            <h2>The Merchant Journey: How Zonos Works</h2>
+            <div class="journey-steps">
+                <div class="step" onclick="showStep(1)">
+                    <div class="step-number">1</div>
+                    <h3>Calculate Landed Cost</h3>
+                    <p>Zonos calculates duties, taxes & fees</p>
+                    <span class="step-arrow">&rarr;</span>
+                </div>
+                <div class="step" onclick="showStep(2)">
+                    <div class="step-number">2</div>
+                    <h3>Customer Pays</h3>
+                    <p>Total includes all import costs</p>
+                    <span class="step-arrow">&rarr;</span>
+                </div>
+                <div class="step" onclick="showStep(3)">
+                    <div class="step-number">3</div>
+                    <h3>Create Order</h3>
+                    <p>Merchant sends order to Zonos</p>
+                    <span class="step-arrow">&rarr;</span>
+                </div>
+                <div class="step" onclick="showStep(4)">
+                    <div class="step-number">4</div>
+                    <h3>Ship & Track</h3>
+                    <p>Add tracking, Zonos handles customs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Sidebar with queries -->
+            <aside class="sidebar">
+                <h3>Try These APIs</h3>
+                <ul class="query-list">
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('landed-cost')">
+                            Calculate Landed Cost
+                            <small>What duties/taxes will customer pay?</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('create-order')">
+                            Create an Order
+                            <small>Record the sale in Zonos</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('add-tracking')">
+                            Add Tracking Number
+                            <small>Update order with shipment info</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('cancel-order')">
+                            Cancel an Order
+                            <small>Void an order before shipping</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('get-order')">
+                            Look Up an Order
+                            <small>Check order status and details</small>
+                        </button>
+                    </li>
+                </ul>
+
+                <h3 style="margin-top: 30px;">Webhooks (Zonos &rarr; Merchant)</h3>
+                <ul class="query-list">
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('webhook-info')">
+                            Understanding Webhooks
+                            <small>How Zonos notifies merchants</small>
+                        </button>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Right side content -->
+            <div class="right-content">
+                <!-- Explanation Panel -->
+                <div class="explanation" id="explanation">
+                    <h3>Welcome! Click a step or query to learn more</h3>
+                    <div class="explanation-content">
+                        <p>This tool helps you understand how merchants use the Zonos API. Each button on the left shows you:</p>
+                        <ul>
+                            <li><strong>What it does</strong> - in plain English</li>
+                            <li><strong>When merchants use it</strong> - the real-world scenario</li>
+                            <li><strong>The actual API code</strong> - what gets sent to Zonos</li>
+                        </ul>
+                        <div class="analogy">
+                            <strong>Think of it like a restaurant:</strong> The customer (API) sends an order to the kitchen (Zonos), the kitchen prepares it and sends back the result. Webhooks are like the waiter coming to tell you "your food is ready!"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Area -->
+                <div class="editor-area">
+                    <div class="editor-header">
+                        <h3>GraphQL Playground <span class="status disconnected" id="status">Not Connected</span></h3>
+                        <button class="run-btn" id="runBtn" onclick="runQuery()">Run Query</button>
+                    </div>
+                    <div class="editor-body">
+                        <div class="editor-pane">
+                            <div class="pane-header">QUERY (what you're asking Zonos)</div>
+                            <textarea id="queryEditor" placeholder="Select a query from the left, or type your own..."></textarea>
+                        </div>
+                        <div class="editor-pane">
+                            <div class="pane-header">RESPONSE (what Zonos sends back)</div>
+                            <div class="response-area" id="responseArea">
+                                <pre>Response will appear here after you run a query...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Friendly View Section -->
+                <div class="friendly-view" id="friendlyView">
+                    <h3>Results Summary</h3>
+                    <div class="friendly-grid">
+                        <div class="friendly-section" id="friendlyInput">
+                            <h4>What Was Sent</h4>
+                            <div id="friendlyInputContent">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="friendly-section" id="friendlyOutput">
+                            <h4>What Came Back</h4>
+                            <div id="friendlyOutputContent">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config Section -->
+                <div class="config-section">
+                    <h3>Your API Settings</h3>
+                    <div class="config-row">
+                        <label>API Key:</label>
+                        <input type="password" id="apiKey" placeholder="credential_live_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" onchange="saveConfig()">
+                    </div>
+                    <div class="config-row">
+                        <label>Endpoint:</label>
+                        <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
+                    </div>
+                    <p style="color: #666; font-size: 0.85em; margin-top: 10px;">
+                        Get your API key from: Zonos Dashboard &rarr; Settings &rarr; Integrations &rarr; Create GraphQL key
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Reference -->
+        <section class="quick-ref">
+            <h3>Quick Reference: What Each API Does</h3>
+            <div class="ref-grid">
+                <div class="ref-card">
+                    <h4>landedCostCalculateWorkflow</h4>
+                    <p><strong>Purpose:</strong> Calculate duties, taxes, and fees for a cart</p>
+                    <p><strong>When:</strong> Customer enters shipping address at checkout</p>
+                    <p><strong>Returns:</strong> <code>duties</code>, <code>taxes</code>, <code>fees</code> amounts</p>
+                </div>
+                <div class="ref-card">
+                    <h4>orderCreate</h4>
+                    <p><strong>Purpose:</strong> Record a completed purchase in Zonos</p>
+                    <p><strong>When:</strong> After customer completes payment</p>
+                    <p><strong>Returns:</strong> <code>orderId</code> for tracking</p>
+                </div>
+                <div class="ref-card">
+                    <h4>shipmentCreateWithTracking</h4>
+                    <p><strong>Purpose:</strong> Update order with tracking info</p>
+                    <p><strong>When:</strong> After merchant ships the package</p>
+                    <p><strong>Returns:</strong> <code>shipmentId</code>, triggers billing</p>
+                </div>
+                <div class="ref-card">
+                    <h4>orderCancel</h4>
+                    <p><strong>Purpose:</strong> Cancel an order before shipping</p>
+                    <p><strong>When:</strong> Customer requests refund, fraud detected</p>
+                    <p><strong>Returns:</strong> Confirmation, prevents billing</p>
+                </div>
+                <div class="ref-card">
+                    <h4>Webhooks (ORDER_CREATED)</h4>
+                    <p><strong>Purpose:</strong> Zonos notifies merchant of new order</p>
+                    <p><strong>When:</strong> Order is created in Zonos</p>
+                    <p><strong>Direction:</strong> Zonos &rarr; Merchant's server</p>
+                </div>
+                <div class="ref-card">
+                    <h4>Webhooks (ORDER_STATUS_CHANGED)</h4>
+                    <p><strong>Purpose:</strong> Zonos notifies of status updates</p>
+                    <p><strong>When:</strong> Order moves to fulfilled, cancelled, etc.</p>
+                    <p><strong>Direction:</strong> Zonos &rarr; Merchant's server</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Query templates with explanations
+        const queries = {
+            'landed-cost': {
+                title: 'Calculate Landed Cost',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>This calculates the <strong>total cost</strong> for an international customer to receive their order, including:</p>
+                    <ul>
+                        <li><strong>Duties</strong> - Import taxes based on product type and origin country</li>
+                        <li><strong>Taxes</strong> - VAT, GST, or sales tax depending on destination</li>
+                        <li><strong>Fees</strong> - Customs processing, handling fees</li>
+                    </ul>
+
+                    <h4>When do merchants use this?</h4>
+                    <p>At checkout, when an international customer enters their shipping address. The merchant's website calls this API to show the customer exactly what they'll pay - no surprise fees at delivery!</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like getting a quote from a moving company. Before you commit, they tell you exactly what it will cost including all fees. Zonos does this for international shipping costs.
+                    </div>
+
+                    <h4>Key inputs needed:</h4>
+                    <ul>
+                        <li>Ship-from address (merchant's warehouse)</li>
+                        <li>Ship-to address (customer's location)</li>
+                        <li>Items in cart (description, price, quantity, country of origin)</li>
+                    </ul>
+                `,
+                query: `# Calculate Landed Cost
+# This mutation calculates duties, taxes, and fees for an international order
+# Each workflow step builds on the previous one
+
+mutation CalculateLandedCost {
+  # Step 1: Create the parties (shipper and recipient)
+  partyCreateWorkflow(input: [
+    {
+      type: ORIGIN
+      location: {
+        line1: "123 Main Street"
+        locality: "Provo"
+        administrativeAreaCode: "UT"
+        postalCode: "84606"
+        countryCode: US
+      }
+    },
+    {
+      type: DESTINATION
+      location: {
+        line1: "456 Queen Street"
+        locality: "Toronto"
+        administrativeAreaCode: "ON"
+        postalCode: "M5V3A8"
+        countryCode: CA
+      }
+    }
+  ]) {
+    id
+    type
+  }
+
+  # Step 2: Create the items being shipped
+  itemCreateWorkflow(input: [
+    {
+      description: "Blue Cotton T-Shirt"
+      amount: 99.99
+      currencyCode: USD
+      quantity: 2
+      countryOfOrigin: BR
+      hsCode: "6109.10"
+    }
+  ]) {
+    id
+    description
+    amount
+  }
+
+  # Step 3: Auto-sort items into cartons (required before shipping)
+  cartonizeWorkflow {
+    id
+    type
+    items {
+      item {
+        id
+      }
+    }
+  }
+
+  # Step 4: Set shipping rate (manual rate - you know the cost already)
+  shipmentRatingCreateWorkflow(input: {
+    amount: "25.00"
+    currencyCode: USD
+    serviceLevelCode: "ups.worldwide_expedited"
+  }) {
+    id
+    amount
+  }
+
+  # Step 5: Calculate landed cost (duties, taxes, fees)
+  landedCostCalculateWorkflow(input: {
+    calculationMethod: DDP_PREFERRED
+    endUse: NOT_FOR_RESALE
+    tariffRate: ZONOS_PREFERRED
+  }) {
+    id
+    method
+
+    # Duties (import taxes)
+    duties {
+      amount
+      currency
+      note
+    }
+
+    # Taxes (VAT, GST, etc.)
+    taxes {
+      amount
+      currency
+      note
+    }
+
+    # Fees (processing, handling)
+    fees {
+      amount
+      currency
+      note
+    }
+  }
+}`
+            },
+
+            'create-order': {
+                title: 'Create an Order',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>Records a completed sale in Zonos. This connects the landed cost quote to an actual order so Zonos can:</p>
+                    <ul>
+                        <li>Track the order through fulfillment</li>
+                        <li>Bill the merchant for duties/taxes collected</li>
+                        <li>Handle customs paperwork when shipped</li>
+                    </ul>
+
+                    <h4>When do merchants use this?</h4>
+                    <p>Immediately after a customer completes checkout and payment is confirmed. The merchant's system sends this to "register" the order with Zonos.</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like registering a car purchase. The sale happened, now you need to file the paperwork so everything is official and tracked.
+                    </div>
+
+                    <h4>Important notes:</h4>
+                    <ul>
+                        <li>The <code>landedCostId</code> comes from the previous calculation</li>
+                        <li>Landed cost quotes expire after 90 days</li>
+                        <li>Zonos fee is charged when this is called</li>
+                    </ul>
+                `,
+                query: `# Create an Order in Zonos
+# Call this AFTER the customer completes payment
+
+mutation CreateOrder {
+  orderCreate(input: {
+    # Your order number (from Shopify, WooCommerce, etc.)
+    accountOrderNumber: "ORD-2024-12345"
+
+    # The currency customer paid in
+    currencyCode: USD
+
+    # The landed cost ID from your earlier calculation
+    # This links the order to the quote you showed the customer
+    landedCostId: "landed_cost_abc123-def456-ghi789"
+  }) {
+    # What Zonos sends back
+    id                    # Zonos order ID (save this!)
+    accountOrderNumber    # Your order number echoed back
+    status               # Should be "OPEN"
+    amountSubtotal {
+      amount
+      currency
+    }
+  }
+}`
+            },
+
+            'add-tracking': {
+                title: 'Add Tracking Number',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>Updates an order with shipping information. This is crucial because:</p>
+                    <ul>
+                        <li>Tells Zonos the package is on its way</li>
+                        <li>Triggers duty/tax payment to customs</li>
+                        <li>Updates order status to "Fulfilled"</li>
+                    </ul>
+
+                    <h4>When do merchants use this?</h4>
+                    <p>After the merchant ships the package and has a tracking number from the carrier (UPS, FedEx, DHL, etc.).</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like telling the post office "here's my package, here's where it's going, and here's the tracking number." Now everyone can follow its journey.
+                    </div>
+
+                    <h4>Common client confusion:</h4>
+                    <p><strong>This is an API call TO Zonos</strong> (merchant sends data), not a webhook FROM Zonos. Many clients confuse this with webhooks, which go the opposite direction.</p>
+                `,
+                query: `# Add Tracking Number to an Order
+# Call this AFTER you ship the package
+
+mutation AddTracking {
+  shipmentCreateWorkflow(input: {
+    # The Zonos order ID (from orderCreate response)
+    orderId: "order_abc123-def456-ghi789"
+
+    # The tracking number from your carrier
+    trackingNumbers: ["1Z999AA10123456784"]
+
+    # Set to false if you're using your own labels
+    # Set to true if you want Zonos to generate labels
+    generateLabel: false
+  }) {
+    id
+    status
+    trackingDetails {
+      number
+      carrier
+      status
+    }
+  }
+}
+
+# Alternative: The older mutation some docs reference
+# mutation OldStyle {
+#   shipmentCreateWithTracking(input: {
+#     orderId: "order_abc123"
+#     tracking: [{ number: "1Z999AA10123456784", type: SHIPMENT }]
+#   }) {
+#     id
+#   }
+# }`
+            },
+
+            'cancel-order': {
+                title: 'Cancel an Order',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>Cancels an order in Zonos. This is important for:</p>
+                    <ul>
+                        <li>Customer refund requests</li>
+                        <li>Fraud prevention</li>
+                        <li>Inventory issues</li>
+                        <li>Avoiding being billed for duties/taxes</li>
+                    </ul>
+
+                    <h4>When do merchants use this?</h4>
+                    <p>Before the order ships. Once shipped and tracking is added, cancellation is more complex (may need refund process instead).</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> Like cancelling a restaurant order before the kitchen starts cooking. Easy to do early, complicated once the food is being prepared.
+                    </div>
+
+                    <h4>What happens when cancelled:</h4>
+                    <ul>
+                        <li>Order status changes to "CANCELLED"</li>
+                        <li>No duties/taxes are charged</li>
+                        <li>Merchant isn't billed for Zonos fees on cancelled orders</li>
+                    </ul>
+                `,
+                query: `# Cancel an Order
+# Use this BEFORE the order ships
+
+mutation CancelOrder {
+  orderCancel(
+    # The Zonos order ID
+    id: "order_abc123-def456-ghi789"
+
+    input: {
+      # Why are you cancelling? (optional but helpful)
+      note: "Customer requested cancellation"
+    }
+  ) {
+    id
+    status          # Should now be "CANCELLED"
+    canceledAt      # Timestamp of cancellation
+  }
+}`
+            },
+
+            'get-order': {
+                title: 'Look Up an Order',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>Retrieves details about an existing order. Useful for:</p>
+                    <ul>
+                        <li>Checking order status</li>
+                        <li>Getting landed cost breakdown</li>
+                        <li>Viewing shipment information</li>
+                        <li>Customer service inquiries</li>
+                    </ul>
+
+                    <h4>When do merchants use this?</h4>
+                    <p>Anytime they need to check on an order - customer calls asking about status, debugging issues, generating reports, etc.</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> Like tracking a package online. You enter the order number and see where it is, what it cost, and when it will arrive.
+                    </div>
+                `,
+                query: `# Look Up an Order
+# Get details about an existing order
+
+query GetOrder {
+  # Replace with any order ID from your dashboard
+  order(id: "order_b3bdf1b2-83a6-4fbe-b295-025654f8f3ae") {
+    id
+    accountOrderNumber    # Your order number
+    status               # OPEN, FULFILLED, CANCELED, etc.
+    createdAt
+
+    # What did the customer pay?
+    amountSubtotal {
+      amount
+      currency
+    }
+
+    # Landed cost breakdown
+    landedCosts {
+      id
+      method            # DDP or DAP
+      duties { amount currency description }
+      taxes { amount currency description }
+      fees { amount currency description }
+    }
+
+    # Shipping info (if shipped)
+    shipments {
+      id
+      trackingNumbers
+    }
+
+    # Who is it going to?
+    parties {
+      type
+      location {
+        line1
+        locality
+        administrativeArea
+        postalCode
+        countryCode
+      }
+    }
+
+    # Items in the order
+    items {
+      description
+      quantity
+      amount
+      hsCode
+      countryOfOrigin
+    }
+  }
+}
+
+# ─────────────────────────────────────────────────────
+# LIST RECENT ORDERS - See your latest 10 orders
+# ─────────────────────────────────────────────────────
+
+# query RecentOrders {
+#   orders(first: 10) {
+#     edges {
+#       node {
+#         id
+#         accountOrderNumber
+#         status
+#         createdAt
+#         landedCosts {
+#           duties { amount currency }
+#           taxes { amount currency }
+#         }
+#       }
+#     }
+#   }
+# }`
+            },
+
+            'webhook-info': {
+                title: 'Understanding Webhooks',
+                explanation: `
+                    <h4>What are webhooks?</h4>
+                    <p>Webhooks are <strong>notifications FROM Zonos TO the merchant</strong>. Instead of the merchant constantly asking "any updates?", Zonos automatically tells them when something happens.</p>
+
+                    <h4>Direction matters!</h4>
+                    <ul>
+                        <li><strong>API calls:</strong> Merchant &rarr; Zonos (merchant asks for something)</li>
+                        <li><strong>Webhooks:</strong> Zonos &rarr; Merchant (Zonos notifies about something)</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong>
+                        <br>API = You calling the pizza shop to place an order
+                        <br>Webhook = The pizza shop calling YOU to say "your pizza is ready!"
+                    </div>
+
+                    <h4>Webhook event types:</h4>
+                    <ul>
+                        <li><strong>ORDER_CREATED</strong> - New order was recorded</li>
+                        <li><strong>ORDER_STATUS_CHANGED</strong> - Status updated (shipped, etc.)</li>
+                        <li><strong>ORDER_CANCELED</strong> - Order was cancelled</li>
+                        <li><strong>SHIPMENT_CREATED</strong> - Shipment was created</li>
+                        <li><strong>SHIPMENT_CANCELED</strong> - Shipment was voided</li>
+                    </ul>
+
+                    <h4>How merchants set up webhooks:</h4>
+                    <p>In Zonos Dashboard: Settings &rarr; Webhooks &rarr; Add endpoint URL</p>
+                    <p>Zonos will POST data to that URL whenever events occur.</p>
+                `,
+                query: `# Webhooks are NOT API calls you make
+# They are notifications Zonos SENDS to the merchant's server
+
+# The merchant provides a URL like:
+# https://merchant-site.com/webhooks/zonos
+
+# When an event happens, Zonos POSTs data like this:
+
+# ═══════════════════════════════════════════════
+# ORDER_CREATED webhook payload example:
+# ═══════════════════════════════════════════════
+{
+  "event": "ORDER_CREATED",
+  "timestamp": "2024-02-15T14:30:00Z",
+  "data": {
+    "order": {
+      "id": "order_abc123",
+      "accountOrderNumber": "ORD-2024-12345",
+      "status": "OPEN",
+      "amountSubtotal": {
+        "amount": 149.99,
+        "currency": "USD"
+      }
+    }
+  }
+}
+
+# ═══════════════════════════════════════════════
+# ORDER_STATUS_CHANGED webhook payload example:
+# ═══════════════════════════════════════════════
+{
+  "event": "ORDER_STATUS_CHANGED",
+  "timestamp": "2024-02-16T09:15:00Z",
+  "data": {
+    "order": {
+      "id": "order_abc123",
+      "previousStatus": "OPEN",
+      "status": "FULFILLED"
+    }
+  }
+}
+
+# The merchant's server receives this and can:
+# - Update their database
+# - Send customer notifications
+# - Trigger fulfillment workflows`
+            }
+        };
+
+        // Load config from localStorage
+        function loadConfig() {
+            const apiKey = localStorage.getItem('zonos_api_key');
+            const endpoint = localStorage.getItem('zonos_endpoint');
+
+            if (apiKey) document.getElementById('apiKey').value = apiKey;
+            if (endpoint) document.getElementById('endpoint').value = endpoint;
+
+            updateStatus();
+        }
+
+        // Save config to localStorage
+        function saveConfig() {
+            localStorage.setItem('zonos_api_key', document.getElementById('apiKey').value);
+            localStorage.setItem('zonos_endpoint', document.getElementById('endpoint').value);
+            updateStatus();
+        }
+
+        // Update connection status
+        function updateStatus() {
+            const status = document.getElementById('status');
+            const apiKey = document.getElementById('apiKey').value;
+
+            if (apiKey && apiKey.startsWith('credential_')) {
+                status.textContent = 'Ready';
+                status.className = 'status connected';
+            } else {
+                status.textContent = 'No API Key';
+                status.className = 'status disconnected';
+            }
+        }
+
+        // Load a query template
+        function loadQuery(queryId) {
+            const query = queries[queryId];
+            if (!query) return;
+
+            // Update explanation
+            document.getElementById('explanation').innerHTML = `
+                <h3>${query.title}</h3>
+                <div class="explanation-content">${query.explanation}</div>
+            `;
+
+            // Update query editor
+            document.getElementById('queryEditor').value = query.query;
+
+            // Update active button
+            document.querySelectorAll('.query-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.query-btn').classList.add('active');
+
+            // Clear response
+            document.getElementById('responseArea').innerHTML = '<pre>Click "Run Query" to see the response...</pre>';
+        }
+
+        // Show journey step explanation
+        function showStep(step) {
+            const explanations = {
+                1: {
+                    title: 'Step 1: Calculate Landed Cost',
+                    content: `
+                        <p>When the customer enters their shipping address, the merchant's website calls Zonos to calculate the total cost.</p>
+                        <h4>The API call:</h4>
+                        <p><code>landedCostCalculateWorkflow</code></p>
+                        <h4>What Zonos returns:</h4>
+                        <ul>
+                            <li><strong>Duties</strong> - Import taxes (based on product type)</li>
+                            <li><strong>Taxes</strong> - VAT/GST for the destination country</li>
+                            <li><strong>Fees</strong> - Processing and handling fees</li>
+                            <li><strong>Shipping</strong> - Carrier rates if configured</li>
+                        </ul>
+                        <div class="analogy">
+                            <strong>Why this matters:</strong> Customers see the TOTAL cost upfront. No surprise charges at delivery!
+                        </div>
+                    `
+                },
+                2: {
+                    title: 'Step 2: Customer Pays',
+                    content: `
+                        <p>The customer sees the full total (product + shipping + duties + taxes) and completes payment.</p>
+                        <h4>What they pay:</h4>
+                        <ul>
+                            <li>Product price</li>
+                            <li>Shipping cost</li>
+                            <li>Duties & taxes (collected by merchant on behalf of Zonos)</li>
+                        </ul>
+                        <div class="analogy">
+                            <strong>DDP vs DAP:</strong>
+                            <br><strong>DDP</strong> (Delivered Duty Paid) - Customer pays everything now, no fees at delivery
+                            <br><strong>DAP</strong> (Delivered At Place) - Customer may pay customs fees at delivery
+                        </div>
+                    `
+                },
+                3: {
+                    title: 'Step 3: Create Order',
+                    content: `
+                        <p>After payment is confirmed, the merchant's system sends the order to Zonos.</p>
+                        <h4>The API call:</h4>
+                        <p><code>orderCreate</code></p>
+                        <h4>What the merchant sends:</h4>
+                        <ul>
+                            <li>Their order number (from Shopify, etc.)</li>
+                            <li>The landed cost ID (from step 1)</li>
+                            <li>Currency code</li>
+                        </ul>
+                        <h4>What happens:</h4>
+                        <ul>
+                            <li>Zonos records the order</li>
+                            <li>Zonos fee is charged to merchant</li>
+                            <li>Order appears in Zonos Dashboard</li>
+                        </ul>
+                    `
+                },
+                4: {
+                    title: 'Step 4: Ship & Track',
+                    content: `
+                        <p>Merchant ships the package and updates Zonos with tracking info.</p>
+                        <h4>The API call:</h4>
+                        <p><code>shipmentCreateWithTracking</code> or <code>shipmentCreateWorkflow</code></p>
+                        <h4>What happens when tracking is added:</h4>
+                        <ul>
+                            <li>Order status changes to "Fulfilled"</li>
+                            <li>Zonos pays the duties/taxes to customs</li>
+                            <li>Merchant is billed for the duties/taxes they collected</li>
+                            <li>Package clears customs smoothly (duties pre-paid!)</li>
+                        </ul>
+                        <div class="analogy">
+                            <strong>This is the magic:</strong> Because Zonos pre-paid the duties, the package doesn't get held at customs waiting for the customer to pay fees. It goes straight through!
+                        </div>
+                    `
+                }
+            };
+
+            const exp = explanations[step];
+            document.getElementById('explanation').innerHTML = `
+                <h3>${exp.title}</h3>
+                <div class="explanation-content">${exp.content}</div>
+            `;
+
+            // Update active step
+            document.querySelectorAll('.step').forEach((s, i) => {
+                s.classList.toggle('active', i === step - 1);
+            });
+        }
+
+        // Parse and display friendly view
+        function showFriendlyView(query, response) {
+            const friendlyView = document.getElementById('friendlyView');
+            const inputContent = document.getElementById('friendlyInputContent');
+            const outputContent = document.getElementById('friendlyOutputContent');
+
+            let inputHtml = '';
+            let itemName = null;
+            let itemPrice = null;
+            let itemQty = null;
+            let shipFrom = null;
+            let shipTo = null;
+            let currency = 'USD';
+
+            // Parse item info from mutation/query
+            const descMatch = query.match(/description:\s*"([^"]+)"/);
+            const amountMatch = query.match(/amount:\s*([\d.]+)/);
+            const qtyMatch = query.match(/quantity:\s*(\d+)/);
+            const currencyMatch = query.match(/currencyCode:\s*(\w+)/);
+
+            // Parse shipping from parties in mutation
+            // Match ORIGIN block and extract location details
+            const originBlock = query.match(/type:\s*ORIGIN[\s\S]*?locality:\s*"([^"]+)"[\s\S]*?administrativeAreaCode:\s*"([^"]+)"[\s\S]*?countryCode:\s*(\w+)|type:\s*ORIGIN[\s\S]*?countryCode:\s*(\w+)/);
+            const destBlock = query.match(/type:\s*DESTINATION[\s\S]*?locality:\s*"([^"]+)"[\s\S]*?administrativeAreaCode:\s*"([^"]+)"[\s\S]*?countryCode:\s*(\w+)|type:\s*DESTINATION[\s\S]*?countryCode:\s*(\w+)/);
+
+            // Simpler parsing for parties
+            const originCountry = query.match(/ORIGIN[\s\S]*?countryCode:\s*(\w+)/);
+            const originLocality = query.match(/ORIGIN[\s\S]*?locality:\s*"([^"]+)"/);
+            const originAdmin = query.match(/ORIGIN[\s\S]*?administrativeAreaCode:\s*"([^"]+)"/);
+
+            const destCountry = query.match(/DESTINATION[\s\S]*?countryCode:\s*(\w+)/);
+            const destLocality = query.match(/DESTINATION[\s\S]*?locality:\s*"([^"]+)"/);
+            const destAdmin = query.match(/DESTINATION[\s\S]*?administrativeAreaCode:\s*"([^"]+)"/);
+
+            // Extract item details
+            if (descMatch) itemName = descMatch[1];
+            if (amountMatch) itemPrice = '$' + parseFloat(amountMatch[1]).toFixed(2);
+            if (qtyMatch) itemQty = qtyMatch[1];
+            if (currencyMatch) currency = currencyMatch[1];
+
+            // Build ship from location
+            if (originCountry) {
+                const parts = [];
+                if (originLocality) parts.push(originLocality[1]);
+                if (originAdmin) parts.push(originAdmin[1]);
+                parts.push(originCountry[1]);
+                shipFrom = parts.join(', ');
+            }
+
+            // Build ship to location
+            if (destCountry) {
+                const parts = [];
+                if (destLocality) parts.push(destLocality[1]);
+                if (destAdmin) parts.push(destAdmin[1]);
+                parts.push(destCountry[1]);
+                shipTo = parts.join(', ');
+            }
+
+            // For order lookups, get info from response
+            if (response.data && response.data.order) {
+                const order = response.data.order;
+
+                // Get item info
+                if (order.items && order.items.length > 0) {
+                    const item = order.items[0];
+                    if (item.description) itemName = item.description;
+                    if (item.amount != null) itemPrice = '$' + parseFloat(item.amount).toFixed(2);
+                    if (item.quantity != null) itemQty = item.quantity.toString();
+
+                    // Show all items if more than one
+                    if (order.items.length > 1) {
+                        itemName = item.description + ' (+' + (order.items.length - 1) + ' more)';
+                    }
+                }
+
+                // Get shipping info from parties
+                if (order.parties && order.parties.length > 0) {
+                    const origin = order.parties.find(p => p.type === 'ORIGIN');
+                    const dest = order.parties.find(p => p.type === 'DESTINATION');
+
+                    if (origin && origin.location) {
+                        const loc = origin.location;
+                        const parts = [];
+                        if (loc.locality) parts.push(loc.locality);
+                        if (loc.administrativeAreaCode) parts.push(loc.administrativeAreaCode);
+                        if (loc.countryCode) parts.push(loc.countryCode);
+                        shipFrom = parts.length > 0 ? parts.join(', ') : loc.countryCode;
+                    }
+                    if (dest && dest.location) {
+                        const loc = dest.location;
+                        const parts = [];
+                        if (loc.locality) parts.push(loc.locality);
+                        if (loc.administrativeAreaCode) parts.push(loc.administrativeAreaCode);
+                        if (loc.countryCode) parts.push(loc.countryCode);
+                        shipTo = parts.length > 0 ? parts.join(', ') : loc.countryCode;
+                    }
+                }
+            }
+
+            // Build input section - only show rows with data
+            if (itemName) {
+                inputHtml += '<div class="friendly-row"><span class="friendly-label">Item</span><span class="friendly-value">' + itemName + '</span></div>';
+            }
+            if (itemPrice) {
+                inputHtml += '<div class="friendly-row"><span class="friendly-label">Price</span><span class="friendly-value money">' + itemPrice + ' ' + currency + '</span></div>';
+            }
+            if (itemQty) {
+                inputHtml += '<div class="friendly-row"><span class="friendly-label">Quantity</span><span class="friendly-value">' + itemQty + '</span></div>';
+            }
+            if (shipFrom) {
+                inputHtml += '<div class="friendly-row"><span class="friendly-label">Ship From</span><span class="friendly-value">' + shipFrom + '</span></div>';
+            }
+            if (shipTo) {
+                inputHtml += '<div class="friendly-row"><span class="friendly-label">Ship To</span><span class="friendly-value">' + shipTo + '</span></div>';
+            }
+
+            // Fallback if no data found
+            if (!inputHtml) {
+                inputHtml = '<div class="friendly-row"><span class="friendly-label">Query</span><span class="friendly-value">See raw response for details</span></div>';
+            }
+
+            inputContent.innerHTML = inputHtml;
+
+            // Parse the response
+            let outputHtml = '';
+
+            if (response.errors && response.errors.length > 0) {
+                outputHtml = '<div class="friendly-row"><span class="friendly-label">Error</span><span class="friendly-value" style="color: #dc2626;">' + response.errors[0].message.substring(0, 50) + '...</span></div>';
+            } else if (response.data) {
+                const data = response.data;
+
+                // Handle landed cost response (from query or workflow mutation)
+                let lc = data.landedCost || data.landedCostCalculateWorkflow;
+                // Handle if response is an array
+                if (Array.isArray(lc) && lc.length > 0) {
+                    lc = lc[0];
+                }
+                if (lc) {
+                    let totalDuties = 0;
+                    let totalTaxes = 0;
+                    let totalFees = 0;
+                    let shippingCost = 0;
+                    let curr = 'USD';
+
+                    // Get shipping cost from shipmentRating workflow if available
+                    const shippingData = data.shipmentRatingCalculateWorkflow || data.shipmentRatingCreateWorkflow;
+                    if (shippingData) {
+                        if (Array.isArray(shippingData) && shippingData.length > 0) {
+                            shippingCost = parseFloat(shippingData[0].amount) || 0;
+                        } else if (shippingData.amount) {
+                            shippingCost = parseFloat(shippingData.amount) || 0;
+                        }
+                    }
+
+                    // Calculate totals from landed cost
+                    if (lc.duties && lc.duties.length > 0) {
+                        lc.duties.forEach(d => {
+                            totalDuties += parseFloat(d.amount) || 0;
+                            curr = d.currency || curr;
+                        });
+                    }
+                    if (lc.taxes && lc.taxes.length > 0) {
+                        lc.taxes.forEach(t => {
+                            totalTaxes += parseFloat(t.amount) || 0;
+                            curr = t.currency || curr;
+                        });
+                    }
+                    if (lc.fees && lc.fees.length > 0) {
+                        lc.fees.forEach(f => {
+                            totalFees += parseFloat(f.amount) || 0;
+                            curr = f.currency || curr;
+                        });
+                    }
+
+                    // Show shipping cost
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Shipping</span><span class="friendly-value money">$' + shippingCost.toFixed(2) + ' ' + curr + '</span></div>';
+
+                    // Always show duties, taxes, fees
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Duties</span><span class="friendly-value money">$' + totalDuties.toFixed(2) + ' ' + curr + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Taxes</span><span class="friendly-value money">$' + totalTaxes.toFixed(2) + ' ' + curr + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Fees</span><span class="friendly-value money">$' + totalFees.toFixed(2) + ' ' + curr + '</span></div>';
+
+                    const total = shippingCost + totalDuties + totalTaxes + totalFees;
+                    outputHtml += '<div class="friendly-total"><span class="friendly-label">Total Landed Cost</span><span class="friendly-value money">$' + total.toFixed(2) + ' ' + curr + '</span></div>';
+                }
+
+                // Handle order response
+                if (data.order) {
+                    const order = data.order;
+                    let totalDuties = 0, totalTaxes = 0, totalFees = 0;
+                    let curr = 'USD';
+
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Order #</span><span class="friendly-value">' + (order.accountOrderNumber || order.id) + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Status</span><span class="friendly-value">' + (order.status || 'N/A') + '</span></div>';
+
+                    // Show tracking if available
+                    if (order.shipments && order.shipments.length > 0) {
+                        const shipment = order.shipments[0];
+                        if (shipment.trackingNumbers && shipment.trackingNumbers.length > 0) {
+                            outputHtml += '<div class="friendly-row"><span class="friendly-label">Tracking</span><span class="friendly-value">' + shipment.trackingNumbers[0] + '</span></div>';
+                        }
+                    }
+
+                    if (order.landedCosts && order.landedCosts.length > 0) {
+                        const lc = order.landedCosts[0];
+
+                        if (lc.duties) lc.duties.forEach(d => {
+                            totalDuties += parseFloat(d.amount) || 0;
+                            curr = d.currency || curr;
+                        });
+                        if (lc.taxes) lc.taxes.forEach(t => {
+                            totalTaxes += parseFloat(t.amount) || 0;
+                            curr = t.currency || curr;
+                        });
+                        if (lc.fees) lc.fees.forEach(f => {
+                            totalFees += parseFloat(f.amount) || 0;
+                            curr = f.currency || curr;
+                        });
+
+                        // Always show duties, taxes, fees
+                        outputHtml += '<div class="friendly-row"><span class="friendly-label">Duties</span><span class="friendly-value money">$' + totalDuties.toFixed(2) + ' ' + curr + '</span></div>';
+                        outputHtml += '<div class="friendly-row"><span class="friendly-label">Taxes</span><span class="friendly-value money">$' + totalTaxes.toFixed(2) + ' ' + curr + '</span></div>';
+                        outputHtml += '<div class="friendly-row"><span class="friendly-label">Fees</span><span class="friendly-value money">$' + totalFees.toFixed(2) + ' ' + curr + '</span></div>';
+
+                        const total = totalDuties + totalTaxes + totalFees;
+                        if (total > 0) {
+                            outputHtml += '<div class="friendly-total"><span class="friendly-label">Total Import Costs</span><span class="friendly-value money">$' + total.toFixed(2) + ' ' + curr + '</span></div>';
+                        }
+                    }
+                }
+
+                // Handle orders list
+                if (data.orders && data.orders.edges) {
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Orders Found</span><span class="friendly-value">' + data.orders.edges.length + '</span></div>';
+                    data.orders.edges.slice(0, 3).forEach((edge, i) => {
+                        const o = edge.node;
+                        outputHtml += '<div class="friendly-row"><span class="friendly-label">' + (o.accountOrderNumber || 'Order ' + (i+1)) + '</span><span class="friendly-value">' + o.status + '</span></div>';
+                    });
+                }
+
+                // Handle organization check
+                if (data.organization) {
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Organization</span><span class="friendly-value">' + (data.organization.name || data.organization.id) + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Connection</span><span class="friendly-value" style="color: #059669;">Success</span></div>';
+                }
+
+                if (!outputHtml) {
+                    outputHtml = '<div class="friendly-row"><span class="friendly-label">Status</span><span class="friendly-value" style="color: #059669;">Success</span></div>';
+                }
+            }
+
+            outputContent.innerHTML = outputHtml || '<div class="friendly-row"><span class="friendly-label">No data</span><span class="friendly-value">-</span></div>';
+            friendlyView.classList.add('visible');
+        }
+
+        // Run the query
+        async function runQuery() {
+            const apiKey = document.getElementById('apiKey').value;
+            const endpoint = document.getElementById('endpoint').value;
+            const query = document.getElementById('queryEditor').value;
+            const responseArea = document.getElementById('responseArea');
+            const runBtn = document.getElementById('runBtn');
+
+            if (!apiKey) {
+                responseArea.innerHTML = '<pre class="response-error">Please enter your API key first!</pre>';
+                return;
+            }
+
+            // Check if this is the webhook info (not runnable)
+            if (query.includes('"event": "ORDER_CREATED"')) {
+                responseArea.innerHTML = '<pre class="response-error">Webhooks are not API calls - they are sent BY Zonos TO the merchant.\n\nThis is just an example of what data Zonos sends. You don\'t "run" webhooks - you receive them!</pre>';
+                return;
+            }
+
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<span class="loading"></span> Running...';
+            responseArea.innerHTML = '<pre>Sending request to Zonos...</pre>';
+
+            try {
+                const response = await fetch('/proxy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: endpoint,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'credentialToken': apiKey
+                        },
+                        body: {
+                            query: query
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    responseArea.innerHTML = `<pre class="response-error">${result.message}</pre>`;
+                    document.getElementById('friendlyView').classList.remove('visible');
+                } else {
+                    const body = JSON.parse(result.body);
+                    responseArea.innerHTML = `<pre class="response-success">${JSON.stringify(body, null, 2)}</pre>`;
+                    showFriendlyView(query, body);
+                }
+            } catch (error) {
+                responseArea.innerHTML = `<pre class="response-error">Error: ${error.message}\n\nMake sure the server is running:\ncd ~/my-app && python3 server.py</pre>`;
+            }
+
+            runBtn.disabled = false;
+            runBtn.textContent = 'Run Query';
+        }
+
+        // Initialize
+        loadConfig();
+    </script>
+</body>
+</html>
