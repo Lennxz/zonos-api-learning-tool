@@ -20,7 +20,7 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        result = {'apiKey': env_api_key} if env_api_key else {}
+        result = {'hasKey': True} if env_api_key else {'hasKey': False}
         self.wfile.write(json.dumps(result).encode())
 
     def do_POST(self):

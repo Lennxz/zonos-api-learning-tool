@@ -1,57 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180">
-  <g fill="none" stroke="#6366f1" stroke-width="1" opacity="0.07">
-    <!-- Hull -->
-    <path d="M25 130 Q100 150 175 130 L165 142 Q100 158 35 142 Z" fill="#6366f1" opacity="0.03"/>
-    <path d="M25 130 Q100 150 175 130 L165 142 Q100 158 35 142 Z"/>
-    <!-- Keel line -->
-    <path d="M40 142 Q100 155 160 142"/>
-    <!-- Main mast -->
-    <line x1="100" y1="130" x2="100" y2="25"/>
-    <!-- Front mast -->
-    <line x1="60" y1="130" x2="60" y2="40"/>
-    <!-- Back mast -->
-    <line x1="140" y1="130" x2="140" y2="50"/>
-    <!-- Crow's nest -->
-    <line x1="95" y1="30" x2="105" y2="30"/>
-    <!-- Main top sail -->
-    <path d="M100 30 Q118 50 100 70" fill="#6366f1" opacity="0.03"/>
-    <path d="M100 30 Q82 50 100 70" fill="#6366f1" opacity="0.03"/>
-    <path d="M100 30 Q118 50 100 70"/>
-    <path d="M100 30 Q82 50 100 70"/>
-    <!-- Main bottom sail -->
-    <path d="M100 75 Q122 95 100 120" fill="#6366f1" opacity="0.03"/>
-    <path d="M100 75 Q78 95 100 120" fill="#6366f1" opacity="0.03"/>
-    <path d="M100 75 Q122 95 100 120"/>
-    <path d="M100 75 Q78 95 100 120"/>
-    <!-- Front top sail -->
-    <path d="M60 45 Q75 60 60 75" fill="#6366f1" opacity="0.03"/>
-    <path d="M60 45 Q45 60 60 75" fill="#6366f1" opacity="0.03"/>
-    <path d="M60 45 Q75 60 60 75"/>
-    <path d="M60 45 Q45 60 60 75"/>
-    <!-- Front bottom sail -->
-    <path d="M60 80 Q78 100 60 120" fill="#6366f1" opacity="0.03"/>
-    <path d="M60 80 Q42 100 60 120" fill="#6366f1" opacity="0.03"/>
-    <path d="M60 80 Q78 100 60 120"/>
-    <path d="M60 80 Q42 100 60 120"/>
-    <!-- Back sail -->
-    <path d="M140 55 Q158 80 140 110" fill="#6366f1" opacity="0.03"/>
-    <path d="M140 55 Q122 80 140 110" fill="#6366f1" opacity="0.03"/>
-    <path d="M140 55 Q158 80 140 110"/>
-    <path d="M140 55 Q122 80 140 110"/>
-    <!-- Bowsprit -->
-    <line x1="25" y1="130" x2="8" y2="110"/>
-    <!-- Jib sail -->
-    <path d="M8 110 Q30 75 60 45" fill="#6366f1" opacity="0.02"/>
-    <path d="M8 110 Q30 75 60 45"/>
-    <!-- Flag -->
-    <path d="M100 25 L118 18 L100 12" fill="#6366f1" opacity="0.04"/>
-    <path d="M100 25 L118 18 L100 12"/>
-    <!-- Rigging lines -->
-    <line x1="60" y1="40" x2="100" y2="25" stroke-width="0.3"/>
-    <line x1="140" y1="50" x2="100" y2="25" stroke-width="0.3"/>
-    <!-- Water lines -->
-    <path d="M5 152 Q50 147 100 152 Q150 157 195 152" stroke-width="0.5"/>
-    <path d="M0 160 Q45 155 95 160 Q145 165 190 160" stroke-width="0.3"/>
-    <path d="M10 167 Q55 162 105 167 Q155 172 200 167" stroke-width="0.2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#2D255E" opacity="0.18" stroke-linecap="butt" stroke-linejoin="miter">
+    <!-- Outer ring: 290° arc with gap on left -->
+    <path d="M 36 55 A 78 78 0 1 1 36 145" stroke-width="11"/>
+    <!-- Step at top of outer gap -->
+    <path d="M 36 55 L 52 55 L 52 72" stroke-width="11"/>
+    <!-- Step at bottom of outer gap -->
+    <path d="M 36 145 L 52 145 L 52 128" stroke-width="11"/>
+
+    <!-- Middle ring: 290° arc with gap on upper-right -->
+    <path d="M 149 109 A 50 50 0 1 1 125 57" stroke-width="9"/>
+    <!-- Step at right end of middle gap -->
+    <path d="M 149 109 L 135 109 L 135 122" stroke-width="9"/>
+    <!-- Step at top end of middle gap -->
+    <path d="M 125 57 L 125 72 L 112 72" stroke-width="9"/>
+
+    <!-- Inner ring -->
+    <circle cx="100" cy="100" r="26" stroke-width="7"/>
+
+    <!-- Center dot -->
+    <circle cx="100" cy="100" r="5" fill="#2D255E" stroke="none"/>
   </g>
 </svg>

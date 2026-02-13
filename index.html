@@ -26,8 +26,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 700px;
-            height: 700px;
+            width: 110vw;
+            height: 110vh;
             background-image: url('clipper.svg');
             background-repeat: no-repeat;
             background-size: contain;
@@ -835,8 +835,8 @@
                     </div>
                     <div class="editor-body">
                         <div class="editor-pane">
-                            <div class="pane-header">QUERY (what you're asking Zonos)</div>
-                            <textarea id="queryEditor" placeholder="Select a query from the left, or type your own..."></textarea>
+                            <div class="pane-header">QUERY (editable - modify values before running)</div>
+                            <textarea id="queryEditor" placeholder="Select a query from the left, then edit any values before clicking Run..."></textarea>
                         </div>
                         <div class="editor-pane">
                             <div class="pane-header">RESPONSE (what Zonos sends back)</div>
@@ -895,21 +895,16 @@
 
                 <!-- Config Section -->
                 <div class="config-section">
-                    <h3>Your API Settings</h3>
-                    <div class="config-row">
-                        <label>API Key:</label>
-                        <div style="display: flex; gap: 8px; flex: 1;">
-                            <input type="password" id="apiKey" placeholder="credential_live_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" onchange="saveConfig()" style="flex: 1;">
-                            <button onclick="toggleApiKey()" id="toggleKeyBtn" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #d1d5db; background: white; cursor: pointer; font-size: 0.85em; white-space: nowrap;">Show</button>
-                        </div>
+                    <h3>API Settings</h3>
+                    <div id="serverKeyStatus" style="display: none; padding: 12px 16px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 10px; border: 1px solid #a7f3d0; margin-bottom: 15px;">
+                        <span style="color: #047857; font-weight: 600;">Server API key is active</span>
+                        <span style="color: #6b7280; font-size: 0.85em; margin-left: 8px;">- no setup needed, just run queries</span>
                     </div>
                     <div class="config-row">
                         <label>Endpoint:</label>
                         <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
                     </div>
-                    <p style="color: #059669; font-size: 0.85em; margin-top: 10px;">
-                        API key is pre-configured. You can override it above if needed.
-                    </p>
+                    <input type="hidden" id="apiKey" value="">
                 </div>
             </div>
         </div>
@@ -990,6 +985,12 @@ mutation CalculateLandedCost {
       quantity: 2
       countryOfOrigin: BR
       hsCode: "6109.10"
+      measurements: [
+        { type: WEIGHT, value: 0.5, unitOfMeasure: POUND }
+        { type: WIDTH, value: 0.5, unitOfMeasure: INCH }
+        { type: HEIGHT, value: 0.5, unitOfMeasure: INCH }
+        { type: LENGTH, value: 0.5, unitOfMeasure: INCH }
+      ]
     }
   ]) {
     id
@@ -1354,33 +1355,18 @@ mutation VoidShipment {
             if (apiKey) document.getElementById('apiKey').value = apiKey;
             if (endpoint) document.getElementById('endpoint').value = endpoint;
 
-            // Fetch server-side API key if no local key
-            if (!apiKey) {
-                fetch('/proxy')
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.apiKey && !document.getElementById('apiKey').value) {
-                            document.getElementById('apiKey').value = data.apiKey;
-                            updateStatus();
-                        }
-                    })
-                    .catch(() => {});
-            }
+            // Check if server has an API key configured
+            fetch('/proxy')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.hasKey) {
+                        document.getElementById('serverKeyStatus').style.display = '';
+                        updateStatus();
+                    }
+                })
+                .catch(() => {});
 
             updateStatus();
-        }
-
-        // Toggle API key visibility
-        function toggleApiKey() {
-            const input = document.getElementById('apiKey');
-            const btn = document.getElementById('toggleKeyBtn');
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = 'Hide';
-            } else {
-                input.type = 'password';
-                btn.textContent = 'Show';
-            }
         }
 
         // Save config to localStorage
@@ -1579,7 +1565,7 @@ mutation VoidShipment {
             let currency = 'USD';
 
             // Parse item info from mutation/query
-            const descMatch = query.match(/description:\s*"([^"]+)"/);
+            const nameMatch = query.match(/name:\s*"([^"]+)"/);
             const amountMatch = query.match(/amount:\s*([\d.]+)/);
             const qtyMatch = query.match(/quantity:\s*(\d+)/);
             const currencyMatch = query.match(/currencyCode:\s*(\w+)/);
@@ -1599,7 +1585,7 @@ mutation VoidShipment {
             const destAdmin = query.match(/DESTINATION[\s\S]*?administrativeAreaCode:\s*"([^"]+)"/);
 
             // Extract item details
-            if (descMatch) itemName = descMatch[1];
+            if (nameMatch) itemName = nameMatch[1];
             if (amountMatch) itemPrice = '$' + parseFloat(amountMatch[1]).toFixed(2);
             if (qtyMatch) itemQty = qtyMatch[1];
             if (currencyMatch) currency = currencyMatch[1];
@@ -1907,6 +1893,24 @@ mutation VoidShipment {
             // Check if this is the webhook info (not runnable)
             if (query.includes('"event": "ORDER_CREATED"')) {
                 responseArea.innerHTML = '<pre class="response-error">Webhooks are not API calls - they are sent BY Zonos TO the merchant.\n\nThis is just an example of what data Zonos sends. You don\'t "run" webhooks - you receive them!</pre>';
+                return;
+            }
+
+            // Check for placeholder IDs that haven't been replaced
+            if (query.includes('PASTE_YOUR_LANDED_COST_ID_HERE')) {
+                responseArea.innerHTML = '<pre class="response-error">You need to paste a Landed Cost ID first!\n\n1. Run "Calculate Landed Cost" first\n2. Copy the Landed Cost ID from the Results Summary\n3. Come back here and replace PASTE_YOUR_LANDED_COST_ID_HERE with the ID you copied\n4. Then click Run Query</pre>';
+                return;
+            }
+            if (query.includes('PASTE_YOUR_ORDER_ID_HERE')) {
+                const isCancel = query.includes('orderCancel');
+                const msg = isCancel
+                    ? 'You need to paste an Order ID first!\n\n1. Use the Order ID from the order you already created\n2. Replace PASTE_YOUR_ORDER_ID_HERE with that Order ID\n3. Then click Run Query'
+                    : 'You need to paste an Order ID first!\n\n1. Run "Create an Order" first\n2. Copy the Order ID from the Results Summary\n3. Come back here and replace PASTE_YOUR_ORDER_ID_HERE with the ID you copied\n4. Then click Run Query';
+                responseArea.innerHTML = '<pre class="response-error">' + msg + '</pre>';
+                return;
+            }
+            if (query.includes('PASTE_YOUR_SHIPMENT_ID_HERE')) {
+                responseArea.innerHTML = '<pre class="response-error">You need to paste a Shipment ID first!\n\n1. Run "Add Tracking Number" first\n2. Copy the Shipment ID from the Results Summary\n3. Come back here and replace PASTE_YOUR_SHIPMENT_ID_HERE with the ID you copied\n4. Then click Run Query</pre>';
                 return;
             }
 
