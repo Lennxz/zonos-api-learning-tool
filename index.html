@@ -811,7 +811,7 @@
                 <!-- Editor Area -->
                 <div class="editor-area">
                     <div class="editor-header">
-                        <h3>GraphQL Playground <span class="status disconnected" id="status">Not Connected</span></h3>
+                        <h3>GraphQL Playground <span class="status connected" id="status">Ready</span></h3>
                         <button class="run-btn" id="runBtn" onclick="runQuery()">Run Query</button>
                     </div>
                     <div class="editor-body">
@@ -1360,11 +1360,11 @@ mutation VoidShipment {
             const apiKey = document.getElementById('apiKey').value;
 
             if (apiKey && apiKey.startsWith('credential_')) {
-                status.textContent = 'Ready';
+                status.textContent = 'Ready (Local Key)';
                 status.className = 'status connected';
             } else {
-                status.textContent = 'No API Key';
-                status.className = 'status disconnected';
+                status.textContent = 'Ready';
+                status.className = 'status connected';
             }
         }
 
