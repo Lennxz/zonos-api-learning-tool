@@ -745,7 +745,7 @@
         <div class="main-content">
             <!-- Sidebar with queries -->
             <aside class="sidebar">
-                <h3>Try These APIs</h3>
+                <h3>Order of the APIs</h3>
                 <ul class="query-list">
                     <li>
                         <button class="query-btn" onclick="loadQuery('landed-cost')">
@@ -877,8 +877,8 @@
                         <label>Endpoint:</label>
                         <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
                     </div>
-                    <p style="color: #666; font-size: 0.85em; margin-top: 10px;">
-                        Get your API key from: Zonos Dashboard &rarr; Settings &rarr; Integrations &rarr; Create GraphQL key
+                    <p style="color: #059669; font-size: 0.85em; margin-top: 10px;">
+                        API key is pre-configured. You can override it above if needed.
                     </p>
                 </div>
             </div>
@@ -1791,11 +1791,6 @@ mutation VoidShipment {
             const responseArea = document.getElementById('responseArea');
             const runBtn = document.getElementById('runBtn');
 
-            if (!apiKey) {
-                responseArea.innerHTML = '<pre class="response-error">Please enter your API key first!</pre>';
-                return;
-            }
-
             // Check if this is the webhook info (not runnable)
             if (query.includes('"event": "ORDER_CREATED"')) {
                 responseArea.innerHTML = '<pre class="response-error">Webhooks are not API calls - they are sent BY Zonos TO the merchant.\n\nThis is just an example of what data Zonos sends. You don\'t "run" webhooks - you receive them!</pre>';
@@ -1815,10 +1810,10 @@ mutation VoidShipment {
                     body: JSON.stringify({
                         url: endpoint,
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'credentialToken': apiKey
-                        },
+                        headers: Object.assign(
+                            { 'Content-Type': 'application/json' },
+                            apiKey ? { 'credentialToken': apiKey } : {}
+                        ),
                         body: {
                             query: query
                         }
