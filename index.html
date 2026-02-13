@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zonos API Learning Tool</title>
+    <title>Zonos API Demo Tool</title>
     <style>
         * {
             margin: 0;
@@ -578,6 +578,76 @@
             color: #047857;
         }
 
+        .friendly-copybox {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 2px dashed #6366f1;
+            display: none;
+        }
+
+        .friendly-copybox.visible {
+            display: block;
+        }
+
+        .friendly-copybox h4 {
+            color: #4f46e5;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .friendly-copybox p {
+            color: #6b7280;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+
+        .friendly-copybox .copy-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .friendly-copybox .copy-id {
+            flex: 1;
+            background: #f5f3ff;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #4f46e5;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .friendly-copybox .copy-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .friendly-copybox .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .friendly-copybox .copy-btn.copied {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
         /* Loading */
         .loading {
             display: inline-block;
@@ -637,8 +707,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Zonos API Learning Tool</h1>
-            <p>Understand how merchants integrate with Zonos - No coding required!</p>
+            <h1>Zonos API Demo Tool</h1>
+            <p>Understand how the Zonos APIs work.</p>
         </header>
 
         <!-- The Merchant Journey -->
@@ -696,15 +766,15 @@
                         </button>
                     </li>
                     <li>
-                        <button class="query-btn" onclick="loadQuery('cancel-order')">
-                            Cancel an Order
-                            <small>Void an order before shipping</small>
+                        <button class="query-btn" onclick="loadQuery('void-shipment')">
+                            Void Shipment
+                            <small>Void a label/tracking to allow cancellation</small>
                         </button>
                     </li>
                     <li>
-                        <button class="query-btn" onclick="loadQuery('get-order')">
-                            Look Up an Order
-                            <small>Check order status and details</small>
+                        <button class="query-btn" onclick="loadQuery('cancel-order')">
+                            Cancel an Order
+                            <small>Cancel an order after voiding shipment</small>
                         </button>
                     </li>
                 </ul>
@@ -775,6 +845,22 @@
                             </div>
                         </div>
                     </div>
+                    <div class="friendly-copybox" id="friendlyCopyBox">
+                        <h4>Use This in Create Order</h4>
+                        <p>Copy this Landed Cost ID and paste it into the "Create an Order" mutation as the <code>landedCostId</code> value.</p>
+                        <div class="copy-row">
+                            <span class="copy-id" id="landedCostIdValue"></span>
+                            <button class="copy-btn" onclick="copyCopyBox('landedCostIdValue', this)">Copy ID</button>
+                        </div>
+                    </div>
+                    <div class="friendly-copybox" id="orderIdCopyBox">
+                        <h4>Use This in Add Tracking Number</h4>
+                        <p>Copy this Order ID and paste it into the "Add Tracking Number" mutation as the <code>orderId</code> value.</p>
+                        <div class="copy-row">
+                            <span class="copy-id" id="orderIdValue"></span>
+                            <button class="copy-btn" onclick="copyCopyBox('orderIdValue', this)">Copy ID</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Config Section -->
@@ -782,7 +868,10 @@
                     <h3>Your API Settings</h3>
                     <div class="config-row">
                         <label>API Key:</label>
-                        <input type="password" id="apiKey" placeholder="credential_live_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" onchange="saveConfig()">
+                        <div style="display: flex; gap: 8px; flex: 1;">
+                            <input type="password" id="apiKey" placeholder="credential_live_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" onchange="saveConfig()" style="flex: 1;">
+                            <button onclick="toggleApiKey()" id="toggleKeyBtn" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #d1d5db; background: white; cursor: pointer; font-size: 0.85em; white-space: nowrap;">Show</button>
+                        </div>
                     </div>
                     <div class="config-row">
                         <label>Endpoint:</label>
@@ -795,48 +884,6 @@
             </div>
         </div>
 
-        <!-- Quick Reference -->
-        <section class="quick-ref">
-            <h3>Quick Reference: What Each API Does</h3>
-            <div class="ref-grid">
-                <div class="ref-card">
-                    <h4>landedCostCalculateWorkflow</h4>
-                    <p><strong>Purpose:</strong> Calculate duties, taxes, and fees for a cart</p>
-                    <p><strong>When:</strong> Customer enters shipping address at checkout</p>
-                    <p><strong>Returns:</strong> <code>duties</code>, <code>taxes</code>, <code>fees</code> amounts</p>
-                </div>
-                <div class="ref-card">
-                    <h4>orderCreate</h4>
-                    <p><strong>Purpose:</strong> Record a completed purchase in Zonos</p>
-                    <p><strong>When:</strong> After customer completes payment</p>
-                    <p><strong>Returns:</strong> <code>orderId</code> for tracking</p>
-                </div>
-                <div class="ref-card">
-                    <h4>shipmentCreateWithTracking</h4>
-                    <p><strong>Purpose:</strong> Update order with tracking info</p>
-                    <p><strong>When:</strong> After merchant ships the package</p>
-                    <p><strong>Returns:</strong> <code>shipmentId</code>, triggers billing</p>
-                </div>
-                <div class="ref-card">
-                    <h4>orderCancel</h4>
-                    <p><strong>Purpose:</strong> Cancel an order before shipping</p>
-                    <p><strong>When:</strong> Customer requests refund, fraud detected</p>
-                    <p><strong>Returns:</strong> Confirmation, prevents billing</p>
-                </div>
-                <div class="ref-card">
-                    <h4>Webhooks (ORDER_CREATED)</h4>
-                    <p><strong>Purpose:</strong> Zonos notifies merchant of new order</p>
-                    <p><strong>When:</strong> Order is created in Zonos</p>
-                    <p><strong>Direction:</strong> Zonos &rarr; Merchant's server</p>
-                </div>
-                <div class="ref-card">
-                    <h4>Webhooks (ORDER_STATUS_CHANGED)</h4>
-                    <p><strong>Purpose:</strong> Zonos notifies of status updates</p>
-                    <p><strong>When:</strong> Order moves to fulfilled, cancelled, etc.</p>
-                    <p><strong>Direction:</strong> Zonos &rarr; Merchant's server</p>
-                </div>
-            </div>
-        </section>
     </div>
 
     <script>
@@ -886,6 +933,10 @@ mutation CalculateLandedCost {
     },
     {
       type: DESTINATION
+      person: {
+        firstName: "Claude"
+        lastName: "Code"
+      }
       location: {
         line1: "456 Queen Street"
         locality: "Toronto"
@@ -996,6 +1047,11 @@ mutation CalculateLandedCost {
                 `,
                 query: `# Create an Order in Zonos
 # Call this AFTER the customer completes payment
+#
+# ⚠️ STEP 1: Run "Calculate Landed Cost" first!
+# STEP 2: Copy the "id" from that response
+# STEP 3: Paste it below as the landedCostId
+# STEP 4: Then run this mutation
 
 mutation CreateOrder {
   orderCreate(input: {
@@ -1005,17 +1061,19 @@ mutation CreateOrder {
     # The currency customer paid in
     currencyCode: USD
 
-    # The landed cost ID from your earlier calculation
-    # This links the order to the quote you showed the customer
-    landedCostId: "landed_cost_abc123-def456-ghi789"
+    # ⬇️ PASTE YOUR LANDED COST ID HERE (from Calculate Landed Cost response)
+    landedCostId: "PASTE_YOUR_LANDED_COST_ID_HERE"
   }) {
     # What Zonos sends back
     id                    # Zonos order ID (save this!)
     accountOrderNumber    # Your order number echoed back
     status               # Should be "OPEN"
-    amountSubtotal {
-      amount
-      currency
+    amountSubtotals {
+      duties
+      taxes
+      fees
+      shipping
+      items
     }
   }
 }`
@@ -1044,11 +1102,16 @@ mutation CreateOrder {
                 `,
                 query: `# Add Tracking Number to an Order
 # Call this AFTER you ship the package
+#
+# ⚠️ STEP 1: Run "Create an Order" first!
+# STEP 2: Copy the "id" from that response
+# STEP 3: Paste it below as the orderId
+# STEP 4: Then run this mutation
 
 mutation AddTracking {
   shipmentCreateWorkflow(input: {
-    # The Zonos order ID (from orderCreate response)
-    orderId: "order_abc123-def456-ghi789"
+    # ⬇️ PASTE YOUR ORDER ID HERE (from Create Order response)
+    orderId: "PASTE_YOUR_ORDER_ID_HERE"
 
     # The tracking number from your carrier
     trackingNumbers: ["1Z999AA10123456784"]
@@ -1061,8 +1124,12 @@ mutation AddTracking {
     status
     trackingDetails {
       number
-      carrier
-      status
+    }
+    serviceLevel {
+      name
+      carrier {
+        name
+      }
     }
   }
 }
@@ -1106,118 +1173,71 @@ mutation AddTracking {
                 `,
                 query: `# Cancel an Order
 # Use this BEFORE the order ships
+#
+# ⚠️ Paste a real Order ID below before running
 
 mutation CancelOrder {
-  orderCancel(
-    # The Zonos order ID
-    id: "order_abc123-def456-ghi789"
+  orderCancel(input: {
+    # ⬇️ PASTE YOUR ORDER ID HERE
+    id: "PASTE_YOUR_ORDER_ID_HERE"
 
-    input: {
-      # Why are you cancelling? (optional but helpful)
-      note: "Customer requested cancellation"
-    }
-  ) {
+    # Why are you cancelling? (optional but helpful)
+    note: "Customer requested cancellation"
+  }) {
     id
     status          # Should now be "CANCELLED"
-    canceledAt      # Timestamp of cancellation
+    updatedAt       # Timestamp of the update
   }
 }`
             },
 
-            'get-order': {
-                title: 'Look Up an Order',
+            'void-shipment': {
+                title: 'Void Shipment',
                 explanation: `
                     <h4>What does this do?</h4>
-                    <p>Retrieves details about an existing order. Useful for:</p>
+                    <p>Voids a shipment and its associated labels. This is needed when:</p>
                     <ul>
-                        <li>Checking order status</li>
-                        <li>Getting landed cost breakdown</li>
-                        <li>Viewing shipment information</li>
-                        <li>Customer service inquiries</li>
+                        <li>You need to cancel an order that already has tracking</li>
+                        <li>A label was created by mistake</li>
+                        <li>The shipment details need to be corrected</li>
                     </ul>
 
                     <h4>When do merchants use this?</h4>
-                    <p>Anytime they need to check on an order - customer calls asking about status, debugging issues, generating reports, etc.</p>
+                    <p>Before cancelling an order that has already been shipped or had tracking added. You must void the shipment first, then cancel the order.</p>
 
                     <div class="analogy">
-                        <strong>Real-world analogy:</strong> Like tracking a package online. You enter the order number and see where it is, what it cost, and when it will arrive.
+                        <strong>Real-world analogy:</strong> Like telling the post office "never mind, don't ship that package" before it leaves the warehouse. Once voided, you can then cancel the order itself.
                     </div>
+
+                    <h4>Important:</h4>
+                    <ul>
+                        <li>Once voided, the shipment cannot be restored</li>
+                        <li>All labels tied to the shipment are also voided</li>
+                        <li>After voiding, run "Cancel an Order" to complete the cancellation</li>
+                    </ul>
                 `,
-                query: `# Look Up an Order
-# Get details about an existing order
+                query: `# Void a Shipment
+# Use this to void a label/tracking BEFORE cancelling the order
+#
+# ⚠️ STEP 1: Get the shipment ID from the Add Tracking response
+# STEP 2: Paste it below
+# STEP 3: Run this mutation
+# STEP 4: Then run "Cancel an Order"
 
-query GetOrder {
-  # Replace with any order ID from your dashboard
-  order(id: "order_b3bdf1b2-83a6-4fbe-b295-025654f8f3ae") {
+mutation VoidShipment {
+  shipmentStatusUpdate(input: {
+    # ⬇️ PASTE YOUR SHIPMENT ID HERE (from Add Tracking response)
+    shipment: "PASTE_YOUR_SHIPMENT_ID_HERE"
+
+    status: VOIDED
+
+    # Why are you voiding? (optional but helpful)
+    note: "Voiding shipment to cancel order"
+  }) {
     id
-    accountOrderNumber    # Your order number
-    status               # OPEN, FULFILLED, CANCELED, etc.
-    createdAt
-
-    # What did the customer pay?
-    amountSubtotal {
-      amount
-      currency
-    }
-
-    # Landed cost breakdown
-    landedCosts {
-      id
-      method            # DDP or DAP
-      duties { amount currency description }
-      taxes { amount currency description }
-      fees { amount currency description }
-    }
-
-    # Shipping info (if shipped)
-    shipments {
-      id
-      trackingNumbers
-    }
-
-    # Who is it going to?
-    parties {
-      type
-      location {
-        line1
-        locality
-        administrativeArea
-        postalCode
-        countryCode
-      }
-    }
-
-    # Items in the order
-    items {
-      description
-      quantity
-      amount
-      hsCode
-      countryOfOrigin
-    }
+    status
   }
-}
-
-# ─────────────────────────────────────────────────────
-# LIST RECENT ORDERS - See your latest 10 orders
-# ─────────────────────────────────────────────────────
-
-# query RecentOrders {
-#   orders(first: 10) {
-#     edges {
-#       node {
-#         id
-#         accountOrderNumber
-#         status
-#         createdAt
-#         landedCosts {
-#           duties { amount currency }
-#           taxes { amount currency }
-#         }
-#       }
-#     }
-#   }
-# }`
+}`
             },
 
             'webhook-info': {
@@ -1270,9 +1290,12 @@ query GetOrder {
       "id": "order_abc123",
       "accountOrderNumber": "ORD-2024-12345",
       "status": "OPEN",
-      "amountSubtotal": {
-        "amount": 149.99,
-        "currency": "USD"
+      "amountSubtotals": {
+        "duties": 12.50,
+        "taxes": 11.86,
+        "fees": 7.49,
+        "shipping": 37.79,
+        "items": 149.99
       }
     }
   }
@@ -1309,6 +1332,19 @@ query GetOrder {
             if (endpoint) document.getElementById('endpoint').value = endpoint;
 
             updateStatus();
+        }
+
+        // Toggle API key visibility
+        function toggleApiKey() {
+            const input = document.getElementById('apiKey');
+            const btn = document.getElementById('toggleKeyBtn');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Show';
+            }
         }
 
         // Save config to localStorage
@@ -1449,6 +1485,10 @@ query GetOrder {
             const friendlyView = document.getElementById('friendlyView');
             const inputContent = document.getElementById('friendlyInputContent');
             const outputContent = document.getElementById('friendlyOutputContent');
+
+            // Reset the copy boxes
+            document.getElementById('friendlyCopyBox').classList.remove('visible');
+            document.getElementById('orderIdCopyBox').classList.remove('visible');
 
             let inputHtml = '';
             let itemName = null;
@@ -1628,6 +1668,13 @@ query GetOrder {
 
                     const total = shippingCost + totalDuties + totalTaxes + totalFees;
                     outputHtml += '<div class="friendly-total"><span class="friendly-label">Total Landed Cost</span><span class="friendly-value money">$' + total.toFixed(2) + ' ' + curr + '</span></div>';
+
+                    // Show the Landed Cost ID copy box
+                    if (lc.id) {
+                        const copyBox = document.getElementById('friendlyCopyBox');
+                        document.getElementById('landedCostIdValue').textContent = lc.id;
+                        copyBox.classList.add('visible');
+                    }
                 }
 
                 // Handle order response
@@ -1675,6 +1722,30 @@ query GetOrder {
                     }
                 }
 
+                // Handle orderCreate response
+                if (data.orderCreate) {
+                    const order = data.orderCreate;
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Order ID</span><span class="friendly-value">' + order.id + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Order #</span><span class="friendly-value">' + (order.accountOrderNumber || 'N/A') + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Status</span><span class="friendly-value">' + (order.status || 'N/A') + '</span></div>';
+
+                    if (order.amountSubtotals) {
+                        const s = order.amountSubtotals;
+                        if (s.duties) outputHtml += '<div class="friendly-row"><span class="friendly-label">Duties</span><span class="friendly-value money">$' + parseFloat(s.duties).toFixed(2) + '</span></div>';
+                        if (s.taxes) outputHtml += '<div class="friendly-row"><span class="friendly-label">Taxes</span><span class="friendly-value money">$' + parseFloat(s.taxes).toFixed(2) + '</span></div>';
+                        if (s.fees) outputHtml += '<div class="friendly-row"><span class="friendly-label">Fees</span><span class="friendly-value money">$' + parseFloat(s.fees).toFixed(2) + '</span></div>';
+                        if (s.shipping) outputHtml += '<div class="friendly-row"><span class="friendly-label">Shipping</span><span class="friendly-value money">$' + parseFloat(s.shipping).toFixed(2) + '</span></div>';
+                        if (s.items) outputHtml += '<div class="friendly-row"><span class="friendly-label">Items</span><span class="friendly-value money">$' + parseFloat(s.items).toFixed(2) + '</span></div>';
+                    }
+
+                    // Show the Order ID copy box
+                    if (order.id) {
+                        const copyBox = document.getElementById('orderIdCopyBox');
+                        document.getElementById('orderIdValue').textContent = order.id;
+                        copyBox.classList.add('visible');
+                    }
+                }
+
                 // Handle orders list
                 if (data.orders && data.orders.edges) {
                     outputHtml += '<div class="friendly-row"><span class="friendly-label">Orders Found</span><span class="friendly-value">' + data.orders.edges.length + '</span></div>';
@@ -1697,6 +1768,19 @@ query GetOrder {
 
             outputContent.innerHTML = outputHtml || '<div class="friendly-row"><span class="friendly-label">No data</span><span class="friendly-value">-</span></div>';
             friendlyView.classList.add('visible');
+        }
+
+        // Copy any ID from a copy box to clipboard
+        function copyCopyBox(elementId, btn) {
+            const id = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(id).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy ID';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
         }
 
         // Run the query
@@ -1746,6 +1830,8 @@ query GetOrder {
                 if (result.error) {
                     responseArea.innerHTML = `<pre class="response-error">${result.message}</pre>`;
                     document.getElementById('friendlyView').classList.remove('visible');
+                    document.getElementById('friendlyCopyBox').classList.remove('visible');
+                    document.getElementById('orderIdCopyBox').classList.remove('visible');
                 } else {
                     const body = JSON.parse(result.body);
                     responseArea.innerHTML = `<pre class="response-success">${JSON.stringify(body, null, 2)}</pre>`;
