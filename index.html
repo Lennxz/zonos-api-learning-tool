@@ -1270,9 +1270,6 @@ mutation VoidShipment {
                         <li><strong>SHIPMENT_CANCELED</strong> - Shipment was voided</li>
                     </ul>
 
-                    <h4>How merchants set up webhooks:</h4>
-                    <p>In Zonos Dashboard: Settings &rarr; Webhooks &rarr; Add endpoint URL</p>
-                    <p>Zonos will POST data to that URL whenever events occur.</p>
                 `,
                 query: `# Webhooks are NOT API calls you make
 # They are notifications Zonos SENDS to the merchant's server
@@ -1439,8 +1436,8 @@ mutation VoidShipment {
                         </ul>
                         <div class="analogy">
                             <strong>DDP vs DAP:</strong>
-                            <br><strong>DDP</strong> (Delivered Duty Paid) - Customer pays everything now, no fees at delivery
-                            <br><strong>DAP</strong> (Delivered At Place) - Customer may pay customs fees at delivery
+                            <br><strong>DDP</strong> (Delivered Duty Paid) - No additional costs. Customer pays everything upfront
+                            <br><strong>DAP</strong> (Delivered At Place) - Customer pays customs fees at delivery. Surprise shock experience
                         </div>
                     `
                 },
@@ -1452,7 +1449,7 @@ mutation VoidShipment {
                         <p><code>orderCreate</code></p>
                         <h4>What the merchant sends:</h4>
                         <ul>
-                            <li>Their order number (from Shopify, etc.)</li>
+                            <li>Their order number (from platform, ERP, etc.)</li>
                             <li>The landed cost ID (from step 1)</li>
                             <li>Currency code</li>
                         </ul>
@@ -1473,7 +1470,6 @@ mutation VoidShipment {
                         <h4>What happens when tracking is added:</h4>
                         <ul>
                             <li>Order status changes to "Fulfilled"</li>
-                            <li>Zonos pays the duties/taxes to customs</li>
                             <li>Merchant is billed for the duties/taxes they collected</li>
                             <li>Package clears customs smoothly (duties pre-paid!)</li>
                         </ul>
