@@ -831,7 +831,7 @@
                 <!-- Friendly View Section -->
                 <div class="friendly-view" id="friendlyView">
                     <h3>Results Summary</h3>
-                    <div class="friendly-grid">
+                    <div class="friendly-grid" id="friendlyGrid">
                         <div class="friendly-section" id="friendlyInput">
                             <h4>What Was Sent</h4>
                             <div id="friendlyInputContent">
@@ -844,6 +844,9 @@
                                 <!-- Populated by JavaScript -->
                             </div>
                         </div>
+                    </div>
+                    <div class="friendly-section" id="friendlyStatus" style="display: none;">
+                        <div id="friendlyStatusContent"></div>
                     </div>
                     <div class="friendly-copybox" id="friendlyCopyBox">
                         <h4>Use This in Create Order</h4>
@@ -1507,6 +1510,45 @@ mutation VoidShipment {
             document.getElementById('friendlyCopyBox').classList.remove('visible');
             document.getElementById('orderIdCopyBox').classList.remove('visible');
             document.getElementById('shipmentIdCopyBox').classList.remove('visible');
+
+            const isLandedCost = query.includes('landedCostCalculateWorkflow');
+            const friendlyGrid = document.getElementById('friendlyGrid');
+            const friendlyStatus = document.getElementById('friendlyStatus');
+
+            if (isLandedCost) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+            } else {
+                friendlyGrid.style.display = 'none';
+                friendlyStatus.style.display = '';
+
+                // Simple success/failed for non-landed-cost queries
+                let statusHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    statusHtml = '<div style="text-align: center; padding: 20px;"><span style="font-size: 1.5em; color: #dc2626; font-weight: 700;">Failed</span><p style="color: #6b7280; margin-top: 10px;">' + response.errors[0].message + '</p></div>';
+                } else {
+                    statusHtml = '<div style="text-align: center; padding: 20px;"><span style="font-size: 1.5em; color: #059669; font-weight: 700;">Success</span></div>';
+                }
+                document.getElementById('friendlyStatusContent').innerHTML = statusHtml;
+
+                // Still show copy boxes for relevant mutations
+                if (response.data) {
+                    const data = response.data;
+                    if (data.orderCreate && data.orderCreate.id) {
+                        const copyBox = document.getElementById('orderIdCopyBox');
+                        document.getElementById('orderIdValue').textContent = data.orderCreate.id;
+                        copyBox.classList.add('visible');
+                    }
+                    if (data.shipmentCreateWorkflow && data.shipmentCreateWorkflow.id) {
+                        const copyBox = document.getElementById('shipmentIdCopyBox');
+                        document.getElementById('shipmentIdValue').textContent = data.shipmentCreateWorkflow.id;
+                        copyBox.classList.add('visible');
+                    }
+                }
+
+                friendlyView.classList.add('visible');
+                return;
+            }
 
             let inputHtml = '';
             let itemName = null;
