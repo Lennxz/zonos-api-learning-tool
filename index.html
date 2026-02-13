@@ -1392,8 +1392,13 @@ mutation VoidShipment {
                 <div class="explanation-content">${query.explanation}</div>
             `;
 
-            // Update query editor
-            document.getElementById('queryEditor').value = query.query;
+            // Update query editor - generate unique order number for Create Order
+            let queryText = query.query;
+            if (queryId === 'create-order') {
+                const orderNum = 'ORD-' + Date.now().toString().slice(-8);
+                queryText = queryText.replace('ORD-2024-12345', orderNum);
+            }
+            document.getElementById('queryEditor').value = queryText;
 
             // Update active button
             document.querySelectorAll('.query-btn').forEach(btn => btn.classList.remove('active'));
