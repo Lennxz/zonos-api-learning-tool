@@ -17,12 +17,30 @@
             color: #374151;
             line-height: 1.6;
             min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%236366f1' stroke-width='0.8' opacity='0.06'%3E%3C!-- Hull --%3E%3Cpath d='M30 140 Q100 160 170 140 L160 150 Q100 165 40 150 Z'/%3E%3C!-- Main mast --%3E%3Cline x1='100' y1='140' x2='100' y2='40'/%3E%3C!-- Front mast --%3E%3Cline x1='65' y1='140' x2='65' y2='55'/%3E%3C!-- Back mast --%3E%3Cline x1='135' y1='140' x2='135' y2='60'/%3E%3C!-- Main sail --%3E%3Cpath d='M100 45 Q120 70 100 95 Q80 70 100 45' fill='%236366f1' opacity='0.04'/%3E%3Cpath d='M100 45 Q120 70 100 95'/%3E%3Cpath d='M100 45 Q80 70 100 95'/%3E%3C!-- Front sail --%3E%3Cpath d='M65 60 Q80 80 65 100 Q50 80 65 60' fill='%236366f1' opacity='0.04'/%3E%3Cpath d='M65 60 Q80 80 65 100'/%3E%3Cpath d='M65 60 Q50 80 65 100'/%3E%3C!-- Back sail --%3E%3Cpath d='M135 65 Q150 85 135 105 Q120 85 135 65' fill='%236366f1' opacity='0.04'/%3E%3Cpath d='M135 65 Q150 85 135 105'/%3E%3Cpath d='M135 65 Q120 85 135 105'/%3E%3C!-- Bowsprit --%3E%3Cline x1='30' y1='140' x2='15' y2='120'/%3E%3C!-- Jib sail --%3E%3Cpath d='M15 120 Q40 90 65 60'/%3E%3C!-- Flag --%3E%3Cpath d='M100 40 L115 35 L100 30'/%3E%3C!-- Water line --%3E%3Cpath d='M10 155 Q50 150 100 155 Q150 160 190 155' stroke-width='0.5'/%3E%3Cpath d='M5 162 Q45 157 95 162 Q145 167 185 162' stroke-width='0.3'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         header {
@@ -936,9 +954,9 @@ mutation CalculateLandedCost {
       type: ORIGIN
       location: {
         line1: "123 Main Street"
-        locality: "Provo"
+        locality: "St. George"
         administrativeAreaCode: "UT"
-        postalCode: "84606"
+        postalCode: "84770"
         countryCode: US
       }
     },
@@ -964,7 +982,7 @@ mutation CalculateLandedCost {
   # Step 2: Create the items being shipped
   itemCreateWorkflow(input: [
     {
-      description: "Blue Cotton T-Shirt"
+      description: "Men's Athletic T-Shirt - 100% organic cotton, moisture-wicking, crew neck"
       amount: 99.99
       currencyCode: USD
       quantity: 2
