@@ -1050,7 +1050,6 @@ mutation CalculateLandedCost {
                     <ul>
                         <li>The <code>landedCostId</code> comes from the previous calculation</li>
                         <li>Landed cost quotes expire after 90 days</li>
-                        <li>Zonos fee is charged when this is called</li>
                     </ul>
                 `,
                 query: `# Create an Order in Zonos
@@ -1105,8 +1104,6 @@ mutation CreateOrder {
                         <strong>Real-world analogy:</strong> It's like telling the post office "here's my package, here's where it's going, and here's the tracking number." Now everyone can follow its journey.
                     </div>
 
-                    <h4>Common client confusion:</h4>
-                    <p><strong>This is an API call TO Zonos</strong> (merchant sends data), not a webhook FROM Zonos. Many clients confuse this with webhooks, which go the opposite direction.</p>
                 `,
                 query: `# Add Tracking Number to an Order
 # Call this AFTER you ship the package
@@ -1160,13 +1157,11 @@ mutation AddTracking {
                     <p>Cancels an order in Zonos. This is important for:</p>
                     <ul>
                         <li>Customer refund requests</li>
-                        <li>Fraud prevention</li>
-                        <li>Inventory issues</li>
                         <li>Avoiding being billed for duties/taxes</li>
                     </ul>
 
                     <h4>When do merchants use this?</h4>
-                    <p>Before the order ships. Once shipped and tracking is added, cancellation is more complex (may need refund process instead).</p>
+                    <p>Before the order ships.</p>
 
                     <div class="analogy">
                         <strong>Real-world analogy:</strong> Like cancelling a restaurant order before the kitchen starts cooking. Easy to do early, complicated once the food is being prepared.
@@ -1211,7 +1206,7 @@ mutation CancelOrder {
                     </ul>
 
                     <h4>When do merchants use this?</h4>
-                    <p>Before cancelling an order that has already been shipped or had tracking added. You must void the shipment first, then cancel the order.</p>
+                    <p>Before cancelling an order that has had tracking added. You must void the shipment first, then cancel the order.</p>
 
                     <div class="analogy">
                         <strong>Real-world analogy:</strong> Like telling the post office "never mind, don't ship that package" before it leaves the warehouse. Once voided, you can then cancel the order itself.
