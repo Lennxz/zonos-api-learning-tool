@@ -794,7 +794,7 @@
             <div class="right-content">
                 <!-- Explanation Panel -->
                 <div class="explanation" id="explanation">
-                    <h3>Welcome! Click a step or query to learn more</h3>
+                    <h3>Select an API from the left to get started</h3>
                     <div class="explanation-content">
                         <p>This tool helps you understand how merchants use the Zonos API. Each button on the left shows you:</p>
                         <ul>
@@ -859,6 +859,14 @@
                         <div class="copy-row">
                             <span class="copy-id" id="orderIdValue"></span>
                             <button class="copy-btn" onclick="copyCopyBox('orderIdValue', this)">Copy ID</button>
+                        </div>
+                    </div>
+                    <div class="friendly-copybox" id="shipmentIdCopyBox">
+                        <h4>Use This in Void Shipment</h4>
+                        <p>Copy this Shipment ID and paste it into the "Void Shipment" mutation as the <code>shipment</code> value.</p>
+                        <div class="copy-row">
+                            <span class="copy-id" id="shipmentIdValue"></span>
+                            <button class="copy-btn" onclick="copyCopyBox('shipmentIdValue', this)">Copy ID</button>
                         </div>
                     </div>
                 </div>
@@ -1502,6 +1510,7 @@ mutation VoidShipment {
             // Reset the copy boxes
             document.getElementById('friendlyCopyBox').classList.remove('visible');
             document.getElementById('orderIdCopyBox').classList.remove('visible');
+            document.getElementById('shipmentIdCopyBox').classList.remove('visible');
 
             let inputHtml = '';
             let itemName = null;
@@ -1759,6 +1768,39 @@ mutation VoidShipment {
                     }
                 }
 
+                // Handle shipmentCreateWorkflow response
+                if (data.shipmentCreateWorkflow) {
+                    const shipment = data.shipmentCreateWorkflow;
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Shipment ID</span><span class="friendly-value">' + shipment.id + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Status</span><span class="friendly-value">' + (shipment.status || 'N/A') + '</span></div>';
+
+                    if (shipment.trackingDetails && shipment.trackingDetails.number) {
+                        outputHtml += '<div class="friendly-row"><span class="friendly-label">Tracking #</span><span class="friendly-value">' + shipment.trackingDetails.number + '</span></div>';
+                    }
+                    if (shipment.serviceLevel) {
+                        if (shipment.serviceLevel.name) {
+                            outputHtml += '<div class="friendly-row"><span class="friendly-label">Service</span><span class="friendly-value">' + shipment.serviceLevel.name + '</span></div>';
+                        }
+                        if (shipment.serviceLevel.carrier && shipment.serviceLevel.carrier.name) {
+                            outputHtml += '<div class="friendly-row"><span class="friendly-label">Carrier</span><span class="friendly-value">' + shipment.serviceLevel.carrier.name + '</span></div>';
+                        }
+                    }
+
+                    // Show the Shipment ID copy box
+                    if (shipment.id) {
+                        const copyBox = document.getElementById('shipmentIdCopyBox');
+                        document.getElementById('shipmentIdValue').textContent = shipment.id;
+                        copyBox.classList.add('visible');
+                    }
+                }
+
+                // Handle shipmentStatusUpdate response (void shipment)
+                if (data.shipmentStatusUpdate) {
+                    const shipment = data.shipmentStatusUpdate;
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Shipment ID</span><span class="friendly-value">' + shipment.id + '</span></div>';
+                    outputHtml += '<div class="friendly-row"><span class="friendly-label">Status</span><span class="friendly-value">' + (shipment.status || 'N/A') + '</span></div>';
+                }
+
                 // Handle orders list
                 if (data.orders && data.orders.edges) {
                     outputHtml += '<div class="friendly-row"><span class="friendly-label">Orders Found</span><span class="friendly-value">' + data.orders.edges.length + '</span></div>';
@@ -1840,6 +1882,7 @@ mutation VoidShipment {
                     document.getElementById('friendlyView').classList.remove('visible');
                     document.getElementById('friendlyCopyBox').classList.remove('visible');
                     document.getElementById('orderIdCopyBox').classList.remove('visible');
+            document.getElementById('shipmentIdCopyBox').classList.remove('visible');
                 } else {
                     const body = JSON.parse(result.body);
                     responseArea.innerHTML = `<pre class="response-success">${JSON.stringify(body, null, 2)}</pre>`;
