@@ -1146,18 +1146,25 @@
                         </div>
                     </div>
 
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px;">Send Test: Order Created</button>
+                        <button onclick="sendTestWebhook('SHIPMENT_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">Send Test: Shipment Created</button>
+                        <button onclick="sendTestWebhook('ORDER_CANCELED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Send Test: Order Canceled</button>
+                    </div>
+
                     <div class="webhook-instructions">
-                        <strong>How to test:</strong>
+                        <strong>How it works:</strong>
                         <ol>
-                            <li>Copy the URL above</li>
-                            <li>Register it with the <code>webhookCreate</code> GraphQL mutation (see example below), or quick-test with curl</li>
-                            <li>When Zonos sends a webhook (e.g. after creating an order), it will appear below in real-time</li>
+                            <li>Click a button above to simulate Zonos sending a webhook event</li>
+                            <li>The event appears below in real-time &mdash; this is exactly what a merchant's server would receive</li>
+                            <li>Click any event to expand and see the full JSON payload</li>
                         </ol>
                         <details style="margin-top: 10px;">
-                            <summary style="cursor: pointer; font-weight: 600; color: #4f46e5;">Show webhookCreate mutation &amp; curl example</summary>
+                            <summary style="cursor: pointer; font-weight: 600; color: #4f46e5;">For developers: how merchants register webhooks in production</summary>
+                            <p style="margin-top: 8px; font-size: 0.85em; color: #6b7280;">Merchants register their webhook URL using the <code>webhookCreate</code> GraphQL mutation:</p>
                             <pre style="background: #1e1b4b; color: #c4b5fd; border-radius: 8px; padding: 12px; font-size: 0.82em; margin-top: 8px; overflow-x: auto; white-space: pre-wrap;">mutation {
   webhookCreate(input: {
-    url: "<span style="color: #fbbf24;">YOUR_WEBHOOK_URL</span>"
+    url: "https://merchant-site.com/webhooks/zonos"
     type: ORDER_CREATED
     status: ENABLED
   }) {
@@ -1168,10 +1175,6 @@
   }
 }</pre>
                             <p style="margin-top: 8px; font-size: 0.85em; color: #6b7280;">Event types: <code>ORDER_CREATED</code>, <code>ORDER_CANCELED</code>, <code>ORDER_STATUS_CHANGED</code>, <code>SHIPMENT_CREATED</code>, <code>SHIPMENT_CANCELED</code></p>
-                            <p style="margin-top: 6px; font-size: 0.85em; color: #6b7280;"><strong>Quick curl test:</strong></p>
-                            <pre style="background: #1e1b4b; color: #c4b5fd; border-radius: 8px; padding: 12px; font-size: 0.82em; margin-top: 4px; overflow-x: auto; white-space: pre-wrap;">curl -X POST -H "Content-Type: application/json" \
-  -d '{"event":"ORDER_CREATED","data":{"order":{"id":"order_123","status":"OPEN"}}}' \
-  <span style="color: #fbbf24;">YOUR_WEBHOOK_URL</span></pre>
                         </details>
                     </div>
 
@@ -2416,6 +2419,73 @@ mutation VoidShipment {
         function clearWebhookEvents() {
             webhookEvents = [];
             renderWebhookEvents([]);
+        }
+
+        async function sendTestWebhook(eventType) {
+            const url = getWebhookUrl();
+            const now = new Date().toISOString();
+            const testId = 'order_' + Date.now().toString().slice(-8);
+
+            const payloads = {
+                ORDER_CREATED: {
+                    event: 'ORDER_CREATED',
+                    timestamp: now,
+                    data: {
+                        order: {
+                            id: testId,
+                            accountOrderNumber: 'ORD-' + Date.now().toString().slice(-6),
+                            status: 'OPEN',
+                            currencyCode: 'USD',
+                            amountSubtotals: {
+                                duties: 12.50,
+                                taxes: 11.86,
+                                fees: 7.49,
+                                shipping: 25.00,
+                                items: 99.99
+                            }
+                        }
+                    }
+                },
+                SHIPMENT_CREATED: {
+                    event: 'SHIPMENT_CREATED',
+                    timestamp: now,
+                    data: {
+                        shipment: {
+                            id: 'shipment_' + Date.now().toString().slice(-8),
+                            orderId: testId,
+                            status: 'CREATED',
+                            trackingNumbers: ['1Z999AA1' + Date.now().toString().slice(-10)],
+                            carrier: 'UPS',
+                            serviceLevel: 'Worldwide Expedited'
+                        }
+                    }
+                },
+                ORDER_CANCELED: {
+                    event: 'ORDER_CANCELED',
+                    timestamp: now,
+                    data: {
+                        order: {
+                            id: testId,
+                            accountOrderNumber: 'ORD-' + Date.now().toString().slice(-6),
+                            previousStatus: 'OPEN',
+                            status: 'CANCELED',
+                            note: 'Customer requested cancellation'
+                        }
+                    }
+                }
+            };
+
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloads[eventType])
+                });
+                // Immediately poll for the new event
+                setTimeout(fetchWebhookEvents, 500);
+            } catch (e) {
+                // Will show up on next poll cycle anyway
+            }
         }
 
         // Initialize
