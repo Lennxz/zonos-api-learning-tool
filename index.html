@@ -2375,8 +2375,8 @@ mutation VoidShipment {
                 const payloadStr = JSON.stringify(evt.payload, null, 2);
 
                 return `
-                    <li class="webhook-event-item" onclick="this.classList.toggle('expanded')">
-                        <div class="webhook-event-header">
+                    <li class="webhook-event-item">
+                        <div class="webhook-event-header" onclick="this.parentElement.classList.toggle('expanded')">
                             <span class="webhook-event-badge">${escapeHtml(evt.event_type || 'unknown')}</span>
                             <span style="color: #374151; font-size: 0.85em;">${escapeHtml(summarizePayload(evt.payload))}</span>
                             <span class="webhook-event-time">${timeStr}</span>
