@@ -2356,6 +2356,17 @@ mutation VoidShipment {
             }
         }
 
+        let expandedEventIds = new Set();
+
+        function toggleEvent(eventId) {
+            if (expandedEventIds.has(eventId)) {
+                expandedEventIds.delete(eventId);
+            } else {
+                expandedEventIds.add(eventId);
+            }
+            document.getElementById('evt-' + eventId)?.classList.toggle('expanded');
+        }
+
         function renderWebhookEvents(events) {
             const list = document.getElementById('webhookEventList');
 
@@ -2373,10 +2384,11 @@ mutation VoidShipment {
                 const time = new Date(evt.received_at);
                 const timeStr = time.toLocaleTimeString();
                 const payloadStr = JSON.stringify(evt.payload, null, 2);
+                const isExpanded = expandedEventIds.has(evt.id);
 
                 return `
-                    <li class="webhook-event-item">
-                        <div class="webhook-event-header" onclick="this.parentElement.classList.toggle('expanded')">
+                    <li class="webhook-event-item${isExpanded ? ' expanded' : ''}" id="evt-${evt.id}">
+                        <div class="webhook-event-header" onclick="toggleEvent('${evt.id}')">
                             <span class="webhook-event-badge">${escapeHtml(evt.event_type || 'unknown')}</span>
                             <span style="color: #374151; font-size: 0.85em;">${escapeHtml(summarizePayload(evt.payload))}</span>
                             <span class="webhook-event-time">${timeStr}</span>
