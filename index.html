@@ -2175,7 +2175,7 @@ mutation VoidShipment {
 
             // Check if this is the webhook info (not runnable)
             if (query.includes('"event": "ORDER_CREATED"')) {
-                responseArea.innerHTML = '<pre class="response-error">Webhooks are not API calls - they are sent BY Zonos TO the merchant.\n\nThis is just an example of what data Zonos sends. You don\'t "run" webhooks - you receive them!</pre>';
+                responseArea.innerHTML = '<pre class="response-error">Webhooks are not API calls you run \u2014 they are notifications sent BY Zonos TO the merchant.\n\nThis panel shows example payloads.\n\nTo see real webhooks arrive in real-time, click \u201cLive Webhook Tester\u201d in the sidebar!</pre>';
                 return;
             }
 
