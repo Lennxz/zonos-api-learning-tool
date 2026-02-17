@@ -1131,24 +1131,20 @@
 
                 <!-- Webhook Tester Panel -->
                 <div class="webhook-tester" id="webhookTester">
-                    <h3>See What Merchants Receive</h3>
-                    <p style="color: #6b7280; margin-bottom: 16px;">Click a button to simulate what happens when an event occurs in Zonos. The data below is exactly what Zonos would POST to the merchant's server.</p>
+                    <h3>Merchant's Webhook Inbox</h3>
 
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px;">Simulate: Order Created</button>
-                        <button onclick="sendTestWebhook('SHIPMENT_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">Simulate: Shipment Created</button>
-                        <button onclick="sendTestWebhook('ORDER_CANCELED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Simulate: Order Canceled</button>
+                    <div class="webhook-instructions" style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-color: #c7d2fe;">
+                        <strong style="color: #4338ca;">Try it live:</strong> Go run an API mutation on the left (Create an Order, Add Tracking, or Cancel an Order), then come back here. You'll see the webhook event that Zonos would send to the merchant's server &mdash; with the real data from your API call.
                     </div>
 
-                    <div class="webhook-instructions">
-                        <strong>What's happening behind the scenes:</strong>
-                        <ol>
-                            <li>You click "Simulate" &rarr; we mimic Zonos sending a webhook POST to a server</li>
-                            <li>The event shows up below &mdash; this is the exact JSON data a merchant's server would receive</li>
-                            <li>Click any event to expand and inspect the full payload</li>
-                        </ol>
-                        <p style="margin-top: 10px; color: #6b7280; font-size: 0.88em;"><strong>In production:</strong> this happens automatically. When a merchant creates an order, adds tracking, or cancels &mdash; Zonos sends these webhooks to the merchant's registered URL without anyone clicking a button.</p>
-                    </div>
+                    <details style="margin-bottom: 20px;">
+                        <summary style="cursor: pointer; font-weight: 600; color: #6b7280; font-size: 0.9em;">Or quick demo with sample data</summary>
+                        <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+                            <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 140px; font-size: 0.85em; padding: 10px 16px;">Sample: Order Created</button>
+                            <button onclick="sendTestWebhook('SHIPMENT_CREATED')" class="run-btn" style="flex: 1; min-width: 140px; font-size: 0.85em; padding: 10px 16px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">Sample: Shipment Created</button>
+                            <button onclick="sendTestWebhook('ORDER_CANCELED')" class="run-btn" style="flex: 1; min-width: 140px; font-size: 0.85em; padding: 10px 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Sample: Order Canceled</button>
+                        </div>
+                    </details>
 
                     <div class="webhook-polling-status">
                         <span class="webhook-polling-dot"></span>
@@ -2143,6 +2139,7 @@ mutation VoidShipment {
                     const body = JSON.parse(result.body);
                     responseArea.innerHTML = `<pre class="response-success">${JSON.stringify(body, null, 2)}</pre>`;
                     showFriendlyView(query, body);
+                    fireWebhookFromResponse(body);
                 }
             } catch (error) {
                 responseArea.innerHTML = `<pre class="response-error">Error: ${error.message}\n\nMake sure the server is running:\ncd ~/my-app && python3 server.py</pre>`;
@@ -2404,8 +2401,55 @@ mutation VoidShipment {
             }
         }
 
+        // Fire a real webhook event based on API mutation response
+        function fireWebhookFromResponse(responseData) {
+            if (!responseData || !responseData.data) return;
+            const data = responseData.data;
+            const url = getWebhookUrl();
+            const now = new Date().toISOString();
+
+            let webhookPayload = null;
+
+            if (data.orderCreate) {
+                webhookPayload = {
+                    event: 'ORDER_CREATED',
+                    timestamp: now,
+                    data: { order: data.orderCreate }
+                };
+            } else if (data.shipmentCreateWorkflow) {
+                webhookPayload = {
+                    event: 'SHIPMENT_CREATED',
+                    timestamp: now,
+                    data: { shipment: data.shipmentCreateWorkflow }
+                };
+            } else if (data.orderCancel) {
+                webhookPayload = {
+                    event: 'ORDER_CANCELED',
+                    timestamp: now,
+                    data: { order: data.orderCancel }
+                };
+            } else if (data.shipmentStatusUpdate) {
+                webhookPayload = {
+                    event: 'SHIPMENT_CANCELED',
+                    timestamp: now,
+                    data: { shipment: data.shipmentStatusUpdate }
+                };
+            }
+
+            if (webhookPayload) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(webhookPayload)
+                }).then(() => {
+                    setTimeout(fetchWebhookEvents, 500);
+                }).catch(() => {});
+            }
+        }
+
         // Initialize
         loadConfig();
+        startWebhookPolling();
     </script>
 </body>
 </html>
