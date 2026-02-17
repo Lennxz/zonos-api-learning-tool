@@ -1150,9 +1150,29 @@
                         <strong>How to test:</strong>
                         <ol>
                             <li>Copy the URL above</li>
-                            <li>Paste it as a webhook endpoint in the <strong>Zonos Dashboard</strong> (Settings &rarr; Webhooks), or test with curl</li>
+                            <li>Register it with the <code>webhookCreate</code> GraphQL mutation (see example below), or quick-test with curl</li>
                             <li>When Zonos sends a webhook (e.g. after creating an order), it will appear below in real-time</li>
                         </ol>
+                        <details style="margin-top: 10px;">
+                            <summary style="cursor: pointer; font-weight: 600; color: #4f46e5;">Show webhookCreate mutation &amp; curl example</summary>
+                            <pre style="background: #1e1b4b; color: #c4b5fd; border-radius: 8px; padding: 12px; font-size: 0.82em; margin-top: 8px; overflow-x: auto; white-space: pre-wrap;">mutation {
+  webhookCreate(input: {
+    url: "<span style="color: #fbbf24;">YOUR_WEBHOOK_URL</span>"
+    type: ORDER_CREATED
+    status: ENABLED
+  }) {
+    id
+    url
+    type
+    status
+  }
+}</pre>
+                            <p style="margin-top: 8px; font-size: 0.85em; color: #6b7280;">Event types: <code>ORDER_CREATED</code>, <code>ORDER_CANCELED</code>, <code>ORDER_STATUS_CHANGED</code>, <code>SHIPMENT_CREATED</code>, <code>SHIPMENT_CANCELED</code></p>
+                            <p style="margin-top: 6px; font-size: 0.85em; color: #6b7280;"><strong>Quick curl test:</strong></p>
+                            <pre style="background: #1e1b4b; color: #c4b5fd; border-radius: 8px; padding: 12px; font-size: 0.82em; margin-top: 4px; overflow-x: auto; white-space: pre-wrap;">curl -X POST -H "Content-Type: application/json" \
+  -d '{"event":"ORDER_CREATED","data":{"order":{"id":"order_123","status":"OPEN"}}}' \
+  <span style="color: #fbbf24;">YOUR_WEBHOOK_URL</span></pre>
+                        </details>
                     </div>
 
                     <div class="webhook-polling-status">
