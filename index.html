@@ -1037,15 +1037,9 @@
                 <h3 style="margin-top: 30px;">Webhooks (Zonos &rarr; Merchant)</h3>
                 <ul class="query-list">
                     <li>
-                        <button class="query-btn" onclick="loadQuery('webhook-info')">
-                            Understanding Webhooks
-                            <small>How Zonos notifies merchants</small>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="query-btn" id="webhookTesterBtn" onclick="showWebhookTester()">
-                            Live Webhook Tester
-                            <small>See real webhook events arrive</small>
+                        <button class="query-btn" id="webhookTesterBtn" onclick="showWebhookView()">
+                            Webhooks
+                            <small>Learn &amp; see live webhook events</small>
                         </button>
                     </li>
                 </ul>
@@ -1560,84 +1554,6 @@ mutation VoidShipment {
 }`
             },
 
-            'webhook-info': {
-                title: 'Understanding Webhooks',
-                explanation: `
-                    <h4>What are webhooks?</h4>
-                    <p>Webhooks are <strong>notifications FROM Zonos TO the merchant</strong>. Instead of the merchant constantly asking "any updates?", Zonos automatically tells them when something happens.</p>
-
-                    <h4>Direction matters!</h4>
-                    <ul>
-                        <li><strong>API calls:</strong> Merchant &rarr; Zonos (merchant asks for something)</li>
-                        <li><strong>Webhooks:</strong> Zonos &rarr; Merchant (Zonos notifies about something)</li>
-                    </ul>
-
-                    <div class="analogy">
-                        <strong>Real-world analogy:</strong>
-                        <br>API = You calling the pizza shop to place an order
-                        <br>Webhook = The pizza shop calling YOU to say "your pizza is ready!"
-                    </div>
-
-                    <h4>Webhook event types:</h4>
-                    <ul>
-                        <li><strong>ORDER_CREATED</strong> - New order was recorded</li>
-                        <li><strong>ORDER_STATUS_CHANGED</strong> - Status updated (shipped, etc.)</li>
-                        <li><strong>ORDER_CANCELED</strong> - Order was cancelled</li>
-                        <li><strong>SHIPMENT_CREATED</strong> - Shipment was created</li>
-                        <li><strong>SHIPMENT_CANCELED</strong> - Shipment was voided</li>
-                    </ul>
-
-                `,
-                query: `# Webhooks are NOT API calls you make
-# They are notifications Zonos SENDS to the merchant's server
-
-# The merchant provides a URL like:
-# https://merchant-site.com/webhooks/zonos
-
-# When an event happens, Zonos POSTs data like this:
-
-# ═══════════════════════════════════════════════
-# ORDER_CREATED webhook payload example:
-# ═══════════════════════════════════════════════
-{
-  "event": "ORDER_CREATED",
-  "timestamp": "2024-02-15T14:30:00Z",
-  "data": {
-    "order": {
-      "id": "order_abc123",
-      "accountOrderNumber": "ORD-2024-12345",
-      "status": "OPEN",
-      "amountSubtotals": {
-        "duties": 12.50,
-        "taxes": 11.86,
-        "fees": 7.49,
-        "shipping": 37.79,
-        "items": 149.99
-      }
-    }
-  }
-}
-
-# ═══════════════════════════════════════════════
-# ORDER_STATUS_CHANGED webhook payload example:
-# ═══════════════════════════════════════════════
-{
-  "event": "ORDER_STATUS_CHANGED",
-  "timestamp": "2024-02-16T09:15:00Z",
-  "data": {
-    "order": {
-      "id": "order_abc123",
-      "previousStatus": "OPEN",
-      "status": "FULFILLED"
-    }
-  }
-}
-
-# The merchant's server receives this and can:
-# - Update their database
-# - Send customer notifications
-# - Trigger fulfillment workflows`
-            }
         };
 
         // Load config from localStorage, then try server-side key
@@ -2189,12 +2105,6 @@ mutation VoidShipment {
             const responseArea = document.getElementById('responseArea');
             const runBtn = document.getElementById('runBtn');
 
-            // Check if this is the webhook info (not runnable)
-            if (query.includes('"event": "ORDER_CREATED"')) {
-                responseArea.innerHTML = '<pre class="response-error">Webhooks are not API calls you run \u2014 they are notifications sent BY Zonos TO the merchant.\n\nThis panel shows example payloads.\n\nTo see real webhooks arrive in real-time, click \u201cLive Webhook Tester\u201d in the sidebar!</pre>';
-                return;
-            }
-
             // Check for placeholder IDs that haven't been replaced
             if (query.includes('PASTE_YOUR_LANDED_COST_ID_HERE')) {
                 responseArea.innerHTML = '<pre class="response-error">You need to paste a Landed Cost ID first!\n\n1. Run "Calculate Landed Cost" first\n2. Copy the Landed Cost ID from the Results Summary\n3. Come back here and replace PASTE_YOUR_LANDED_COST_ID_HERE with the ID you copied\n4. Then click Run Query</pre>';
@@ -2278,20 +2188,45 @@ mutation VoidShipment {
             return `${base}/webhook/${webhookSessionId}`;
         }
 
-        function showWebhookTester() {
+        function showWebhookView() {
             // Hide other panels
             document.getElementById('friendlyView').classList.remove('visible');
 
-            // Show webhook tester
-            const tester = document.getElementById('webhookTester');
-            tester.classList.add('visible');
+            // Show webhook explanation
+            const explanation = document.querySelector('.explanation');
+            explanation.style.display = '';
+            explanation.innerHTML = `
+                <h3>Webhooks</h3>
+                <div class="explanation-content">
+                    <h4>What are webhooks?</h4>
+                    <p>Webhooks are <strong>notifications FROM Zonos TO the merchant</strong>. Instead of the merchant constantly asking "any updates?", Zonos automatically tells them when something happens.</p>
 
-            // Hide editor area and explanation (show tester as main content)
+                    <h4>Direction matters!</h4>
+                    <ul>
+                        <li><strong>API calls:</strong> Merchant &rarr; Zonos (merchant asks for something)</li>
+                        <li><strong>Webhooks:</strong> Zonos &rarr; Merchant (Zonos notifies about something)</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong>
+                        <br>API = You calling the pizza shop to place an order
+                        <br>Webhook = The pizza shop calling YOU to say "your pizza is ready!"
+                    </div>
+
+                    <h4>Webhook event types:</h4>
+                    <ul>
+                        <li><strong>ORDER_CREATED</strong> - New order was recorded</li>
+                        <li><strong>ORDER_STATUS_CHANGED</strong> - Status updated (shipped, etc.)</li>
+                        <li><strong>ORDER_CANCELED</strong> - Order was cancelled</li>
+                        <li><strong>SHIPMENT_CREATED</strong> - Shipment was created</li>
+                        <li><strong>SHIPMENT_CANCELED</strong> - Shipment was voided</li>
+                    </ul>
+                </div>
+            `;
+
+            // Show webhook tester, hide editor
+            document.getElementById('webhookTester').classList.add('visible');
             document.querySelector('.editor-area').style.display = 'none';
-            document.querySelector('.explanation').style.display = 'none';
-
-            // Set URL
-            document.getElementById('webhookUrl').textContent = getWebhookUrl();
 
             // Update active button
             document.querySelectorAll('.query-btn').forEach(btn => btn.classList.remove('active'));
@@ -2302,14 +2237,11 @@ mutation VoidShipment {
 
             // Start polling
             startWebhookPolling();
-
-            // Load existing events
             fetchWebhookEvents();
         }
 
         function hideWebhookTester() {
-            const tester = document.getElementById('webhookTester');
-            tester.classList.remove('visible');
+            document.getElementById('webhookTester').classList.remove('visible');
             document.querySelector('.editor-area').style.display = '';
             document.querySelector('.explanation').style.display = '';
             stopWebhookPolling();
@@ -2411,18 +2343,6 @@ mutation VoidShipment {
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        function copyWebhookUrl(btn) {
-            const url = getWebhookUrl();
-            navigator.clipboard.writeText(url).then(() => {
-                btn.textContent = 'Copied!';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Copy URL';
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
         }
 
         function clearWebhookEvents() {
