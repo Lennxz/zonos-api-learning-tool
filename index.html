@@ -1138,13 +1138,6 @@
                 <!-- Webhook Tester Panel -->
                 <div class="webhook-tester" id="webhookTester">
                     <h3>Live Webhook Tester</h3>
-                    <div class="webhook-url-box">
-                        <label>Your Webhook URL (paste this in Zonos Dashboard or use with curl)</label>
-                        <div class="webhook-url-row">
-                            <code id="webhookUrl">Loading...</code>
-                            <button class="copy-btn" onclick="copyWebhookUrl(this)">Copy URL</button>
-                        </div>
-                    </div>
 
                     <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                         <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px;">Send Test: Order Created</button>
