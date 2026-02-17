@@ -721,6 +721,242 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Webhook Tester */
+        .webhook-tester {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .webhook-tester.visible {
+            display: block;
+        }
+
+        .webhook-tester h3 {
+            color: #4f46e5;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .webhook-url-box {
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            border: 2px solid #c4b5fd;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .webhook-url-box label {
+            display: block;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .webhook-url-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .webhook-url-row code {
+            flex: 1;
+            background: white;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85em;
+            color: #4f46e5;
+            word-break: break-all;
+        }
+
+        .webhook-url-row .copy-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .webhook-url-row .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .webhook-url-row .copy-btn.copied {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .webhook-instructions {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #374151;
+        }
+
+        .webhook-instructions strong {
+            color: #047857;
+        }
+
+        .webhook-instructions code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #4f46e5;
+        }
+
+        .webhook-instructions ol {
+            margin: 10px 0 0 20px;
+        }
+
+        .webhook-instructions li {
+            margin-bottom: 6px;
+        }
+
+        .webhook-event-list {
+            list-style: none;
+        }
+
+        .webhook-event-list .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .webhook-event-list .empty-state .pulse-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #a5b4fc;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .webhook-event-item {
+            background: linear-gradient(145deg, #fafafa 0%, #f3f4f6 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .webhook-event-item:hover {
+            border-color: #c7d2fe;
+        }
+
+        .webhook-event-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            cursor: pointer;
+            gap: 12px;
+        }
+
+        .webhook-event-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .webhook-event-time {
+            color: #9ca3af;
+            font-size: 0.8em;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .webhook-event-toggle {
+            color: #9ca3af;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+
+        .webhook-event-item.expanded .webhook-event-toggle {
+            transform: rotate(90deg);
+        }
+
+        .webhook-event-body {
+            display: none;
+            padding: 0 18px 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .webhook-event-item.expanded .webhook-event-body {
+            display: block;
+        }
+
+        .webhook-event-body pre {
+            background: #1e1b4b;
+            color: #c4b5fd;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.8em;
+            overflow-x: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .webhook-polling-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+            color: #9ca3af;
+            margin-bottom: 15px;
+        }
+
+        .webhook-polling-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .webhook-clear-btn {
+            background: none;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.8em;
+            color: #6b7280;
+            cursor: pointer;
+            margin-left: auto;
+            transition: all 0.2s ease;
+        }
+
+        .webhook-clear-btn:hover {
+            border-color: #dc2626;
+            color: #dc2626;
+        }
     </style>
 </head>
 <body>
@@ -804,6 +1040,12 @@
                         <button class="query-btn" onclick="loadQuery('webhook-info')">
                             Understanding Webhooks
                             <small>How Zonos notifies merchants</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" id="webhookTesterBtn" onclick="showWebhookTester()">
+                            Live Webhook Tester
+                            <small>See real webhook events arrive</small>
                         </button>
                     </li>
                 </ul>
@@ -891,6 +1133,41 @@
                             <button class="copy-btn" onclick="copyCopyBox('shipmentIdValue', this)">Copy ID</button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Webhook Tester Panel -->
+                <div class="webhook-tester" id="webhookTester">
+                    <h3>Live Webhook Tester</h3>
+                    <div class="webhook-url-box">
+                        <label>Your Webhook URL (paste this in Zonos Dashboard or use with curl)</label>
+                        <div class="webhook-url-row">
+                            <code id="webhookUrl">Loading...</code>
+                            <button class="copy-btn" onclick="copyWebhookUrl(this)">Copy URL</button>
+                        </div>
+                    </div>
+
+                    <div class="webhook-instructions">
+                        <strong>How to test:</strong>
+                        <ol>
+                            <li>Copy the URL above</li>
+                            <li>Paste it as a webhook endpoint in the <strong>Zonos Dashboard</strong> (Settings &rarr; Webhooks), or test with curl</li>
+                            <li>When Zonos sends a webhook (e.g. after creating an order), it will appear below in real-time</li>
+                        </ol>
+                    </div>
+
+                    <div class="webhook-polling-status">
+                        <span class="webhook-polling-dot"></span>
+                        <span>Listening for events...</span>
+                        <button class="webhook-clear-btn" onclick="clearWebhookEvents()">Clear Events</button>
+                    </div>
+
+                    <ul class="webhook-event-list" id="webhookEventList">
+                        <li class="empty-state">
+                            <span class="pulse-dot"></span>
+                            Waiting for webhook events...<br>
+                            <small>Events will appear here automatically when received</small>
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- Config Section -->
@@ -1395,6 +1672,9 @@ mutation VoidShipment {
             const query = queries[queryId];
             if (!query) return;
 
+            // Hide webhook tester if visible
+            hideWebhookTester();
+
             // Update explanation
             document.getElementById('explanation').innerHTML = `
                 <h3>${query.title}</h3>
@@ -1419,6 +1699,9 @@ mutation VoidShipment {
 
         // Show journey step explanation
         function showStep(step) {
+            // Hide webhook tester if visible
+            hideWebhookTester();
+
             const explanations = {
                 1: {
                     title: 'Step 1: Calculate Landed Cost',
@@ -1956,6 +2239,163 @@ mutation VoidShipment {
 
             runBtn.disabled = false;
             runBtn.textContent = 'Run Query';
+        }
+
+        // ============ WEBHOOK TESTER ============
+
+        const SUPABASE_URL = 'https://exkwgonxzuvfwrgsptsr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4a3dnb254enV2ZndyZ3NwdHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMzYxMjgsImV4cCI6MjA4NjkxMjEyOH0.zRwlSH-nOQkfa1-IFhh_O80jBQYldKs2WSA_RdSO9uk';
+
+        let webhookSessionId = localStorage.getItem('webhook_session_id');
+        if (!webhookSessionId) {
+            webhookSessionId = crypto.randomUUID();
+            localStorage.setItem('webhook_session_id', webhookSessionId);
+        }
+
+        let webhookPollingInterval = null;
+        let webhookEvents = [];
+        let lastEventTime = null;
+
+        function getWebhookUrl() {
+            const base = window.location.origin;
+            return `${base}/webhook/${webhookSessionId}`;
+        }
+
+        function showWebhookTester() {
+            // Hide other panels
+            document.getElementById('friendlyView').classList.remove('visible');
+
+            // Show webhook tester
+            const tester = document.getElementById('webhookTester');
+            tester.classList.add('visible');
+
+            // Hide editor area and explanation (show tester as main content)
+            document.querySelector('.editor-area').style.display = 'none';
+            document.querySelector('.explanation').style.display = 'none';
+
+            // Set URL
+            document.getElementById('webhookUrl').textContent = getWebhookUrl();
+
+            // Update active button
+            document.querySelectorAll('.query-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('webhookTesterBtn').classList.add('active');
+
+            // Deactivate journey steps
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+            // Start polling
+            startWebhookPolling();
+
+            // Load existing events
+            fetchWebhookEvents();
+        }
+
+        function hideWebhookTester() {
+            const tester = document.getElementById('webhookTester');
+            tester.classList.remove('visible');
+            document.querySelector('.editor-area').style.display = '';
+            document.querySelector('.explanation').style.display = '';
+            stopWebhookPolling();
+        }
+
+        function startWebhookPolling() {
+            stopWebhookPolling();
+            webhookPollingInterval = setInterval(fetchWebhookEvents, 3000);
+        }
+
+        function stopWebhookPolling() {
+            if (webhookPollingInterval) {
+                clearInterval(webhookPollingInterval);
+                webhookPollingInterval = null;
+            }
+        }
+
+        async function fetchWebhookEvents() {
+            try {
+                let url = `${SUPABASE_URL}/rest/v1/webhook_events?session_id=eq.${webhookSessionId}&order=received_at.desc&limit=50`;
+
+                const resp = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    }
+                });
+
+                if (!resp.ok) return;
+                const events = await resp.json();
+                renderWebhookEvents(events);
+            } catch (e) {
+                // Silently fail - will retry on next poll
+            }
+        }
+
+        function renderWebhookEvents(events) {
+            const list = document.getElementById('webhookEventList');
+
+            if (!events || events.length === 0) {
+                list.innerHTML = `
+                    <li class="empty-state">
+                        <span class="pulse-dot"></span>
+                        Waiting for webhook events...<br>
+                        <small>Events will appear here automatically when received</small>
+                    </li>`;
+                return;
+            }
+
+            list.innerHTML = events.map((evt, i) => {
+                const time = new Date(evt.received_at);
+                const timeStr = time.toLocaleTimeString();
+                const payloadStr = JSON.stringify(evt.payload, null, 2);
+
+                return `
+                    <li class="webhook-event-item" onclick="this.classList.toggle('expanded')">
+                        <div class="webhook-event-header">
+                            <span class="webhook-event-badge">${escapeHtml(evt.event_type || 'unknown')}</span>
+                            <span style="color: #374151; font-size: 0.85em;">${escapeHtml(summarizePayload(evt.payload))}</span>
+                            <span class="webhook-event-time">${timeStr}</span>
+                            <span class="webhook-event-toggle">&#9654;</span>
+                        </div>
+                        <div class="webhook-event-body">
+                            <pre>${escapeHtml(payloadStr)}</pre>
+                        </div>
+                    </li>`;
+            }).join('');
+        }
+
+        function summarizePayload(payload) {
+            if (!payload) return '';
+            // Try to extract a useful summary
+            if (payload.data && payload.data.order && payload.data.order.id) {
+                return 'Order: ' + payload.data.order.id;
+            }
+            if (payload.data && payload.data.shipment && payload.data.shipment.id) {
+                return 'Shipment: ' + payload.data.shipment.id;
+            }
+            const keys = Object.keys(payload);
+            if (keys.length <= 3) return keys.join(', ');
+            return keys.slice(0, 3).join(', ') + '...';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function copyWebhookUrl(btn) {
+            const url = getWebhookUrl();
+            navigator.clipboard.writeText(url).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy URL';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function clearWebhookEvents() {
+            webhookEvents = [];
+            renderWebhookEvents([]);
         }
 
         // Initialize
