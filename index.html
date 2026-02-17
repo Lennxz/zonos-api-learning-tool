@@ -1131,38 +1131,23 @@
 
                 <!-- Webhook Tester Panel -->
                 <div class="webhook-tester" id="webhookTester">
-                    <h3>Live Webhook Tester</h3>
+                    <h3>See What Merchants Receive</h3>
+                    <p style="color: #6b7280; margin-bottom: 16px;">Click a button to simulate what happens when an event occurs in Zonos. The data below is exactly what Zonos would POST to the merchant's server.</p>
 
                     <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px;">Send Test: Order Created</button>
-                        <button onclick="sendTestWebhook('SHIPMENT_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">Send Test: Shipment Created</button>
-                        <button onclick="sendTestWebhook('ORDER_CANCELED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Send Test: Order Canceled</button>
+                        <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px;">Simulate: Order Created</button>
+                        <button onclick="sendTestWebhook('SHIPMENT_CREATED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">Simulate: Shipment Created</button>
+                        <button onclick="sendTestWebhook('ORDER_CANCELED')" class="run-btn" style="flex: 1; min-width: 150px; font-size: 0.9em; padding: 14px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Simulate: Order Canceled</button>
                     </div>
 
                     <div class="webhook-instructions">
-                        <strong>How it works:</strong>
+                        <strong>What's happening behind the scenes:</strong>
                         <ol>
-                            <li>Click a button above to simulate Zonos sending a webhook event</li>
-                            <li>The event appears below in real-time &mdash; this is exactly what a merchant's server would receive</li>
-                            <li>Click any event to expand and see the full JSON payload</li>
+                            <li>You click "Simulate" &rarr; we mimic Zonos sending a webhook POST to a server</li>
+                            <li>The event shows up below &mdash; this is the exact JSON data a merchant's server would receive</li>
+                            <li>Click any event to expand and inspect the full payload</li>
                         </ol>
-                        <details style="margin-top: 10px;">
-                            <summary style="cursor: pointer; font-weight: 600; color: #4f46e5;">For developers: how merchants register webhooks in production</summary>
-                            <p style="margin-top: 8px; font-size: 0.85em; color: #6b7280;">Merchants register their webhook URL using the <code>webhookCreate</code> GraphQL mutation:</p>
-                            <pre style="background: #1e1b4b; color: #c4b5fd; border-radius: 8px; padding: 12px; font-size: 0.82em; margin-top: 8px; overflow-x: auto; white-space: pre-wrap;">mutation {
-  webhookCreate(input: {
-    url: "https://merchant-site.com/webhooks/zonos"
-    type: ORDER_CREATED
-    status: ENABLED
-  }) {
-    id
-    url
-    type
-    status
-  }
-}</pre>
-                            <p style="margin-top: 8px; font-size: 0.85em; color: #6b7280;">Event types: <code>ORDER_CREATED</code>, <code>ORDER_CANCELED</code>, <code>ORDER_STATUS_CHANGED</code>, <code>SHIPMENT_CREATED</code>, <code>SHIPMENT_CANCELED</code></p>
-                        </details>
+                        <p style="margin-top: 10px; color: #6b7280; font-size: 0.88em;"><strong>In production:</strong> this happens automatically. When a merchant creates an order, adds tracking, or cancels &mdash; Zonos sends these webhooks to the merchant's registered URL without anyone clicking a button.</p>
                     </div>
 
                     <div class="webhook-polling-status">
@@ -2199,28 +2184,29 @@ mutation VoidShipment {
                 <h3>Webhooks</h3>
                 <div class="explanation-content">
                     <h4>What are webhooks?</h4>
-                    <p>Webhooks are <strong>notifications FROM Zonos TO the merchant</strong>. Instead of the merchant constantly asking "any updates?", Zonos automatically tells them when something happens.</p>
+                    <p>Webhooks are <strong>automatic notifications FROM Zonos TO the merchant's server</strong>. The merchant doesn't ask for them &mdash; Zonos sends them whenever something happens.</p>
 
-                    <h4>Direction matters!</h4>
-                    <ul>
-                        <li><strong>API calls:</strong> Merchant &rarr; Zonos (merchant asks for something)</li>
-                        <li><strong>Webhooks:</strong> Zonos &rarr; Merchant (Zonos notifies about something)</li>
-                    </ul>
+                    <h4>The real flow:</h4>
+                    <div style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 12px; padding: 18px; margin: 12px 0;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; font-weight: 600; color: #4338ca;">
+                            <span style="background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #c7d2fe;">1. Something happens in Zonos</span>
+                            <span style="font-size: 1.3em;">&rarr;</span>
+                            <span style="background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #c7d2fe;">2. Zonos POSTs to merchant's URL</span>
+                            <span style="font-size: 1.3em;">&rarr;</span>
+                            <span style="background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #c7d2fe;">3. Merchant receives the data</span>
+                        </div>
+                    </div>
+                    <p>For example: a merchant creates an order via the API &rarr; Zonos automatically sends an <code>ORDER_CREATED</code> webhook to the merchant's server with the order details.</p>
 
                     <div class="analogy">
                         <strong>Real-world analogy:</strong>
                         <br>API = You calling the pizza shop to place an order
                         <br>Webhook = The pizza shop calling YOU to say "your pizza is ready!"
+                        <br><br>You don't ask "is it ready yet?" over and over. They just call you when it's done.
                     </div>
 
-                    <h4>Webhook event types:</h4>
-                    <ul>
-                        <li><strong>ORDER_CREATED</strong> - New order was recorded</li>
-                        <li><strong>ORDER_STATUS_CHANGED</strong> - Status updated (shipped, etc.)</li>
-                        <li><strong>ORDER_CANCELED</strong> - Order was cancelled</li>
-                        <li><strong>SHIPMENT_CREATED</strong> - Shipment was created</li>
-                        <li><strong>SHIPMENT_CANCELED</strong> - Shipment was voided</li>
-                    </ul>
+                    <h4>How merchants set this up:</h4>
+                    <p>The merchant gives Zonos a URL using the <code>webhookCreate</code> API mutation and picks which events they want to hear about. After that, it's automatic.</p>
                 </div>
             `;
 
