@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/proxy", "destination": "/api/proxy" },
-    { "source": "/webhook/:session_id", "destination": "/api/webhook?session=:session_id" }
+    { "source": "/config", "destination": "/api/config" },
+    { "source": "/webhook/:session_id", "destination": "/api/webhook?session=:session_id" },
+    { "source": "/clear-webhooks", "destination": "/api/clear_webhooks" }
   ]
 }

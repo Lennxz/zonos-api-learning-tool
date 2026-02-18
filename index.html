@@ -3,18 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zonos API Demo Tool</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Zonos API Playground</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0c0c14;
+            --card: rgba(255,255,255,0.05);
+            --card-border: rgba(255,255,255,0.09);
+            --teal: #00B9B7;
+            --purple: #3122F6;
+            --gradient: linear-gradient(135deg, #00B9B7 0%, #3122F6 100%);
+            --text: #e8eaf0;
+            --text-muted: rgba(255,255,255,0.45);
+            --text-dim: rgba(255,255,255,0.28);
+            --border: rgba(255,255,255,0.09);
+            --hover-border: rgba(0,185,183,0.4);
+            --input-bg: rgba(255,255,255,0.06);
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            color: #374151;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
             position: relative;
@@ -23,12 +35,11 @@
         body::before {
             content: '';
             position: fixed;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 110vw;
-            height: 110vh;
-            background-image: url('clipper.svg');
+            width: 85vw; height: 85vh;
+            background-image: url('cipher.png');
+            opacity: 0.05;
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
@@ -46,38 +57,50 @@
 
         header {
             text-align: center;
-            padding: 40px 0;
-            margin-bottom: 30px;
+            padding: 20px 0 15px;
+            margin-bottom: 15px;
+        }
+
+        header img.site-logo {
+            height: 32px;
+            width: auto;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         header h1 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-size: 2.5em;
+            font-size: 2.4em;
             margin-bottom: 10px;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        header p {
-            color: #6b7280;
-            font-size: 1.15em;
-        }
+        header p { color: var(--text-muted); font-size: 1.1em; }
 
-        /* Journey Section */
-        .journey {
-            background: white;
+        /* Cards */
+        .journey, .sidebar, .explanation, .editor-area,
+        .config-section, .quick-ref, .webhook-tester {
+            background: var(--card);
+            border: 1px solid var(--card-border);
             border-radius: 20px;
-            padding: 35px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+        }
+
+        .journey {
+            padding: 20px 25px;
+            margin-bottom: 15px;
         }
 
         .journey h2 {
-            color: #4f46e5;
-            margin-bottom: 25px;
-            font-size: 1.5em;
+            color: var(--teal);
+            margin-bottom: 15px;
+            font-size: 1.2em;
             font-weight: 600;
         }
 
@@ -91,69 +114,56 @@
         .step {
             flex: 1;
             min-width: 180px;
-            background: linear-gradient(145deg, #fafafa 0%, #f3f4f6 100%);
+            background: rgba(255,255,255,0.03);
             border-radius: 16px;
-            padding: 25px 20px;
+            padding: 14px 14px;
             text-align: center;
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            border: 1px solid var(--border);
         }
 
         .step:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
-            border-color: #a5b4fc;
+            border-color: rgba(0,185,183,0.4);
+            box-shadow: 0 12px 30px rgba(0,185,183,0.1);
         }
 
         .step.active {
-            background: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%);
-            border-color: #6366f1;
+            background: rgba(0,185,183,0.08);
+            border-color: var(--teal);
             transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 12px 30px rgba(0,185,183,0.15);
         }
 
         .step-number {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: var(--gradient);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            margin: 0 auto 15px;
-            font-size: 1.1em;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            margin: 0 auto 10px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 12px rgba(0,185,183,0.3);
         }
 
-        .step h3 {
-            color: #1f2937;
-            font-size: 1.05em;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .step p {
-            color: #6b7280;
-            font-size: 0.88em;
-        }
+        .step h3 { color: var(--text); font-size: 1.05em; margin-bottom: 8px; font-weight: 600; }
+        .step p { color: var(--text-muted); font-size: 0.88em; }
 
         .step-arrow {
             position: absolute;
-            right: -20px;
-            top: 50%;
+            right: -20px; top: 50%;
             transform: translateY(-50%);
-            color: #a5b4fc;
+            color: var(--text-dim);
             font-size: 1.5em;
             font-weight: bold;
         }
 
-        .step:last-child .step-arrow {
-            display: none;
-        }
+        .step:last-child .step-arrow { display: none; }
 
         /* Main Content */
         .main-content {
@@ -162,147 +172,94 @@
             gap: 25px;
         }
 
-        @media (max-width: 900px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
 
         /* Sidebar */
-        .sidebar {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            height: fit-content;
-        }
+        .sidebar { padding: 25px; height: fit-content; }
 
         .sidebar h3 {
-            color: #4f46e5;
+            color: var(--teal);
             margin-bottom: 18px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid var(--border);
             font-weight: 600;
             font-size: 1.1em;
         }
 
-        .query-list {
-            list-style: none;
-        }
-
-        .query-list li {
-            margin-bottom: 10px;
-        }
+        .query-list { list-style: none; }
+        .query-list li { margin-bottom: 10px; }
 
         .query-btn {
             width: 100%;
             padding: 14px 16px;
-            background: #f9fafb;
-            border: 2px solid #e5e7eb;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            color: #374151;
+            color: var(--text);
             text-align: left;
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: 500;
+            font-family: inherit;
         }
 
         .query-btn:hover {
-            background: #f3f4f6;
-            border-color: #a5b4fc;
+            background: rgba(0,185,183,0.06);
+            border-color: var(--hover-border);
             transform: translateX(4px);
         }
 
         .query-btn.active {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: var(--gradient);
             color: white;
             border-color: transparent;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 15px rgba(0,185,183,0.25);
         }
 
-        .query-btn small {
-            display: block;
-            color: #9ca3af;
-            font-size: 0.8em;
-            margin-top: 4px;
-            font-weight: 400;
-        }
-
-        .query-btn.active small {
-            color: rgba(255, 255, 255, 0.85);
-        }
+        .query-btn small { display: block; color: var(--text-dim); font-size: 0.8em; margin-top: 4px; font-weight: 400; }
+        .query-btn.active small { color: rgba(255,255,255,0.8); }
 
         /* Explanation Panel */
-        .explanation {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
+        .explanation { padding: 16px 25px; margin-bottom: 15px; }
+        .explanation-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        .explanation h3 { color: var(--teal); font-weight: 600; margin: 0; }
+        .explanation-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; padding: 4px 10px; font-size: 0.8em; transition: all 0.2s; }
+        .explanation-toggle:hover { border-color: var(--teal); color: var(--teal); }
+        .explanation-content { margin-top: 16px; }
+        .explanation-content.collapsed { display: none; }
 
-        .explanation h3 {
-            color: #4f46e5;
-            margin-bottom: 18px;
-            font-weight: 600;
-        }
-
-        .explanation-content {
-            color: #4b5563;
-        }
-
-        .explanation-content h4 {
-            color: #1f2937;
-            margin: 18px 0 10px;
-            font-weight: 600;
-        }
-
-        .explanation-content ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .explanation-content li {
-            margin-bottom: 6px;
-            color: #4b5563;
-        }
+        .explanation-content { color: var(--text-muted); }
+        .explanation-content h4 { color: var(--text); margin: 18px 0 10px; font-weight: 600; }
+        .explanation-content ul { list-style: none !important; padding-left: 0 !important; margin-left: 0; margin-bottom: 15px; }
+        .explanation-content li { list-style: none !important; margin-bottom: 6px; color: var(--text-muted); padding-left: 16px; position: relative; }
+        .explanation-content li::before { content: '–'; position: absolute; left: 0; color: var(--teal); font-weight: 600; }
 
         .analogy {
-            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-            border-left: 4px solid #8b5cf6;
+            background: rgba(49,34,246,0.12);
+            border-left: 3px solid var(--purple);
             padding: 18px;
             margin: 18px 0;
             border-radius: 0 12px 12px 0;
         }
 
-        .analogy strong {
-            color: #7c3aed;
-        }
+        .analogy strong { color: #a78bfa; }
 
         /* Editor Area */
-        .editor-area {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
+        .editor-area { overflow: hidden; }
 
         .editor-header {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background: rgba(255,255,255,0.04);
             padding: 18px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border);
         }
 
-        .editor-header h3 {
-            color: #1f2937;
-            font-weight: 600;
-        }
+        .editor-header h3 { color: var(--text); font-weight: 600; }
 
         .run-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: var(--gradient);
             color: white;
             border: none;
             padding: 12px 28px;
@@ -310,47 +267,77 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 15px rgba(0,185,183,0.25);
+            font-family: inherit;
         }
 
-        .run-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
+        .run-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,185,183,0.35); }
+        .run-btn:disabled { background: rgba(255,255,255,0.15); box-shadow: none; cursor: not-allowed; transform: none; }
 
-        .run-btn:disabled {
-            background: #9ca3af;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
+        /* Vision Upload Panel */
+        .vision-panel {
+            display: none;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,185,183,0.03);
         }
+        .vision-panel.visible { display: block; }
+        .vision-drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+        .vision-drop-zone:hover, .vision-drop-zone.dragover {
+            border-color: var(--teal);
+            background: rgba(0,185,183,0.05);
+            color: var(--teal);
+        }
+        .vision-drop-zone input[type=file] { display: none; }
+        .vision-preview {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 0 4px;
+        }
+        .vision-preview.visible { display: flex; }
+        .vision-preview img {
+            width: 80px; height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .vision-preview-info { flex: 1; }
+        .vision-preview-info .vision-filename { color: var(--text); font-size: 0.9em; font-weight: 500; }
+        .vision-preview-info .vision-status { color: var(--teal); font-size: 0.8em; margin-top: 4px; }
+        .vision-remove-btn {
+            background: none; border: 1px solid var(--border); border-radius: 6px;
+            color: var(--text-muted); cursor: pointer; padding: 4px 10px; font-size: 0.8em;
+            transition: all 0.2s;
+        }
+        .vision-remove-btn:hover { border-color: #f87171; color: #f87171; }
 
         .editor-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            min-height: 400px;
+            min-height: 650px;
         }
 
-        @media (max-width: 1100px) {
-            .editor-body {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 1100px) { .editor-body { grid-template-columns: 1fr; } }
 
-        .editor-pane {
-            border-right: 1px solid #e5e7eb;
-        }
-
-        .editor-pane:last-child {
-            border-right: none;
-        }
+        .editor-pane { border-right: 1px solid var(--border); }
+        .editor-pane:last-child { border-right: none; }
 
         .pane-header {
-            background: #f9fafb;
+            background: rgba(255,255,255,0.03);
             padding: 12px 18px;
             font-size: 0.8em;
-            color: #6b7280;
-            border-bottom: 1px solid #e5e7eb;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
@@ -358,261 +345,154 @@
 
         textarea {
             width: 100%;
-            height: 350px;
-            background: #fafafa;
+            height: 650px;
+            background: rgba(255,255,255,0.02);
             border: none;
-            color: #5b21b6;
+            color: #7dd3fc;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
             font-size: 13px;
             padding: 18px;
             resize: none;
         }
 
-        textarea:focus {
-            outline: none;
-            background: #f5f3ff;
-        }
+        textarea:focus { outline: none; background: rgba(0,185,183,0.03); }
 
         .response-area {
             padding: 18px;
-            background: #fafafa;
-            height: 350px;
+            background: rgba(255,255,255,0.02);
+            height: 650px;
             overflow: auto;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
             font-size: 13px;
         }
 
-        .response-area pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .response-success {
-            color: #059669;
-        }
-
-        .response-error {
-            color: #dc2626;
-        }
+        .response-area pre { white-space: pre-wrap; word-wrap: break-word; }
+        .response-success { color: var(--teal); }
+        .response-error { color: #f87171; }
 
         /* Config Section */
-        .config-section {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
+        .config-section { padding: 25px; margin-top: 20px; }
+        .config-section h3 { color: var(--teal); margin-bottom: 18px; font-weight: 600; }
 
-        .config-section h3 {
-            color: #4f46e5;
-            margin-bottom: 18px;
-            font-weight: 600;
-        }
-
-        .config-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .config-row label {
-            min-width: 100px;
-            color: #6b7280;
-            font-weight: 500;
-        }
+        .config-row { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
+        .config-row label { min-width: 100px; color: var(--text-muted); font-weight: 500; }
 
         .config-row input {
             flex: 1;
             padding: 12px 16px;
-            background: #f9fafb;
-            border: 2px solid #e5e7eb;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 10px;
-            color: #374151;
+            color: var(--text);
             font-family: monospace;
             transition: all 0.2s ease;
         }
 
         .config-row input:focus {
             outline: none;
-            border-color: #a5b4fc;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.2);
+            border-color: rgba(0,185,183,0.5);
+            box-shadow: 0 0 0 3px rgba(0,185,183,0.1);
         }
 
         /* Quick Reference */
-        .quick-ref {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 25px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
+        .quick-ref { padding: 30px; margin-top: 25px; }
+        .quick-ref h3 { color: var(--teal); margin-bottom: 20px; font-weight: 600; font-size: 1.2em; }
 
-        .quick-ref h3 {
-            color: #4f46e5;
-            margin-bottom: 20px;
-            font-weight: 600;
-            font-size: 1.2em;
-        }
-
-        .ref-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 18px;
-        }
+        .ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
 
         .ref-card {
-            background: linear-gradient(145deg, #fafafa 0%, #f3f4f6 100%);
+            background: rgba(255,255,255,0.03);
             border-radius: 14px;
             padding: 20px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border);
             transition: all 0.2s ease;
         }
 
         .ref-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            border-color: #c7d2fe;
+            border-color: var(--hover-border);
+            box-shadow: 0 8px 25px rgba(0,185,183,0.1);
         }
 
-        .ref-card h4 {
-            color: #4f46e5;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-            font-weight: 600;
-        }
-
-        .ref-card p {
-            color: #6b7280;
-            font-size: 0.88em;
-            margin-bottom: 6px;
-        }
+        .ref-card h4 { color: var(--teal); margin-bottom: 10px; font-size: 0.95em; font-weight: 600; }
+        .ref-card p { color: var(--text-muted); font-size: 0.88em; margin-bottom: 6px; }
 
         .ref-card code {
-            background: #eef2ff;
+            background: rgba(0,185,183,0.12);
             padding: 3px 8px;
             border-radius: 6px;
-            color: #6366f1;
+            color: var(--teal);
             font-size: 0.85em;
             font-weight: 500;
         }
 
         /* Friendly View */
         .friendly-view {
-            background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+            background: rgba(0,185,183,0.06);
             border-radius: 20px;
             padding: 25px;
             margin-top: 20px;
-            border: 2px solid #a7f3d0;
+            border: 1px solid rgba(0,185,183,0.25);
             display: none;
         }
 
-        .friendly-view.visible {
-            display: block;
-        }
+        .friendly-view.visible { display: block; }
+        .friendly-view h3 { color: var(--teal); margin-bottom: 20px; font-size: 1.15em; font-weight: 600; }
 
-        .friendly-view h3 {
-            color: #047857;
-            margin-bottom: 20px;
-            font-size: 1.15em;
-            font-weight: 600;
-        }
-
-        .friendly-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 800px) {
-            .friendly-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        .friendly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 800px) { .friendly-grid { grid-template-columns: 1fr; } }
 
         .friendly-section {
-            background: white;
+            background: rgba(255,255,255,0.04);
             border-radius: 14px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
         }
 
         .friendly-section h4 {
-            color: #6b7280;
+            color: var(--text-muted);
             font-size: 0.8em;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid var(--border);
             font-weight: 600;
         }
 
-        .friendly-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .friendly-row:last-child {
-            border-bottom: none;
-        }
-
-        .friendly-label {
-            color: #6b7280;
-            font-size: 0.92em;
-        }
-
-        .friendly-value {
-            color: #1f2937;
-            font-weight: 600;
-            font-size: 0.92em;
-        }
-
-        .friendly-value.money {
-            color: #059669;
-        }
+        .friendly-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .friendly-row:last-child { border-bottom: none; }
+        .friendly-label { color: var(--text-muted); font-size: 0.92em; }
+        .friendly-value { color: var(--text); font-weight: 600; font-size: 0.92em; }
+        .friendly-value.money { color: var(--teal); }
 
         .friendly-total {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            background: rgba(0,185,183,0.1);
             padding: 15px 18px;
             border-radius: 10px;
             margin-top: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #a7f3d0;
+            border: 1px solid rgba(0,185,183,0.25);
         }
 
-        .friendly-total .friendly-label {
-            color: #047857;
-            font-weight: 600;
-        }
-
-        .friendly-total .friendly-value {
-            font-size: 1.15em;
-            color: #047857;
-        }
+        .friendly-total .friendly-label { color: var(--teal); font-weight: 600; }
+        .friendly-total .friendly-value { font-size: 1.15em; color: var(--teal); }
 
         .friendly-copybox {
-            background: white;
+            background: rgba(255,255,255,0.04);
             border-radius: 14px;
             padding: 20px;
             margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border: 2px dashed #6366f1;
+            border: 1px dashed rgba(0,185,183,0.4);
             display: none;
         }
 
-        .friendly-copybox.visible {
-            display: block;
-        }
+        .friendly-copybox.visible { display: block; }
 
         .friendly-copybox h4 {
-            color: #4f46e5;
+            color: var(--teal);
             font-size: 0.8em;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -620,33 +500,24 @@
             font-weight: 600;
         }
 
-        .friendly-copybox p {
-            color: #6b7280;
-            font-size: 0.85em;
-            margin-bottom: 12px;
-        }
-
-        .friendly-copybox .copy-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .friendly-copybox p { color: var(--text-muted); font-size: 0.85em; margin-bottom: 12px; }
+        .friendly-copybox .copy-row { display: flex; align-items: center; gap: 10px; }
 
         .friendly-copybox .copy-id {
             flex: 1;
-            background: #f5f3ff;
-            border: 1px solid #c4b5fd;
+            background: rgba(0,185,183,0.08);
+            border: 1px solid rgba(0,185,183,0.3);
             border-radius: 8px;
             padding: 12px 15px;
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
-            color: #4f46e5;
+            color: var(--teal);
             font-weight: 600;
             word-break: break-all;
         }
 
-        .friendly-copybox .copy-btn {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        .friendly-copybox .copy-btn, .webhook-url-row .copy-btn {
+            background: var(--gradient);
             color: white;
             border: none;
             border-radius: 8px;
@@ -656,31 +527,29 @@
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s ease;
+            font-family: inherit;
         }
 
-        .friendly-copybox .copy-btn:hover {
+        .friendly-copybox .copy-btn:hover, .webhook-url-row .copy-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(0,185,183,0.3);
         }
 
-        .friendly-copybox .copy-btn.copied {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        .friendly-copybox .copy-btn.copied, .webhook-url-row .copy-btn.copied {
+            background: linear-gradient(135deg, #00B9B7 0%, #047857 100%);
         }
 
         /* Loading */
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Status indicator */
         .status {
@@ -692,58 +561,23 @@
             font-weight: 600;
         }
 
-        .status.connected {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #047857;
-        }
+        .status.connected { background: rgba(0,185,183,0.15); color: var(--teal); border: 1px solid rgba(0,185,183,0.3); }
+        .status.disconnected { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
 
-        .status.disconnected {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #dc2626;
-        }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,185,183,0.4); }
 
         /* Webhook Tester */
-        .webhook-tester {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            display: none;
-        }
-
-        .webhook-tester.visible {
-            display: block;
-        }
-
-        .webhook-tester h3 {
-            color: #4f46e5;
-            margin-bottom: 18px;
-            font-weight: 600;
-        }
+        .webhook-tester { padding: 25px; display: none; }
+        .webhook-tester.visible { display: block; }
+        .webhook-tester h3 { color: var(--teal); margin-bottom: 18px; font-weight: 600; }
 
         .webhook-url-box {
-            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-            border: 2px solid #c4b5fd;
+            background: rgba(49,34,246,0.1);
+            border: 1px solid rgba(49,34,246,0.3);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 20px;
@@ -754,96 +588,62 @@
             font-size: 0.8em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #6b7280;
+            color: var(--text-muted);
             font-weight: 600;
             margin-bottom: 8px;
         }
 
-        .webhook-url-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .webhook-url-row { display: flex; align-items: center; gap: 10px; }
 
         .webhook-url-row code {
             flex: 1;
-            background: white;
-            border: 1px solid #c4b5fd;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(49,34,246,0.3);
             border-radius: 8px;
             padding: 10px 14px;
             font-family: 'Monaco', 'Menlo', monospace;
             font-size: 0.85em;
-            color: #4f46e5;
+            color: #a78bfa;
             word-break: break-all;
         }
 
-        .webhook-url-row .copy-btn {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 18px;
-            font-size: 0.85em;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .webhook-url-row .copy-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        .webhook-url-row .copy-btn.copied {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
+        .webhook-url-row .copy-btn { padding: 10px 18px; }
 
         .webhook-instructions {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border: 1px solid #a7f3d0;
+            background: rgba(0,185,183,0.07);
+            border: 1px solid rgba(0,185,183,0.2);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 20px;
             font-size: 0.9em;
-            color: #374151;
+            color: var(--text-muted);
         }
 
-        .webhook-instructions strong {
-            color: #047857;
-        }
+        .webhook-instructions strong { color: var(--teal); }
 
         .webhook-instructions code {
-            background: white;
+            background: rgba(0,185,183,0.12);
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 0.85em;
-            color: #4f46e5;
+            color: var(--teal);
         }
 
-        .webhook-instructions ol {
-            margin: 10px 0 0 20px;
-        }
+        .webhook-instructions ol { margin: 10px 0 0 20px; }
+        .webhook-instructions li { margin-bottom: 6px; }
 
-        .webhook-instructions li {
-            margin-bottom: 6px;
-        }
-
-        .webhook-event-list {
-            list-style: none;
-        }
+        .webhook-event-list { list-style: none; }
 
         .webhook-event-list .empty-state {
             text-align: center;
             padding: 40px 20px;
-            color: #9ca3af;
+            color: var(--text-dim);
         }
 
         .webhook-event-list .empty-state .pulse-dot {
             display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #a5b4fc;
+            width: 10px; height: 10px;
+            background: var(--teal);
             border-radius: 50%;
             margin-right: 8px;
             animation: pulse 2s ease-in-out infinite;
@@ -855,28 +655,20 @@
         }
 
         .webhook-event-item {
-            background: linear-gradient(145deg, #fafafa 0%, #f3f4f6 100%);
-            border: 1px solid #e5e7eb;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
             border-radius: 12px;
             margin-bottom: 10px;
             overflow: hidden;
             transition: all 0.2s ease;
         }
 
-        .webhook-event-item:hover {
-            border-color: #c7d2fe;
-        }
+        .webhook-event-item:hover { border-color: var(--hover-border); }
 
-        .webhook-event-header {
-            display: flex;
-            align-items: center;
-            padding: 14px 18px;
-            cursor: pointer;
-            gap: 12px;
-        }
+        .webhook-event-header { display: flex; align-items: center; padding: 14px 18px; cursor: pointer; gap: 12px; }
 
         .webhook-event-badge {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: var(--gradient);
             color: white;
             font-size: 0.75em;
             font-weight: 700;
@@ -885,36 +677,16 @@
             white-space: nowrap;
         }
 
-        .webhook-event-time {
-            color: #9ca3af;
-            font-size: 0.8em;
-            margin-left: auto;
-            white-space: nowrap;
-        }
+        .webhook-event-time { color: var(--text-dim); font-size: 0.8em; margin-left: auto; white-space: nowrap; }
+        .webhook-event-toggle { color: var(--text-dim); font-size: 0.9em; transition: transform 0.2s; }
+        .webhook-event-item.expanded .webhook-event-toggle { transform: rotate(90deg); }
 
-        .webhook-event-toggle {
-            color: #9ca3af;
-            font-size: 0.9em;
-            transition: transform 0.2s;
-        }
-
-        .webhook-event-item.expanded .webhook-event-toggle {
-            transform: rotate(90deg);
-        }
-
-        .webhook-event-body {
-            display: none;
-            padding: 0 18px 14px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .webhook-event-item.expanded .webhook-event-body {
-            display: block;
-        }
+        .webhook-event-body { display: none; padding: 0 18px 14px; border-top: 1px solid var(--border); }
+        .webhook-event-item.expanded .webhook-event-body { display: block; }
 
         .webhook-event-body pre {
-            background: #1e1b4b;
-            color: #c4b5fd;
+            background: rgba(0,0,0,0.4);
+            color: #a78bfa;
             border-radius: 8px;
             padding: 14px;
             font-size: 0.8em;
@@ -929,40 +701,79 @@
             align-items: center;
             gap: 8px;
             font-size: 0.8em;
-            color: #9ca3af;
+            color: var(--text-dim);
             margin-bottom: 15px;
         }
 
         .webhook-polling-dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background: #10b981;
+            background: var(--teal);
             animation: pulse 2s ease-in-out infinite;
         }
 
         .webhook-clear-btn {
             background: none;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 6px 14px;
             font-size: 0.8em;
-            color: #6b7280;
+            color: var(--text-muted);
             cursor: pointer;
             margin-left: auto;
             transition: all 0.2s ease;
+            font-family: inherit;
         }
 
-        .webhook-clear-btn:hover {
-            border-color: #dc2626;
-            color: #dc2626;
-        }
+        .webhook-clear-btn:hover { border-color: #f87171; color: #f87171; }
     </style>
 </head>
 <body>
+
+    <!-- Access Gate -->
+    <div id="accessGate" style="display:none; position:fixed; inset:0; z-index:9999; background:#0c0c14; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden; align-items:center; justify-content:center;">
+        <!-- Background cipher watermark -->
+        <img src="/cipher.png" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80vmin; opacity:0.04; pointer-events:none; user-select:none;" alt="">
+        <!-- Gradient orbs for depth -->
+        <div style="position:absolute; top:-20%; left:-10%; width:60vw; height:60vw; background:radial-gradient(circle, rgba(0,185,183,0.15) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+        <div style="position:absolute; bottom:-20%; right:-10%; width:60vw; height:60vw; background:radial-gradient(circle, rgba(49,34,246,0.18) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+
+        <!-- Card -->
+        <div style="position:relative; z-index:1; background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:48px 40px 40px; width:calc(100% - 32px); max-width:400px; display:flex; flex-direction:column; align-items:center; gap:28px;">
+
+                <!-- Logo -->
+                <img src="/zonos-logo.png" style="height:36px; width:auto; object-fit:contain;" alt="Zonos">
+
+                <!-- Divider -->
+                <div style="width:40px; height:2px; background:linear-gradient(90deg,#00B9B7,#3122F6); border-radius:2px;"></div>
+
+                <!-- Text -->
+                <div style="text-align:center; display:flex; flex-direction:column; gap:8px;">
+                    <h1 style="color:#ffffff; font-size:1.4em; font-weight:700; margin:0; letter-spacing:-0.02em;">API Playground</h1>
+                    <p style="color:rgba(255,255,255,0.5); font-size:0.9em; margin:0; line-height:1.5;">Enter your access code to continue</p>
+                </div>
+
+                <!-- Input & Button -->
+                <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+                    <input id="accessCodeInput" type="password" placeholder="Access code" autocomplete="off"
+                        style="width:100%; padding:14px 18px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff; font-size:1em; outline:none; text-align:center; letter-spacing:3px; transition:border-color 0.2s; box-sizing:border-box; font-family:inherit;"
+                        onfocus="this.style.borderColor='rgba(0,185,183,0.6)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
+                        onkeydown="if(event.key==='Enter') checkAccessCode()">
+                    <button onclick="checkAccessCode()"
+                        style="width:100%; padding:14px; border-radius:12px; background:linear-gradient(135deg,#00B9B7 0%,#3122F6 100%); color:#fff; font-size:0.95em; font-weight:600; border:none; cursor:pointer; letter-spacing:0.02em; transition:opacity 0.2s; font-family:inherit;"
+                        onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                        Continue
+                    </button>
+                    <p id="accessError" style="color:#ff6b6b; font-size:0.83em; text-align:center; min-height:1.2em; margin:0;"></p>
+                </div>
+        </div>
+    </div>
+
+    <div id="mainApp" style="display:none;">
     <div class="container">
         <header>
-            <h1>Zonos API Demo Tool</h1>
+            <img src="/zonos-logo.png" class="site-logo" alt="Zonos">
+            <h1>API Playground</h1>
             <p>Understand how the Zonos APIs work.</p>
         </header>
 
@@ -1000,7 +811,7 @@
         <div class="main-content">
             <!-- Sidebar with queries -->
             <aside class="sidebar">
-                <h3>Order of the APIs</h3>
+                <h3>Landed Cost APIs Order</h3>
                 <ul class="query-list">
                     <li>
                         <button class="query-btn" onclick="loadQuery('landed-cost')">
@@ -1034,7 +845,47 @@
                     </li>
                 </ul>
 
-                <h3 style="margin-top: 30px;">Webhooks (Zonos &rarr; Merchant)</h3>
+                <h3 style="margin-top: 30px;">Other APIs</h3>
+                <ul class="query-list">
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('classify')">
+                            Classify Item
+                            <small>Get HS code for a product</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('country-of-origin')">
+                            Country of Origin
+                            <small>Predict where a product was made</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('customs-value')">
+                            Customs Value
+                            <small>Estimate fair market value of a product</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('restrictions')">
+                            Item Restrictions
+                            <small>Check if an item can be shipped</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('screen')">
+                            Screen Parties
+                            <small>Check names against denied party lists</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('vision')">
+                            Vision
+                            <small>Extract item details from a photo</small>
+                        </button>
+                    </li>
+                </ul>
+
+                <h3 style="margin-top: 30px;">Webhooks</h3>
                 <ul class="query-list">
                     <li>
                         <button class="query-btn" id="webhookTesterBtn" onclick="showWebhookView()">
@@ -1049,8 +900,11 @@
             <div class="right-content">
                 <!-- Explanation Panel -->
                 <div class="explanation" id="explanation">
-                    <h3>Select an API from the left to get started</h3>
-                    <div class="explanation-content">
+                    <div class="explanation-header" onclick="toggleExplanation()">
+                        <h3 id="explanationTitle">Select an API from the left to get started</h3>
+                        <button class="explanation-toggle" id="explanationToggle">Hide ▲</button>
+                    </div>
+                    <div class="explanation-content" id="explanationContent">
                         <p>This tool helps you understand how merchants use the Zonos API. Each button on the left shows you:</p>
                         <ul>
                             <li><strong>What it does</strong> - in plain English</li>
@@ -1069,6 +923,24 @@
                         <h3>GraphQL Playground <span class="status connected" id="status">Ready</span></h3>
                         <button class="run-btn" id="runBtn" onclick="runQuery()">Run Query</button>
                     </div>
+                    <!-- Vision Image Upload Panel (shown only for Vision API) -->
+                    <div class="vision-panel" id="visionPanel">
+                        <div class="vision-drop-zone" id="visionDropZone" onclick="document.getElementById('visionFileInput').click()" ondragover="event.preventDefault(); this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleVisionDrop(event)">
+                            <input type="file" id="visionFileInput" accept="image/jpeg,image/png,image/heic" onchange="handleVisionFile(this.files[0])">
+                            <div style="font-size: 1.8em; margin-bottom: 8px;">📷</div>
+                            <strong style="color: var(--text);">Drop an image here or click to upload</strong>
+                            <div style="margin-top: 6px; font-size: 0.85em;">JPEG, PNG, or HEIC &mdash; Zonos AI will identify items, HS codes, and estimated values</div>
+                        </div>
+                        <div class="vision-preview" id="visionPreview">
+                            <img id="visionPreviewImg" src="" alt="Preview">
+                            <div class="vision-preview-info">
+                                <div class="vision-filename" id="visionFilename"></div>
+                                <div class="vision-status">Image ready &mdash; click Run Query to analyze</div>
+                            </div>
+                            <button class="vision-remove-btn" onclick="clearVisionImage()">Remove</button>
+                        </div>
+                    </div>
+
                     <div class="editor-body">
                         <div class="editor-pane">
                             <div class="pane-header">QUERY (editable - modify values before running)</div>
@@ -1137,14 +1009,6 @@
                         <strong style="color: #4338ca;">Try it live:</strong> Go run an API mutation on the left (Create an Order, Add Tracking, or Cancel an Order), then come back here. You'll see the webhook event that Zonos would send to the merchant's server &mdash; with the real data from your API call.
                     </div>
 
-                    <details style="margin-bottom: 20px;">
-                        <summary style="cursor: pointer; font-weight: 600; color: #6b7280; font-size: 0.9em;">Or quick demo with sample data</summary>
-                        <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
-                            <button onclick="sendTestWebhook('ORDER_CREATED')" class="run-btn" style="flex: 1; min-width: 140px; font-size: 0.85em; padding: 10px 16px;">Sample: Order Created</button>
-                            <button onclick="sendTestWebhook('SHIPMENT_CREATED')" class="run-btn" style="flex: 1; min-width: 140px; font-size: 0.85em; padding: 10px 16px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">Sample: Shipment Created</button>
-                            <button onclick="sendTestWebhook('ORDER_CANCELED')" class="run-btn" style="flex: 1; min-width: 140px; font-size: 0.85em; padding: 10px 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Sample: Order Canceled</button>
-                        </div>
-                    </details>
 
                     <div class="webhook-polling-status">
                         <span class="webhook-polling-dot"></span>
@@ -1178,6 +1042,7 @@
         </div>
 
     </div>
+    </div><!-- end mainApp -->
 
     <script>
         // Query templates with explanations
@@ -1535,6 +1400,405 @@ mutation VoidShipment {
 }`
             },
 
+        'classify': {
+                title: 'Classify Item',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>This looks up the <strong>HS code</strong> (Harmonized System code) for a product. HS codes are the international standard used by customs authorities worldwide to identify and categorize goods for duties and taxes.</p>
+
+                    <h4>Why does this matter?</h4>
+                    <ul>
+                        <li>Every item shipped internationally needs an HS code</li>
+                        <li>The HS code determines the <strong>duty rate</strong> applied at customs</li>
+                        <li>Wrong codes can cause customs delays or incorrect charges</li>
+                        <li>Zonos uses the HS code in the landed cost calculation</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> Think of HS codes like barcodes for international trade. Every product has one, and customs agents use it to instantly know what tax rate to apply — just like a grocery store scanner knows a product's price from its barcode.
+                    </div>
+
+                    <h4>Key inputs:</h4>
+                    <ul>
+                        <li><strong>name</strong> (required) — the product name</li>
+                        <li><strong>description</strong> — more detail = better accuracy</li>
+                        <li><strong>imageUrl</strong> — a direct link to the product image</li>
+                        <li><strong>categories</strong> — e.g. "women's clothing"</li>
+                        <li><strong>shipToCountries</strong> — include to get a country-specific code (8+ digits); omit for universal 6-digit code</li>
+                    </ul>
+
+                    <h4>What comes back?</h4>
+                    <p>An HS code like <code>6116.99.0000</code> plus a full description of what that code covers. You can then use this HS code in your landed cost calculation.</p>
+                `,
+                query: `# Classify Item - Get HS Code
+# Zonos uses AI to classify your product and return the correct HS code
+# More detail = more accurate classification
+
+mutation ClassifyItem {
+  classificationsCalculate(input: [
+    {
+      # Required: product name
+      name: "Men's Athletic T-Shirt"
+
+      # Optional: more detail improves accuracy
+      description: "100% organic cotton, moisture-wicking crew neck athletic fit t-shirt"
+
+      # Optional: direct URL to product image (not the product page)
+      imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400"
+
+      # Optional: general product category
+      categories: "men's clothing"
+
+      # Optional: include a destination country for country-specific codes (8+ digits)
+      # Omit for a universal 6-digit HS code
+      configuration: {
+        shipToCountries: CA
+      }
+    }
+  ]) {
+    id
+    name
+    hsCode {
+      code
+      description {
+        full
+      }
+    }
+  }
+}`
+            },
+
+        'country-of-origin': {
+                title: 'Country of Origin',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>This predicts the <strong>country where a product was manufactured</strong>, using Zonos AI trained on tens of millions of anonymized customs declarations. It supports 200+ countries.</p>
+
+                    <h4>Why does this matter?</h4>
+                    <ul>
+                        <li>Country of origin is <strong>required</strong> for international shipments and customs declarations</li>
+                        <li>It directly affects the <strong>duty rate</strong> applied — the same product made in China vs. the US can have very different duties</li>
+                        <li>Merchants often don't know the exact origin of every SKU in their catalog</li>
+                        <li>Zonos uses this as an input when calculating landed cost</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like customs asking "where was this made?" — a question that's often on the label, but not always in the merchant's system. Zonos predicts the answer based on the product details, brand, and historical customs data.
+                    </div>
+
+                    <h4>Key inputs:</h4>
+                    <ul>
+                        <li><strong>name</strong> (required) — product name</li>
+                        <li><strong>brand</strong> — brand name significantly improves accuracy</li>
+                        <li><strong>categories</strong> — product category array</li>
+                        <li><strong>description</strong> — additional product detail</li>
+                        <li><strong>material</strong> — what the product is made of</li>
+                        <li><strong>shipFromCountry</strong> — where it ships from</li>
+                        <li><strong>amount / currencyCode</strong> — product price</li>
+                    </ul>
+
+                    <h4>What comes back?</h4>
+                    <p>The predicted country code (e.g. <code>CN</code>) with a <strong>confidence score</strong> from 0–1, plus a list of alternate predictions with their probability.</p>
+                `,
+                query: `# Predict Country of Origin
+# Zonos AI predicts where a product was manufactured
+# Only "name" is required — more fields = better accuracy
+
+mutation PredictCountryOfOrigin {
+  countryOfOriginInfer(input: [
+    {
+      # Required
+      name: "Men's Athletic T-Shirt"
+
+      # Optional — each field improves accuracy
+      brand: "Nike"
+      categories: ["men's clothing", "sportswear"]
+      description: "100% organic cotton, moisture-wicking crew neck athletic fit t-shirt"
+      material: "cotton"
+      shipFromCountry: US
+      amount: 99.99
+      currencyCode: USD
+    }
+  ]) {
+    name
+    brand
+    countryOfOrigin
+    confidenceScore
+    alternates {
+      countryOfOrigin
+      probabilityMass
+    }
+  }
+}`
+            },
+
+        'customs-value': {
+                title: 'Customs Value',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>This estimates the <strong>fair market value</strong> of a product for customs purposes, using Zonos AI trained on real transaction data. It returns a point estimate and a confidence range.</p>
+
+                    <h4>Why does this matter?</h4>
+                    <ul>
+                        <li>Customs authorities require an accurate declared value on every international shipment</li>
+                        <li>Under-declaring value is a compliance risk — over-declaring means higher duties for the customer</li>
+                        <li>Useful for <strong>package forwarding</strong>, compliance checks, and broker reviews</li>
+                        <li>Helps merchants who don't always know the retail price of every item they ship</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like getting an appraisal before insuring something. You describe the item, and Zonos tells you what it's worth based on real market data — so customs gets an accurate number.
+                    </div>
+
+                    <h4>Key inputs:</h4>
+                    <ul>
+                        <li><strong>name</strong> (required) — product name</li>
+                        <li><strong>currency</strong> (required) — desired currency for the estimate</li>
+                        <li><strong>brand</strong> — improves accuracy significantly</li>
+                        <li><strong>categories</strong> — product category array</li>
+                        <li><strong>description</strong> — additional product detail</li>
+                        <li><strong>material</strong> — what the product is made of</li>
+                    </ul>
+
+                    <h4>What comes back?</h4>
+                    <p>A <strong>point estimate</strong> (best guess value) plus a <strong>range</strong> with low and high bounds — giving you a confidence band around the estimate.</p>
+                `,
+                query: `# Customs Value Estimation
+# Zonos AI estimates the fair market value of a product for customs declarations
+# "name" and "currency" are required — more detail = better accuracy
+
+mutation CustomsValue {
+  valueEstimate(input: [
+    {
+      # Required
+      name: "Apple AirPods Pro 2nd Generation"
+      currency: USD
+
+      # Optional — each field improves accuracy
+      brand: "Apple"
+      categories: ["Electronics", "Headphones"]
+      description: "Active noise cancelling wireless earbuds with MagSafe charging case"
+      material: "plastic"
+    }
+  ]) {
+    name
+    brand
+    currency
+    value
+    valueEstimateRange {
+      low
+      high
+      width
+    }
+  }
+}`
+            },
+
+        'restrictions': {
+                title: 'Item Restrictions',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>This checks whether an item can be legally shipped between two countries, flagging any <strong>prohibitions, restrictions, or observations</strong> based on government regulations, carrier rules, and HS code data.</p>
+
+                    <h4>The three levels:</h4>
+                    <ul>
+                        <li><strong>Prohibition</strong> — Item cannot be shipped. Full stop.</li>
+                        <li><strong>Restriction</strong> — Item can ship but with conditions (permits, licenses, special handling)</li>
+                        <li><strong>Observation</strong> — Worth noting but no hard block</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like a customs agent checking a list before letting a package through. Some items are flat-out banned, some need special paperwork, and some just get flagged for attention. Zonos checks all of this automatically using the item's HS code and route.
+                    </div>
+
+                    <h4>Key inputs:</h4>
+                    <ul>
+                        <li><strong>shipFromCountry</strong> (required) — origin country</li>
+                        <li><strong>shipToCountry</strong> (required) — destination country</li>
+                        <li><strong>items: hsCode</strong> (required) — HS code for the item</li>
+                        <li><strong>items: countryOfOrigin</strong> (required) — where the item was made</li>
+                        <li><strong>carrier</strong> — optional, defaults to a universal catch-all</li>
+                        <li><strong>restrictionTypeThreshold</strong> — filter by severity: <code>PROHIBITION</code>, <code>RESTRICTION</code>, or <code>OBSERVATION</code></li>
+                    </ul>
+
+                    <h4>What comes back?</h4>
+                    <p>An <strong>action</strong> for each item — <code>NO_MATCH</code> (clear to ship), <code>RESTRICTIONS_APPLY</code>, or <code>PROHIBITIONS_APPLY</code> — plus details on each rule that triggered.</p>
+                `,
+                query: `# Item Restrictions Check
+# Checks if an item can be shipped between two countries based on HS code and regulations
+# Returns NO_MATCH (clear), RESTRICTIONS_APPLY, or PROHIBITIONS_APPLY
+
+mutation CheckRestrictions {
+  itemRestrictionApply(input: {
+    shipFromCountry: US
+    shipToCountry: CA
+
+    # PROHIBITION, RESTRICTION, or OBSERVATION (defaults to RESTRICTION)
+    restrictionTypeThreshold: OBSERVATION
+
+    # Optional — defaults to "Other" (universal catch-all)
+    carrier: DHL
+
+    items: [
+      {
+        hsCode: "6109.10"      # Men's cotton t-shirt
+        description: "Men's athletic cotton t-shirt"
+        countryOfOrigin: US
+      }
+    ]
+  }) {
+    id
+    shipFromCountry
+    shipToCountry
+    items {
+      id
+      action
+      itemDescription
+      itemHsCode
+      itemRestrictions {
+        type
+        controlType
+        controlSummary
+        note
+        sources
+        appliesTo
+      }
+    }
+  }
+}`
+            },
+
+        'screen': {
+                title: 'Screen Parties',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>This checks whether a person or company appears on any <strong>government-authored denied party lists</strong> before you ship to them. If a match is found, Zonos returns a <code>REVIEW</code> action, meaning you should not ship until you've verified compliance.</p>
+
+                    <h4>Why does this matter?</h4>
+                    <p>Shipping to a denied party can result in serious legal consequences — heavy fines or criminal penalties. This is especially important for cross-border shipments where export control laws apply (e.g. US Office of Foreign Assets Control / OFAC lists).</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> It's like a bouncer checking a no-entry list at the door. Before the package leaves, Zonos checks the recipient's name and address against every government watchlist. If there's a match, you get flagged to review before proceeding.
+                    </div>
+
+                    <h4>Key inputs:</h4>
+                    <ul>
+                        <li><strong>person.firstName / lastName</strong> — name of the individual being screened</li>
+                        <li><strong>location.countryCode</strong> (required) — destination country</li>
+                        <li><strong>location.locality</strong> (required) — city</li>
+                        <li><strong>location.line1</strong> — street address (improves match accuracy)</li>
+                        <li><strong>location.administrativeAreaCode</strong> — state/province code</li>
+                        <li><strong>location.postalCode</strong> — postal/ZIP code</li>
+                    </ul>
+
+                    <h4>What comes back?</h4>
+                    <p>An <strong>action</strong> — <code>NO_MATCHES</code> (safe to ship) or <code>REVIEW</code> (potential match found) — plus details on each denied party match including name, location, and match scores (0.0–1.0).</p>
+                `,
+                query: `# Party Screening
+# Checks a person or company against government denied party lists
+# action: NO_MATCHES (clear to ship) or REVIEW (potential match — do not ship until verified)
+
+mutation ScreenParty {
+  partyScreen(input: {
+    person: {
+      firstName: "John"
+      lastName: "Smith"
+    }
+    location: {
+      countryCode: US
+      locality: "New York"
+      administrativeAreaCode: "NY"
+      postalCode: "10001"
+      line1: "123 Main St"
+    }
+  }) {
+    action
+    id
+    party {
+      id
+      organization
+      person {
+        firstName
+        lastName
+      }
+    }
+    matches {
+      name
+      companyName
+      countryCode
+      locality
+      line1
+      scores {
+        location
+        name
+        overall
+      }
+    }
+  }
+}`
+            },
+
+        'vision': {
+                title: 'Vision — Extract Items from Photo',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>Zonos Vision uses AI to <strong>look at a photo and automatically extract item details</strong> — name, description, materials, HS code, and estimated customs value. No manual data entry required.</p>
+
+                    <h4>What gets returned?</h4>
+                    <ul>
+                        <li><strong>Item name &amp; description</strong> — AI-generated, ready for customs forms</li>
+                        <li><strong>HS code</strong> — automatically classified with a confidence score</li>
+                        <li><strong>Estimated value</strong> — with a high/low range for customs purposes</li>
+                        <li><strong>Materials</strong> — fabric, plastic, metal, etc.</li>
+                        <li><strong>Multiple items</strong> — Vision detects every item in a single photo</li>
+                    </ul>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> Imagine a customs agent who can look at a photo of your package contents and instantly know what everything is, what it's worth, and which HS code applies — without you having to fill out a single form. That's Zonos Vision.
+                    </div>
+
+                    <h4>How to use:</h4>
+                    <p>Upload a photo using the panel above the editor, then click <strong>Run Query</strong>. Zonos will analyze the image and return structured item data in 2–5 seconds.</p>
+
+                    <h4>Configuration options:</h4>
+                    <ul>
+                        <li><strong>classify: ENABLED</strong> — include HS code classification</li>
+                        <li><strong>estimateValue: ENABLED</strong> — include estimated customs value</li>
+                        <li><strong>shipToCountry</strong> — destination country (affects classification rules)</li>
+                    </ul>
+                `,
+                query: `# Zonos Vision — Upload an image above, then click Run Query
+# AI extracts item name, description, HS code, and estimated value from photos
+# Variables (imageBase64) are injected automatically from the uploaded image
+
+mutation ItemsExtract($input: ItemsExtractInput!) {
+  itemsExtract(input: $input) {
+    id
+    quantity
+    content {
+      name
+      description
+      materials
+      language
+    }
+    classification {
+      confidenceScore
+      hsCode {
+        code
+      }
+    }
+    valueEstimation {
+      currency
+      value
+      valueEstimateRange {
+        high
+        low
+      }
+    }
+  }
+}`
+            },
+
         };
 
         // Load config from localStorage, then try server-side key
@@ -1588,11 +1852,19 @@ mutation VoidShipment {
             // Hide webhook tester if visible
             hideWebhookTester();
 
-            // Update explanation
-            document.getElementById('explanation').innerHTML = `
-                <h3>${query.title}</h3>
-                <div class="explanation-content">${query.explanation}</div>
-            `;
+            // Show/hide vision upload panel
+            const visionPanel = document.getElementById('visionPanel');
+            if (queryId === 'vision') {
+                visionPanel.classList.add('visible');
+            } else {
+                visionPanel.classList.remove('visible');
+            }
+
+            // Update explanation (collapse content when loading a query)
+            document.getElementById('explanationTitle').textContent = query.title;
+            document.getElementById('explanationContent').innerHTML = query.explanation;
+            document.getElementById('explanationContent').classList.add('collapsed');
+            document.getElementById('explanationToggle').textContent = 'Show ▼';
 
             // Update query editor - generate unique order number for Create Order
             let queryText = query.query;
@@ -1691,10 +1963,10 @@ mutation VoidShipment {
             };
 
             const exp = explanations[step];
-            document.getElementById('explanation').innerHTML = `
-                <h3>${exp.title}</h3>
-                <div class="explanation-content">${exp.content}</div>
-            `;
+            document.getElementById('explanationTitle').textContent = exp.title;
+            document.getElementById('explanationContent').innerHTML = exp.content;
+            document.getElementById('explanationContent').classList.add('collapsed');
+            document.getElementById('explanationToggle').textContent = 'Show ▼';
 
             // Update active step
             document.querySelectorAll('.step').forEach((s, i) => {
@@ -1714,8 +1986,340 @@ mutation VoidShipment {
             document.getElementById('shipmentIdCopyBox').classList.remove('visible');
 
             const isLandedCost = query.includes('landedCostCalculateWorkflow');
+            const isClassify = query.includes('classificationsCalculate');
+            const isCountryOfOrigin = query.includes('countryOfOriginInfer');
+            const isCustomsValue = query.includes('valueEstimate(');
+            const isRestrictions = query.includes('itemRestrictionApply');
+            const isScreen = query.includes('partyScreen');
+            const isVision = query.includes('itemsExtract');
             const friendlyGrid = document.getElementById('friendlyGrid');
             const friendlyStatus = document.getElementById('friendlyStatus');
+
+            if (isClassify) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+                friendlyView.classList.add('visible');
+
+                // Parse what was sent
+                const nameMatch = query.match(/name:\s*"([^"]+)"/);
+                const descMatch = query.match(/description:\s*"([^"]+)"/);
+                const catMatch = query.match(/categories:\s*"([^"]+)"/);
+                const countryMatch = query.match(/shipToCountries:\s*(\w+)/);
+
+                let inputHtml = '';
+                if (nameMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Product Name</span><span class="friendly-value">${nameMatch[1]}</span></div>`;
+                if (descMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Description</span><span class="friendly-value" style="font-size:0.85em; max-width:200px; text-align:right;">${descMatch[1]}</span></div>`;
+                if (catMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Category</span><span class="friendly-value">${catMatch[1]}</span></div>`;
+                if (countryMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Ship To Country</span><span class="friendly-value">${countryMatch[1]}</span></div>`;
+                document.getElementById('friendlyInputContent').innerHTML = inputHtml || '<p style="color:var(--text-muted)">No details parsed.</p>';
+
+                // Parse what came back
+                let outputHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Classification Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                } else if (response.data && response.data.classificationsCalculate && response.data.classificationsCalculate.length > 0) {
+                    const result = response.data.classificationsCalculate[0];
+                    const hsCode = result.hsCode?.code || '—';
+                    const hsDesc = result.hsCode?.description?.full || '—';
+                    outputHtml += `<div class="friendly-row"><span class="friendly-label">HS Code</span><span class="friendly-value" style="color:var(--teal); font-size:1.1em; font-family:monospace;">${hsCode}</span></div>`;
+                    outputHtml += `<div class="friendly-row" style="flex-direction:column; gap:6px; align-items:flex-start;"><span class="friendly-label">Description</span><span class="friendly-value" style="font-size:0.85em; line-height:1.5; color:var(--text-muted);">${hsDesc}</span></div>`;
+                    if (result.id) outputHtml += `<div class="friendly-row"><span class="friendly-label">Classification ID</span><span class="friendly-value" style="font-size:0.78em; font-family:monospace; color:var(--text-muted);">${result.id}</span></div>`;
+                } else {
+                    outputHtml = '<p style="color:var(--text-muted)">No classification returned.</p>';
+                }
+                document.getElementById('friendlyOutputContent').innerHTML = outputHtml;
+                return;
+            }
+
+            if (isCountryOfOrigin) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+                friendlyView.classList.add('visible');
+
+                // Parse what was sent
+                const nameMatch = query.match(/name:\s*"([^"]+)"/);
+                const brandMatch = query.match(/brand:\s*"([^"]+)"/);
+                const materialMatch = query.match(/material:\s*"([^"]+)"/);
+                const shipFromMatch = query.match(/shipFromCountry:\s*(\w+)/);
+                const amountMatch = query.match(/amount:\s*([\d.]+)/);
+
+                let inputHtml = '';
+                if (nameMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Product Name</span><span class="friendly-value">${nameMatch[1]}</span></div>`;
+                if (brandMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Brand</span><span class="friendly-value">${brandMatch[1]}</span></div>`;
+                if (materialMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Material</span><span class="friendly-value">${materialMatch[1]}</span></div>`;
+                if (shipFromMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Ships From</span><span class="friendly-value">${shipFromMatch[1]}</span></div>`;
+                if (amountMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Price</span><span class="friendly-value">$${parseFloat(amountMatch[1]).toFixed(2)}</span></div>`;
+                document.getElementById('friendlyInputContent').innerHTML = inputHtml || '<p style="color:var(--text-muted)">No details parsed.</p>';
+
+                // Parse what came back
+                let outputHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Prediction Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                } else if (response.data && response.data.countryOfOriginInfer && response.data.countryOfOriginInfer.length > 0) {
+                    const result = response.data.countryOfOriginInfer[0];
+                    const country = result.countryOfOrigin || '—';
+                    const score = result.confidenceScore != null ? Math.round(result.confidenceScore * 100) + '%' : '—';
+
+                    outputHtml += `<div class="friendly-row"><span class="friendly-label">Predicted Origin</span><span class="friendly-value" style="color:var(--teal); font-size:1.2em; font-family:monospace;">${country}</span></div>`;
+                    outputHtml += `<div class="friendly-row"><span class="friendly-label">Confidence Score</span><span class="friendly-value" style="color:var(--teal);">${score}</span></div>`;
+
+                    if (result.alternates && result.alternates.length > 0) {
+                        const altRows = result.alternates.slice(0, 4).map(a =>
+                            `<div class="friendly-row"><span class="friendly-label" style="padding-left:8px;">↳ ${a.countryOfOrigin}</span><span class="friendly-value" style="color:var(--text-muted);">${Math.round((a.probabilityMass || 0) * 100)}%</span></div>`
+                        ).join('');
+                        outputHtml += `<div class="friendly-row"><span class="friendly-label">Alternates</span><span class="friendly-value"></span></div>`;
+                        outputHtml += altRows;
+                    }
+                } else {
+                    outputHtml = '<p style="color:var(--text-muted)">No prediction returned.</p>';
+                }
+                document.getElementById('friendlyOutputContent').innerHTML = outputHtml;
+                return;
+            }
+
+            if (isCustomsValue) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+                friendlyView.classList.add('visible');
+
+                // Parse what was sent
+                const nameMatch = query.match(/name:\s*"([^"]+)"/);
+                const brandMatch = query.match(/brand:\s*"([^"]+)"/);
+                const currencyMatch = query.match(/currency:\s*(\w+)/);
+                const catMatch = query.match(/categories:\s*\[([^\]]+)\]/);
+
+                let inputHtml = '';
+                if (nameMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Product Name</span><span class="friendly-value">${nameMatch[1]}</span></div>`;
+                if (brandMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Brand</span><span class="friendly-value">${brandMatch[1]}</span></div>`;
+                if (currencyMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Currency</span><span class="friendly-value">${currencyMatch[1]}</span></div>`;
+                if (catMatch) {
+                    const cats = catMatch[1].replace(/["']/g, '').split(',').map(c => c.trim()).join(', ');
+                    inputHtml += `<div class="friendly-row"><span class="friendly-label">Categories</span><span class="friendly-value">${cats}</span></div>`;
+                }
+                document.getElementById('friendlyInputContent').innerHTML = inputHtml || '<p style="color:var(--text-muted)">No details parsed.</p>';
+
+                // Parse what came back
+                let outputHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Estimate Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                } else if (response.data && response.data.valueEstimate && response.data.valueEstimate.length > 0) {
+                    const result = response.data.valueEstimate[0];
+                    const currency = result.currency || 'USD';
+                    const fmt = (v) => v != null ? `${currency} ${parseFloat(v).toFixed(2)}` : '—';
+
+                    outputHtml += `<div class="friendly-row"><span class="friendly-label">Estimated Value</span><span class="friendly-value" style="color:var(--teal); font-size:1.15em;">${fmt(result.value)}</span></div>`;
+                    if (result.valueEstimateRange) {
+                        outputHtml += `<div class="friendly-row"><span class="friendly-label">Low Estimate</span><span class="friendly-value">${fmt(result.valueEstimateRange.low)}</span></div>`;
+                        outputHtml += `<div class="friendly-row"><span class="friendly-label">High Estimate</span><span class="friendly-value">${fmt(result.valueEstimateRange.high)}</span></div>`;
+                    }
+                    if (result.brand) outputHtml += `<div class="friendly-row"><span class="friendly-label">Confirmed Brand</span><span class="friendly-value">${result.brand}</span></div>`;
+                } else {
+                    outputHtml = '<p style="color:var(--text-muted)">No estimate returned.</p>';
+                }
+                document.getElementById('friendlyOutputContent').innerHTML = outputHtml;
+                return;
+            }
+
+            if (isRestrictions) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+                friendlyView.classList.add('visible');
+
+                // Parse what was sent
+                const fromMatch = query.match(/shipFromCountry:\s*(\w+)/);
+                const toMatch = query.match(/shipToCountry:\s*(\w+)/);
+                const carrierMatch = query.match(/carrier:\s*(\w+)/);
+                const hsMatch = query.match(/hsCode:\s*"([^"]+)"/);
+                const thresholdMatch = query.match(/restrictionTypeThreshold:\s*(\w+)/);
+
+                let inputHtml = '';
+                if (fromMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Ship From</span><span class="friendly-value">${fromMatch[1]}</span></div>`;
+                if (toMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Ship To</span><span class="friendly-value">${toMatch[1]}</span></div>`;
+                if (hsMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">HS Code</span><span class="friendly-value" style="font-family:monospace;">${hsMatch[1]}</span></div>`;
+                if (carrierMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Carrier</span><span class="friendly-value">${carrierMatch[1]}</span></div>`;
+                if (thresholdMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Check Level</span><span class="friendly-value">${thresholdMatch[1]}</span></div>`;
+                document.getElementById('friendlyInputContent').innerHTML = inputHtml;
+
+                // Parse what came back
+                let outputHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Check Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                } else if (response.data && response.data.itemRestrictionApply) {
+                    const result = response.data.itemRestrictionApply;
+                    const items = result.items || [];
+
+                    items.forEach(item => {
+                        const action = item.action || 'UNKNOWN';
+                        const actionColor = action === 'NO_MATCH' ? 'var(--teal)' : action === 'PROHIBITIONS_APPLY' ? '#f87171' : '#fbbf24';
+                        const actionLabel = action === 'NO_MATCH' ? '✓ Clear to Ship' : action === 'PROHIBITIONS_APPLY' ? '✗ Prohibited' : '⚠ Restrictions Apply';
+
+                        outputHtml += `<div class="friendly-row"><span class="friendly-label">Result</span><span class="friendly-value" style="color:${actionColor}; font-size:1.05em;">${actionLabel}</span></div>`;
+                        if (item.itemHsCode) outputHtml += `<div class="friendly-row"><span class="friendly-label">HS Code Used</span><span class="friendly-value" style="font-family:monospace;">${item.itemHsCode}</span></div>`;
+
+                        const restrictions = item.itemRestrictions || [];
+                        if (restrictions.length > 0) {
+                            restrictions.forEach((r, i) => {
+                                outputHtml += `<div style="margin-top:12px; padding:12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; font-size:0.85em;">`;
+                                outputHtml += `<div style="font-weight:700; color:#f87171; margin-bottom:6px;">${r.type || ''} — ${r.controlType || ''}</div>`;
+                                if (r.controlSummary) outputHtml += `<div style="color:var(--text-muted); margin-bottom:4px;">${r.controlSummary}</div>`;
+                                if (r.note) outputHtml += `<div style="color:var(--text-dim); font-style:italic;">${r.note}</div>`;
+                                if (r.sources && r.sources.length > 0) outputHtml += `<div style="color:var(--text-dim); margin-top:4px;">Source: ${r.sources.join(', ')}</div>`;
+                                outputHtml += `</div>`;
+                            });
+                        } else if (action === 'NO_MATCH') {
+                            outputHtml += `<div style="margin-top:10px; color:var(--text-muted); font-size:0.9em;">No restrictions found for this item on this route.</div>`;
+                        }
+                    });
+                } else {
+                    outputHtml = '<p style="color:var(--text-muted)">No results returned.</p>';
+                }
+                document.getElementById('friendlyOutputContent').innerHTML = outputHtml;
+                return;
+            }
+
+            if (isScreen) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+                friendlyView.classList.add('visible');
+
+                // Parse what was sent
+                const firstNameMatch = query.match(/firstName:\s*"([^"]+)"/);
+                const lastNameMatch = query.match(/lastName:\s*"([^"]+)"/);
+                const countryMatch = query.match(/countryCode:\s*"?([A-Z]{2})"?/);
+                const localityMatch = query.match(/locality:\s*"([^"]+)"/);
+                const line1Match = query.match(/line1:\s*"([^"]+)"/);
+                const areaMatch = query.match(/administrativeAreaCode:\s*"([^"]+)"/);
+
+                let inputHtml = '';
+                if (firstNameMatch || lastNameMatch) {
+                    const fullName = [firstNameMatch && firstNameMatch[1], lastNameMatch && lastNameMatch[1]].filter(Boolean).join(' ');
+                    inputHtml += `<div class="friendly-row"><span class="friendly-label">Name</span><span class="friendly-value">${fullName}</span></div>`;
+                }
+                if (countryMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">Country</span><span class="friendly-value">${countryMatch[1]}</span></div>`;
+                if (localityMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">City</span><span class="friendly-value">${localityMatch[1]}</span></div>`;
+                if (areaMatch) inputHtml += `<div class="friendly-row"><span class="friendly-label">State</span><span class="friendly-value">${areaMatch[1]}</span></div>`;
+                if (line1Match) inputHtml += `<div class="friendly-row"><span class="friendly-label">Address</span><span class="friendly-value">${line1Match[1]}</span></div>`;
+                document.getElementById('friendlyInputContent').innerHTML = inputHtml || '<p style="color:var(--text-muted)">No details parsed.</p>';
+
+                // Parse what came back
+                let outputHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700; font-size:1.2em;">Screening Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                } else if (response.data && response.data.partyScreen) {
+                    const result = response.data.partyScreen;
+                    const action = result.action;
+                    const matches = result.matches || [];
+
+                    if (action === 'NO_MATCHES') {
+                        outputHtml += `<div style="text-align:center; padding:10px 0 14px;">
+                            <span style="font-size:1.4em; color:var(--teal); font-weight:700;">NO_MATCHES</span>
+                            <p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">No denied party matches found. Safe to ship.</p>
+                        </div>`;
+                    } else if (action === 'REVIEW') {
+                        outputHtml += `<div style="text-align:center; padding:10px 0 14px;">
+                            <span style="font-size:1.4em; color:#f59e0b; font-weight:700;">REVIEW</span>
+                            <p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">Potential denied party match found. Do not ship until verified.</p>
+                        </div>`;
+                    } else if (action) {
+                        outputHtml += `<div style="text-align:center; padding:10px 0 14px;">
+                            <span style="font-size:1.4em; color:var(--text); font-weight:700;">${action}</span>
+                        </div>`;
+                    }
+
+                    if (matches.length > 0) {
+                        outputHtml += `<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:8px; font-weight:600;">${matches.length} match${matches.length > 1 ? 'es' : ''} found:</div>`;
+                        matches.forEach((m, i) => {
+                            const overall = m.scores && m.scores.overall !== undefined ? (m.scores.overall * 100).toFixed(0) + '%' : '—';
+                            const nameScore = m.scores && m.scores.name !== undefined ? (m.scores.name * 100).toFixed(0) + '%' : '—';
+                            const locScore = m.scores && m.scores.location !== undefined ? (m.scores.location * 100).toFixed(0) + '%' : '—';
+                            const matchName = m.companyName || m.name || '—';
+                            const location = [m.locality, m.countryCode].filter(Boolean).join(', ') || '—';
+                            outputHtml += `<div style="border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:12px; margin-bottom:10px; background:rgba(245,158,11,0.05);">
+                                <div style="font-weight:600; color:#f59e0b; margin-bottom:6px;">${matchName}</div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:0.85em;">
+                                    <div style="text-align:center; background:rgba(255,255,255,0.04); border-radius:6px; padding:6px;">
+                                        <div style="color:var(--text-muted); font-size:0.8em;">Overall</div>
+                                        <div style="color:var(--text); font-weight:600;">${overall}</div>
+                                    </div>
+                                    <div style="text-align:center; background:rgba(255,255,255,0.04); border-radius:6px; padding:6px;">
+                                        <div style="color:var(--text-muted); font-size:0.8em;">Name Score</div>
+                                        <div style="color:var(--text); font-weight:600;">${nameScore}</div>
+                                    </div>
+                                    <div style="text-align:center; background:rgba(255,255,255,0.04); border-radius:6px; padding:6px;">
+                                        <div style="color:var(--text-muted); font-size:0.8em;">Location Score</div>
+                                        <div style="color:var(--text); font-weight:600;">${locScore}</div>
+                                    </div>
+                                </div>
+                                ${location !== '—' ? `<div style="margin-top:8px; font-size:0.8em; color:var(--text-dim);">Location: ${location}</div>` : ''}
+                            </div>`;
+                        });
+                    }
+                } else {
+                    outputHtml = '<p style="color:var(--text-muted)">No results returned.</p>';
+                }
+                document.getElementById('friendlyOutputContent').innerHTML = outputHtml;
+                return;
+            }
+
+            if (isVision) {
+                friendlyGrid.style.display = '';
+                friendlyStatus.style.display = 'none';
+                friendlyView.classList.add('visible');
+
+                // What was sent: the uploaded image thumbnail
+                const previewSrc = document.getElementById('visionPreviewImg').src;
+                let inputHtml = '';
+                if (previewSrc) {
+                    inputHtml += `<div style="text-align:center; margin-bottom:8px;"><img src="${previewSrc}" style="max-width:100%; max-height:140px; border-radius:10px; border:1px solid var(--border);"></div>`;
+                }
+                inputHtml += `<div class="friendly-row"><span class="friendly-label">Ship To</span><span class="friendly-value">US</span></div>`;
+                inputHtml += `<div class="friendly-row"><span class="friendly-label">Classify</span><span class="friendly-value">Enabled</span></div>`;
+                inputHtml += `<div class="friendly-row"><span class="friendly-label">Estimate Value</span><span class="friendly-value">Enabled</span></div>`;
+                document.getElementById('friendlyInputContent').innerHTML = inputHtml;
+
+                // What came back: one card per detected item
+                let outputHtml = '';
+                if (response.errors && response.errors.length > 0) {
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Analysis Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                } else if (response.data && response.data.itemsExtract && response.data.itemsExtract.length > 0) {
+                    const items = response.data.itemsExtract;
+                    outputHtml += `<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:10px; font-weight:600;">${items.length} item${items.length > 1 ? 's' : ''} detected</div>`;
+                    items.forEach((item, i) => {
+                        const content = Array.isArray(item.content) ? item.content[0] : item.content;
+                        const name = content && content.name ? content.name : 'Unknown item';
+                        const desc = content && content.description ? content.description : '';
+                        const materials = content && content.materials ? content.materials : '';
+                        const hsCode = item.classification && item.classification.hsCode ? item.classification.hsCode.code : null;
+                        const confidence = item.classification && item.classification.confidenceScore !== undefined ? (item.classification.confidenceScore * 100).toFixed(0) + '%' : null;
+                        const value = item.valueEstimation && item.valueEstimation.value !== undefined ? item.valueEstimation.value : null;
+                        const currency = item.valueEstimation ? (item.valueEstimation.currency || 'USD') : 'USD';
+                        const low = item.valueEstimation && item.valueEstimation.valueEstimateRange ? item.valueEstimation.valueEstimateRange.low : null;
+                        const high = item.valueEstimation && item.valueEstimation.valueEstimateRange ? item.valueEstimation.valueEstimateRange.high : null;
+
+                        outputHtml += `<div style="border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:12px; background:rgba(0,185,183,0.04);">
+                            <div style="font-weight:600; color:var(--teal); margin-bottom:6px; font-size:1em;">${name}</div>
+                            ${desc ? `<div style="color:var(--text-muted); font-size:0.85em; margin-bottom:10px;">${desc}</div>` : ''}
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.85em;">
+                                ${hsCode ? `<div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px;">
+                                    <div style="color:var(--text-muted); font-size:0.8em; margin-bottom:2px;">HS Code</div>
+                                    <div style="color:var(--text); font-weight:600; font-family:monospace;">${hsCode}</div>
+                                    ${confidence ? `<div style="color:var(--teal); font-size:0.8em;">${confidence} confidence</div>` : ''}
+                                </div>` : ''}
+                                ${value !== null ? `<div style="background:rgba(255,255,255,0.04); border-radius:8px; padding:8px;">
+                                    <div style="color:var(--text-muted); font-size:0.8em; margin-bottom:2px;">Est. Value</div>
+                                    <div style="color:var(--text); font-weight:600;">${currency} ${value.toFixed(2)}</div>
+                                    ${low !== null && high !== null ? `<div style="color:var(--text-muted); font-size:0.8em;">Range: ${low.toFixed(2)}–${high.toFixed(2)}</div>` : ''}
+                                </div>` : ''}
+                            </div>
+                            ${materials ? `<div style="margin-top:8px; font-size:0.8em; color:var(--text-dim);">Materials: ${materials}</div>` : ''}
+                        </div>`;
+                    });
+                } else {
+                    outputHtml = '<p style="color:var(--text-muted)">No items detected in image.</p>';
+                }
+                document.getElementById('friendlyOutputContent').innerHTML = outputHtml;
+                return;
+            }
 
             if (isLandedCost) {
                 friendlyGrid.style.display = '';
@@ -2103,6 +2707,10 @@ mutation VoidShipment {
                 responseArea.innerHTML = '<pre class="response-error">You need to paste a Shipment ID first!\n\n1. Run "Add Tracking Number" first\n2. Copy the Shipment ID from the Results Summary\n3. Come back here and replace PASTE_YOUR_SHIPMENT_ID_HERE with the ID you copied\n4. Then click Run Query</pre>';
                 return;
             }
+            if (query.includes('itemsExtract') && !visionImageBase64) {
+                responseArea.innerHTML = '<pre class="response-error">Please upload an image first!\n\nUse the upload panel above to select a JPEG, PNG, or HEIC photo, then click Run Query.</pre>';
+                return;
+            }
 
             runBtn.disabled = true;
             runBtn.innerHTML = '<span class="loading"></span> Running...';
@@ -2121,7 +2729,20 @@ mutation VoidShipment {
                             { 'Content-Type': 'application/json' },
                             apiKey ? { 'credentialToken': apiKey } : {}
                         ),
-                        body: {
+                        body: query.includes('itemsExtract') ? {
+                            query: query,
+                            variables: {
+                                input: {
+                                    imageBase64: visionImageBase64,
+                                    localizedLanguageCode: 'EN',
+                                    shipToCountry: 'US',
+                                    configuration: {
+                                        classify: 'ENABLED',
+                                        estimateValue: 'ENABLED'
+                                    }
+                                }
+                            }
+                        } : {
                             query: query
                         }
                     })
@@ -2151,8 +2772,14 @@ mutation VoidShipment {
 
         // ============ WEBHOOK TESTER ============
 
-        const SUPABASE_URL = 'https://exkwgonxzuvfwrgsptsr.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4a3dnb254enV2ZndyZ3NwdHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMzYxMjgsImV4cCI6MjA4NjkxMjEyOH0.zRwlSH-nOQkfa1-IFhh_O80jBQYldKs2WSA_RdSO9uk';
+        let SUPABASE_URL = '';
+        let SUPABASE_ANON_KEY = '';
+
+        // Fetch Supabase config from server (keeps keys out of client source)
+        fetch('/config').then(r => r.json()).then(cfg => {
+            SUPABASE_URL = cfg.supabaseUrl || '';
+            SUPABASE_ANON_KEY = cfg.supabaseAnonKey || '';
+        }).catch(() => {});
 
         let webhookSessionId = localStorage.getItem('webhook_session_id');
         if (!webhookSessionId) {
@@ -2177,9 +2804,8 @@ mutation VoidShipment {
             // Show webhook explanation
             const explanation = document.querySelector('.explanation');
             explanation.style.display = '';
-            explanation.innerHTML = `
-                <h3>Webhooks</h3>
-                <div class="explanation-content">
+            document.getElementById('explanationTitle').textContent = 'Webhooks';
+            document.getElementById('explanationContent').innerHTML = `
                     <h4>What are webhooks?</h4>
                     <p>Webhooks are <strong>automatic notifications FROM Zonos TO the merchant's server</strong>. The merchant doesn't ask for them &mdash; Zonos sends them whenever something happens.</p>
 
@@ -2204,8 +2830,32 @@ mutation VoidShipment {
 
                     <h4>How merchants set this up:</h4>
                     <p>The merchant gives Zonos a URL using the <code>webhookCreate</code> API mutation and picks which events they want to hear about. After that, it's automatic.</p>
-                </div>
+
+                    <details style="margin-top: 14px; border: 1px solid #c7d2fe; border-radius: 10px; overflow: hidden;">
+                        <summary style="cursor: pointer; padding: 12px 16px; background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); font-weight: 600; color: #4338ca; font-size: 0.9em; list-style: none; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 1.1em;">&#9654;</span> See the <code style="background: rgba(67,56,202,0.1); padding: 2px 6px; border-radius: 4px;">webhookCreate</code> mutation
+                        </summary>
+                        <div style="padding: 16px; background: #1e1e2e;">
+                            <p style="color: #a6adc8; font-size: 0.8em; margin: 0 0 12px 0;">Run this once per event type you want to receive. There are 5 event types, so 5 mutations total.</p>
+                            <pre style="margin: 0; color: #cdd6f4; font-size: 0.85em; line-height: 1.6; overflow-x: auto; white-space: pre;"><span style="color: #89b4fa;">mutation</span> <span style="color: #a6e3a1;">WebhookCreate</span> {
+  <span style="color: #89dceb;">webhookCreate</span>(input: {
+    url: <span style="color: #a6e3a1;">"https://your-server.com/webhooks/zonos"</span>
+    type: <span style="color: #fab387;">ORDER_CREATED</span>  <span style="color: #6c7086;"># run again for each event type:</span>
+    status: <span style="color: #fab387;">ENABLED</span>     <span style="color: #6c7086;"># ORDER_CANCELED, ORDER_STATUS_CHANGED,</span>
+                         <span style="color: #6c7086;"># SHIPMENT_CREATED, SHIPMENT_CANCELED</span>
+  }) {
+    <span style="color: #cdd6f4;">id</span>
+    <span style="color: #cdd6f4;">url</span>
+    <span style="color: #cdd6f4;">type</span>
+    <span style="color: #cdd6f4;">status</span>
+  }
+}</pre>
+                        </div>
+                    </details>
             `;
+            // Show webhook content expanded by default
+            document.getElementById('explanationContent').classList.remove('collapsed');
+            document.getElementById('explanationToggle').textContent = 'Hide ▲';
 
             // Show webhook tester, hide editor
             document.getElementById('webhookTester').classList.add('visible');
@@ -2265,6 +2915,51 @@ mutation VoidShipment {
         }
 
         let expandedEventIds = new Set();
+
+        // Vision image handling
+        let visionImageBase64 = null;
+
+        function handleVisionFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Strip the data URL prefix (e.g. "data:image/jpeg;base64,")
+                const fullData = e.target.result;
+                visionImageBase64 = fullData.split(',')[1];
+                document.getElementById('visionPreviewImg').src = fullData;
+                document.getElementById('visionFilename').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+                document.getElementById('visionDropZone').style.display = 'none';
+                document.getElementById('visionPreview').classList.add('visible');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleVisionDrop(event) {
+            event.preventDefault();
+            document.getElementById('visionDropZone').classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            if (file) handleVisionFile(file);
+        }
+
+        function clearVisionImage() {
+            visionImageBase64 = null;
+            document.getElementById('visionFileInput').value = '';
+            document.getElementById('visionPreviewImg').src = '';
+            document.getElementById('visionPreview').classList.remove('visible');
+            document.getElementById('visionDropZone').style.display = '';
+        }
+
+        function toggleExplanation() {
+            const content = document.getElementById('explanationContent');
+            const toggle = document.getElementById('explanationToggle');
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggle.textContent = 'Hide ▲';
+            } else {
+                content.classList.add('collapsed');
+                toggle.textContent = 'Show ▼';
+            }
+        }
 
         function toggleEvent(eventId) {
             if (expandedEventIds.has(eventId)) {
@@ -2328,10 +3023,15 @@ mutation VoidShipment {
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
-        function clearWebhookEvents() {
-            webhookClearedAt = new Date().toISOString();
+        async function clearWebhookEvents() {
             webhookEvents = [];
+            expandedEventIds.clear();
             renderWebhookEvents([]);
+            try {
+                await fetch(`/clear-webhooks?session=${webhookSessionId}`, { method: 'DELETE' });
+            } catch (e) {
+                // silently fail — UI is already cleared
+            }
         }
 
         async function sendTestWebhook(eventType) {
@@ -2450,6 +3150,32 @@ mutation VoidShipment {
         // Initialize
         loadConfig();
         startWebhookPolling();
+
+        // Access gate
+        const ACCESS_CODE = 'Zonosdemo26';
+        function checkAccessCode() {
+            const input = document.getElementById('accessCodeInput').value;
+            if (input === ACCESS_CODE) {
+                sessionStorage.setItem('zonos_access', '1');
+                document.getElementById('accessGate').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+            } else {
+                document.getElementById('accessError').textContent = 'Incorrect access code. Try again.';
+                document.getElementById('accessCodeInput').value = '';
+                document.getElementById('accessCodeInput').focus();
+            }
+        }
+
+        (function() {
+            if (sessionStorage.getItem('zonos_access') === '1') {
+                document.getElementById('accessGate').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+            } else {
+                document.getElementById('accessGate').style.cssText += '; display:flex !important;';
+                document.getElementById('mainApp').style.display = 'none';
+                setTimeout(() => document.getElementById('accessCodeInput').focus(), 100);
+            }
+        })();
     </script>
 </body>
 </html>

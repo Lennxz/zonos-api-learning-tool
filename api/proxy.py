@@ -5,20 +5,28 @@ import urllib.error
 import ssl
 from http.server import BaseHTTPRequestHandler
 
+ALLOWED_ORIGIN = 'https://zonos-api-demo.vercel.app'
+
+# Headers from upstream responses that should never be forwarded to the client
+_STRIP_HEADERS = {'set-cookie', 'authorization', 'www-authenticate', 'x-api-key'}
+
 
 class handler(BaseHTTPRequestHandler):
+    def _cors_headers(self):
+        self.send_header('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', '*')
+        self._cors_headers()
         self.end_headers()
 
     def do_GET(self):
         env_api_key = os.environ.get('ZONOS_API_KEY', '')
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self._cors_headers()
         self.end_headers()
         result = {'hasKey': True} if env_api_key else {'hasKey': False}
         self.wfile.write(json.dumps(result).encode())
@@ -37,7 +45,7 @@ class handler(BaseHTTPRequestHandler):
             if not target_url:
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
+                self._cors_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({'error': True, 'message': 'Missing URL'}).encode())
                 return
@@ -65,30 +73,40 @@ class handler(BaseHTTPRequestHandler):
                     response_body = response.read().decode('utf-8')
                     status_code = response.status
 
+                    # Strip sensitive headers before returning to client
+                    safe_headers = {
+                        k: v for k, v in dict(response.headers).items()
+                        if k.lower() not in _STRIP_HEADERS
+                    }
+
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
-                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self._cors_headers()
                     self.end_headers()
 
                     result = {
                         'status': status_code,
                         'statusText': response.reason,
-                        'headers': dict(response.headers),
+                        'headers': safe_headers,
                         'body': response_body
                     }
                     self.wfile.write(json.dumps(result).encode())
 
             except urllib.error.HTTPError as e:
                 response_body = e.read().decode('utf-8')
+                safe_headers = {
+                    k: v for k, v in dict(e.headers).items()
+                    if k.lower() not in _STRIP_HEADERS
+                }
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
+                self._cors_headers()
                 self.end_headers()
 
                 result = {
                     'status': e.code,
                     'statusText': e.reason,
-                    'headers': dict(e.headers),
+                    'headers': safe_headers,
                     'body': response_body
                 }
                 self.wfile.write(json.dumps(result).encode())
@@ -96,7 +114,7 @@ class handler(BaseHTTPRequestHandler):
         except urllib.error.URLError as e:
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self._cors_headers()
             self.end_headers()
             result = {'error': True, 'message': f'Connection failed: {str(e.reason)}'}
             self.wfile.write(json.dumps(result).encode())
@@ -104,7 +122,7 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self._cors_headers()
             self.end_headers()
-            result = {'error': True, 'message': str(e)}
+            result = {'error': True, 'message': 'Internal error'}
             self.wfile.write(json.dumps(result).encode())
