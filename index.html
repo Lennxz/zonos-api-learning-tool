@@ -1763,7 +1763,7 @@ mutation AddTracking {
                     <h4>Key differences from "Add Tracking Number":</h4>
                     <ul>
                         <li><strong>generateLabel: true</strong> — Zonos creates the label; you don't need your own carrier account</li>
-                        <li><strong>shipmentCartons</strong> — required so Zonos knows box weight and dimensions for the label</li>
+                        <li><strong>No service level needed</strong> — Zonos automatically uses the service level from the landed cost calculation</li>
                         <li><strong>Returns a label URL</strong> — you print it and attach it to the box</li>
                         <li>Carrier billing is handled by Zonos (billed to Zonos account)</li>
                     </ul>
@@ -1789,19 +1789,8 @@ mutation GenerateShipmentLabel {
     orderId: "PASTE_YOUR_ORDER_ID_HERE"
 
     # Set to true so Zonos generates the label for you
+    # Service level is automatically pulled from the landed cost — no need to specify it
     generateLabel: true
-
-    # Carton details are required for label generation
-    shipmentCartons: [{
-      weight: 1.5
-      weightUnit: POUND
-
-      # Box dimensions
-      length: 10.0
-      width: 8.0
-      height: 6.0
-      dimensionalUnit: INCH
-    }]
   }) {
     id
     status
