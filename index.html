@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Zonos API Playground</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
     <style>
         :root {
             --bg: #1a1a26;
@@ -19,6 +23,7 @@
             --border: rgba(255,255,255,0.09);
             --hover-border: rgba(0,185,183,0.4);
             --input-bg: rgba(255,255,255,0.06);
+            --inner: rgba(0,185,183,0.07);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -57,19 +62,21 @@
         }
 
         header {
-            text-align: center;
-            padding: 20px 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0 12px;
             margin-bottom: 15px;
         }
 
         header img.site-logo {
-            height: 32px;
+            height: 36px;
             width: auto;
-            margin-bottom: 20px;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
+            flex-shrink: 0;
         }
+
+        .header-text { text-align: right; }
 
         header h1 {
             background: var(--gradient);
@@ -77,16 +84,23 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-size: 2.4em;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
 
         header p { color: var(--text-muted); font-size: 1.1em; }
 
+        @media (max-width: 600px) {
+            header { gap: 12px; }
+            header img.site-logo { height: 28px; }
+            header h1 { font-size: 1.8em; }
+            .header-text { text-align: right; }
+        }
+
         /* Cards */
         .journey, .sidebar, .explanation, .editor-area,
-        .config-section, .quick-ref, .webhook-tester {
+        .config-section, .quick-ref, .webhook-tester, .rules-builder {
             background: var(--card);
             border: 1px solid var(--card-border);
             border-radius: 20px;
@@ -115,7 +129,7 @@
         .step {
             flex: 1;
             min-width: 180px;
-            background: rgba(255,255,255,0.03);
+            background: var(--inner);
             border-radius: 16px;
             padding: 14px 14px;
             text-align: center;
@@ -193,7 +207,7 @@
         .query-btn {
             width: 100%;
             padding: 14px 16px;
-            background: rgba(255,255,255,0.03);
+            background: var(--inner);
             border: 1px solid var(--border);
             border-radius: 12px;
             color: var(--text);
@@ -334,7 +348,7 @@
         .editor-pane:last-child { border-right: none; }
 
         .pane-header {
-            background: rgba(255,255,255,0.03);
+            background: var(--inner);
             padding: 12px 18px;
             font-size: 0.8em;
             color: var(--text-dim);
@@ -347,7 +361,7 @@
         textarea {
             width: 100%;
             height: 650px;
-            background: rgba(255,255,255,0.02);
+            background: var(--inner);
             border: none;
             color: #7dd3fc;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
@@ -360,7 +374,7 @@
 
         .response-area {
             padding: 18px;
-            background: rgba(255,255,255,0.02);
+            background: var(--inner);
             height: 650px;
             overflow: auto;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
@@ -372,7 +386,9 @@
         .response-error { color: #f87171; }
 
         /* Config Section */
-        .config-section { padding: 25px; margin-top: 20px; }
+        .left-col { display: flex; flex-direction: column; gap: 15px; }
+        .config-section { padding: 25px; margin-top: 0; }
+        .config-section-bottom { margin-top: 15px; max-width: 50%; }
         .config-section h3 { color: var(--teal); margin-bottom: 18px; font-weight: 600; }
 
         .config-row { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
@@ -381,7 +397,7 @@
         .config-row input {
             flex: 1;
             padding: 12px 16px;
-            background: var(--input-bg);
+            background: var(--inner);
             border: 1px solid var(--border);
             border-radius: 10px;
             color: var(--text);
@@ -443,6 +459,19 @@
         .friendly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 800px) { .friendly-grid { grid-template-columns: 1fr; } }
 
+        @media (max-width: 600px) {
+            .config-section-bottom { max-width: 100%; }
+
+            .chat-bubble { bottom: 16px; right: 16px; width: 48px; height: 48px; font-size: 1.2em; }
+
+            .chat-panel {
+                right: 10px;
+                bottom: 70px;
+                height: 55vh;
+                border-radius: 16px;
+            }
+        }
+
         .friendly-section {
             background: rgba(255,255,255,0.04);
             border-radius: 14px;
@@ -482,7 +511,7 @@
         .friendly-total .friendly-value { font-size: 1.15em; color: var(--teal); }
 
         .friendly-copybox {
-            background: rgba(255,255,255,0.04);
+            background: var(--inner);
             border-radius: 14px;
             padding: 20px;
             margin-top: 20px;
@@ -727,6 +756,291 @@
         }
 
         .webhook-clear-btn:hover { border-color: #f87171; color: #f87171; }
+
+        /* ===== Rules Builder ===== */
+        .rules-builder { padding: 25px; display: none; }
+        .rules-builder.visible { display: block; }
+        .rules-builder h3 { color: var(--teal); margin-bottom: 6px; font-weight: 600; }
+
+        .rules-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 900px) { .rules-layout { grid-template-columns: 1fr; } }
+
+        .rules-field { margin-bottom: 14px; }
+        .rules-field label { display: block; color: var(--text-muted); font-size: 0.82em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+        .rules-field input, .rules-field select {
+            width: 100%; padding: 10px 14px;
+            background: var(--inner); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text);
+            font-family: inherit; font-size: 0.88em;
+            transition: border-color 0.2s ease;
+        }
+        .rules-field input:focus, .rules-field select:focus { outline: none; border-color: var(--hover-border); }
+        .rules-field select { cursor: pointer; }
+        .rules-field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
+
+        .rules-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .rules-ref { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 4px; }
+        .rules-ref-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; cursor: pointer; background: var(--inner); }
+        .rules-ref-header:hover { border-color: var(--hover-border); }
+        .rules-ref-body { padding: 14px; border-top: 1px solid var(--border); }
+        .rule-var { display: inline-block; background: rgba(0,185,183,0.1); border: 1px solid rgba(0,185,183,0.2); color: var(--teal); border-radius: 6px; padding: 2px 8px; font-family: monospace; font-size: 0.78em; margin: 3px 2px; cursor: pointer; transition: background 0.15s; }
+        .rule-var:hover { background: rgba(0,185,183,0.2); }
+        .rule-chip { background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text-muted); border-radius: 6px; padding: 2px 8px; font-size: 0.78em; }
+
+        .rules-preview-col { display: flex; flex-direction: column; gap: 14px; }
+        .rules-preview-header { display: flex; justify-content: space-between; align-items: center; }
+        .rules-preview-textarea {
+            width: 100%; height: 220px;
+            background: var(--inner); border: 1px solid var(--border);
+            border-radius: 12px; color: #7dd3fc;
+            font-family: 'Monaco', 'Menlo', monospace; font-size: 12px;
+            padding: 14px; resize: none; line-height: 1.6;
+        }
+        .rules-run-btn {
+            background: var(--gradient); border: none; border-radius: 10px;
+            padding: 9px 20px; color: #fff; font-size: 0.875em;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+            transition: opacity 0.2s ease;
+        }
+        .rules-run-btn:hover { opacity: 0.88; }
+
+        .rules-example-list { display: flex; flex-direction: column; gap: 8px; }
+        .rule-example-btn {
+            width: 100%; padding: 10px 14px; text-align: left;
+            background: var(--inner); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text); cursor: pointer;
+            font-family: inherit; font-size: 0.82em; transition: all 0.2s ease;
+        }
+        .rule-example-btn:hover { border-color: var(--hover-border); background: rgba(0,185,183,0.08); }
+        .rule-example-btn strong { display: block; color: var(--teal); margin-bottom: 2px; }
+        .rule-example-btn code { color: var(--text-muted); font-size: 0.85em; }
+
+        .rules-result { padding: 12px 16px; border-radius: 10px; font-size: 0.85em; border: 1px solid; }
+        .rules-result.success { background: rgba(0,185,183,0.1); border-color: rgba(0,185,183,0.3); color: var(--teal); }
+        .rules-result.error { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: #f87171; }
+
+        .rule-autocomplete {
+            position: absolute; z-index: 9999;
+            background: #1e1e2e; border: 1px solid var(--hover-border);
+            border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            max-height: 240px; overflow-y: auto;
+            min-width: 280px; display: none;
+        }
+        .rule-autocomplete.open { display: block; }
+        .rule-ac-group { padding: 6px 12px 2px; font-size: 0.7em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .rule-ac-item {
+            padding: 9px 14px; cursor: pointer;
+            font-size: 0.85em; color: var(--text);
+            display: flex; flex-direction: column; gap: 2px;
+            transition: background 0.1s ease;
+        }
+        .rule-ac-item:hover, .rule-ac-item.selected { background: rgba(0,185,183,0.1); }
+        .rule-ac-item code { color: var(--teal); font-size: 0.82em; }
+        .rule-ac-item small { color: var(--text-dim); font-size: 0.78em; }
+
+        /* ===== Chat Widget ===== */
+        .chat-bubble {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--gradient);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 20px rgba(0,185,183,0.35);
+            z-index: 10000;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chat-bubble:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 28px rgba(0,185,183,0.5);
+        }
+
+        .chat-panel {
+            position: fixed;
+            bottom: 76px;
+            right: 28px;
+            width: min(900px, calc(100vw - 56px));
+            height: 400px;
+            background: #1e1e2e;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10000;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(12px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .chat-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .chat-header span {
+            font-weight: 600;
+            font-size: 0.95em;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .chat-header button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1em;
+            line-height: 1;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: color 0.15s ease;
+        }
+        .chat-header button:hover { color: var(--text); }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 14px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 9px 13px;
+            border-radius: 14px;
+            font-size: 0.875em;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background: var(--gradient);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-msg.bot {
+            align-self: flex-start;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-msg.bot.chat-loading {
+            background: none;
+            border: none;
+            padding: 4px 6px;
+        }
+        .cipher-spinner {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            animation: cipherPulse 1.2s ease-in-out infinite;
+        }
+        .cipher-spinner img {
+            display: block;
+            width: 22px;
+            height: 22px;
+            filter: invert(1);
+        }
+        @keyframes cipherPulse {
+            0%, 100% { opacity: 0.2; }
+            50%       { opacity: 0.85; }
+        }
+        .chat-msg.bot p { margin: 0 0 8px; }
+        .chat-msg.bot p:last-child { margin-bottom: 0; }
+        .chat-msg.bot h1, .chat-msg.bot h2, .chat-msg.bot h3 {
+            font-size: 0.95em;
+            font-weight: 700;
+            margin: 10px 0 4px;
+            color: var(--teal);
+        }
+        .chat-msg.bot h1:first-child, .chat-msg.bot h2:first-child, .chat-msg.bot h3:first-child { margin-top: 0; }
+        .chat-msg.bot ul, .chat-msg.bot ol {
+            margin: 4px 0 8px;
+            padding-left: 18px;
+        }
+        .chat-msg.bot li { margin-bottom: 3px; }
+        .chat-msg.bot strong { color: #e8eaf0; }
+        .chat-msg.bot code {
+            background: rgba(0,185,183,0.12);
+            color: var(--teal);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        .chat-msg.bot pre {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px 12px;
+            overflow-x: auto;
+            margin: 6px 0;
+        }
+        .chat-msg.bot pre code {
+            background: none;
+            padding: 0;
+            color: var(--text);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px 14px 14px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .chat-input-row input {
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 9px 13px;
+            color: var(--text);
+            font-size: 0.875em;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .chat-input-row input:focus { border-color: var(--hover-border); }
+        .chat-input-row input::placeholder { color: var(--text-dim); }
+        .chat-input-row button {
+            background: var(--gradient);
+            border: none;
+            border-radius: 10px;
+            padding: 9px 16px;
+            color: #fff;
+            font-size: 0.875em;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.2s ease;
+            white-space: nowrap;
+        }
+        .chat-input-row button:hover { opacity: 0.88; }
+        .chat-input-row button:disabled { opacity: 0.45; cursor: default; }
     </style>
 </head>
 <body>
@@ -774,8 +1088,10 @@
     <div class="container">
         <header>
             <img src="/zonos-logo.png" class="site-logo" alt="Zonos">
-            <h1>API Playground</h1>
-            <p>Understand how the Zonos APIs work.</p>
+            <div class="header-text">
+                <h1>API Playground</h1>
+                <p>Understand how the Zonos APIs work.</p>
+            </div>
         </header>
 
         <!-- The Merchant Journey -->
@@ -810,7 +1126,8 @@
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Sidebar with queries -->
+            <!-- Left column: sidebar + API settings -->
+            <div class="left-col">
             <aside class="sidebar">
                 <h3>Landed Cost APIs Order</h3>
                 <ul class="query-list">
@@ -830,6 +1147,12 @@
                         <button class="query-btn" onclick="loadQuery('add-tracking')">
                             Add Tracking Number
                             <small>Update order with shipment info</small>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="query-btn" onclick="loadQuery('create-label')">
+                            Generate Shipment Label
+                            <small>Let Zonos create and manage the label</small>
                         </button>
                     </li>
                     <li>
@@ -895,7 +1218,19 @@
                         </button>
                     </li>
                 </ul>
+
+                <h3 style="margin-top: 30px;">Rules</h3>
+                <ul class="query-list">
+                    <li>
+                        <button class="query-btn" id="rulesBtn" onclick="showRulesView()">
+                            Rule Builder
+                            <small>Create duties, taxes &amp; shipping rules</small>
+                        </button>
+                    </li>
+                </ul>
             </aside>
+
+            </div><!-- end left-col -->
 
             <!-- Right side content -->
             <div class="right-content">
@@ -1000,6 +1335,15 @@
                             <button class="copy-btn" onclick="copyCopyBox('shipmentIdValue', this)">Copy ID</button>
                         </div>
                     </div>
+                    <div class="friendly-copybox" id="labelUrlCopyBox">
+                        <h4>Your Shipping Label is Ready</h4>
+                        <p>Zonos generated a label for this shipment. Open it to print or download.</p>
+                        <div class="copy-row">
+                            <span class="copy-id" id="labelUrlValue" style="font-size:0.78em; word-break:break-all;"></span>
+                            <a id="labelUrlLink" href="#" target="_blank" rel="noopener" class="copy-btn" style="text-decoration:none; display:inline-block;">Open Label</a>
+                            <button class="copy-btn" onclick="copyCopyBox('labelUrlValue', this)">Copy URL</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Webhook Tester Panel -->
@@ -1026,20 +1370,115 @@
                     </ul>
                 </div>
 
-                <!-- Config Section -->
-                <div class="config-section">
-                    <h3>API Settings</h3>
-                    <div id="serverKeyStatus" style="display: none; padding: 12px 16px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 10px; border: 1px solid #a7f3d0; margin-bottom: 15px;">
-                        <span style="color: #047857; font-weight: 600;">Server API key is active</span>
-                        <span style="color: #6b7280; font-size: 0.85em; margin-left: 8px;">- no setup needed, just run queries</span>
+                <!-- Rules Builder Panel -->
+                <div class="rules-builder" id="rulesBuilder">
+                    <h3>Rule Builder</h3>
+                    <p style="color:var(--text-muted);font-size:0.9em;margin-bottom:20px;">Write a rule below and the GraphQL mutation will build automatically. Rules modify duties, taxes, fees, or shipping calculations.</p>
+
+                    <div class="rules-layout">
+                        <!-- Left: Form -->
+                        <div class="rules-form-col">
+                            <div class="rules-field">
+                                <label>Rule Name</label>
+                                <input id="ruleName" placeholder="e.g. Increase duties for China → US" oninput="updateRulePreview()">
+                            </div>
+                            <div class="rules-field">
+                                <label>Description</label>
+                                <input id="ruleDescription" placeholder="What does this rule do?" oninput="updateRulePreview()">
+                            </div>
+                            <div class="rules-field">
+                                <label>Context</label>
+                                <select id="ruleContext" onchange="updateRulePreview(); updateRuleVars()">
+                                    <option value="DUTIES_TAXES_FEES">Duties, Taxes &amp; Fees</option>
+                                    <option value="SHIPMENT_RATING">Shipment Rating</option>
+                                </select>
+                            </div>
+                            <div class="rules-field" style="position:relative;">
+                                <label>Condition <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— starts with <code>if</code></span></label>
+                                <input id="ruleCondition" placeholder="if :ship_to_country: == us" oninput="updateRulePreview(); ruleAc('ruleCondition', 'condition')" onfocus="ruleAc('ruleCondition', 'condition')" onkeydown="ruleAcKey(event, 'ruleCondition')" autocomplete="off">
+                                <div class="rule-autocomplete" id="ruleConditionAc"></div>
+                            </div>
+                            <div class="rules-field" style="position:relative;">
+                                <label>Action <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— starts with <code>then</code></span></label>
+                                <input id="ruleAction" placeholder="then :duties_total: = :duties_total: * 1.15" oninput="updateRulePreview(); ruleAc('ruleAction', 'action')" onfocus="ruleAc('ruleAction', 'action')" onkeydown="ruleAcKey(event, 'ruleAction')" autocomplete="off">
+                                <div class="rule-autocomplete" id="ruleActionAc"></div>
+                            </div>
+                            <div class="rules-dates">
+                                <div class="rules-field">
+                                    <label>Start Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                    <input id="ruleStartDate" type="date" oninput="updateRulePreview()">
+                                </div>
+                                <div class="rules-field">
+                                    <label>End Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                    <input id="ruleEndDate" type="date" oninput="updateRulePreview()">
+                                </div>
+                            </div>
+
+                            <!-- Variable reference -->
+                            <div class="rules-ref">
+                                <div class="rules-ref-header" onclick="toggleRuleRef()">
+                                    <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference</span>
+                                    <span id="ruleRefToggle" style="color:var(--text-dim);font-size:0.8em;">Show ▼</span>
+                                </div>
+                                <div class="rules-ref-body" id="ruleRefBody" style="display:none;">
+                                    <div id="ruleVarList"></div>
+                                    <div style="margin-top:12px;">
+                                        <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
+                                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                            <code class="rule-chip">* / + -</code>
+                                            <code class="rule-chip">== &gt; &gt;= &lt; &lt;=</code>
+                                            <code class="rule-chip">and or</code>
+                                            <code class="rule-chip">%</code>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:12px;">
+                                        <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Money Examples</p>
+                                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                            <code class="rule-chip">10 usd</code>
+                                            <code class="rule-chip">500 cad</code>
+                                            <code class="rule-chip">1.5</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: GraphQL preview + examples -->
+                        <div class="rules-preview-col">
+                            <div class="rules-preview-header">
+                                <span style="color:var(--teal);font-weight:600;font-size:0.85em;">GraphQL Preview</span>
+                                <button class="rules-run-btn" onclick="copyRuleMutation()">Copy Mutation</button>
+                            </div>
+                            <div style="background:rgba(49,34,246,0.1);border:1px solid rgba(49,34,246,0.25);border-radius:10px;padding:10px 14px;font-size:0.8em;color:var(--text-muted);margin-bottom:6px;">
+                                ⚠️ Rule mutations require a <strong style="color:var(--text);">production API key</strong> with rules permissions. Use this playground to build and copy the mutation, then run it from your server or the <a href="https://zonos.com/dashboard" target="_blank" style="color:var(--teal);">Zonos Dashboard</a>.
+                            </div>
+                            <textarea id="rulePreview" class="rules-preview-textarea" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
+
+                            <div class="rules-examples">
+                                <p style="color:var(--text-dim);font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Examples — click to load</p>
+                                <div class="rules-example-list" id="ruleExampleList"></div>
+                            </div>
+
+                            <div id="ruleResult" class="rules-result" style="display:none;"></div>
+                        </div>
                     </div>
-                    <div class="config-row">
-                        <label>Endpoint:</label>
-                        <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
-                    </div>
-                    <input type="hidden" id="apiKey" value="">
                 </div>
+
             </div>
+        </div>
+
+        <!-- Config Section - half width -->
+        <div class="config-section config-section-bottom">
+            <h3>API Settings</h3>
+            <div id="serverKeyStatus" style="display: none; padding: 12px 16px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 10px; border: 1px solid #a7f3d0; margin-bottom: 15px;">
+                <span style="color: #047857; font-weight: 600;">Server API key is active</span>
+                <span style="color: #6b7280; font-size: 0.85em; margin-left: 8px;">- no setup needed, just run queries</span>
+            </div>
+            <div class="config-row">
+                <label>Endpoint:</label>
+                <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
+            </div>
+            <input type="hidden" id="apiKey" value="">
         </div>
 
     </div>
@@ -1306,6 +1745,90 @@ mutation AddTracking {
 #     id
 #   }
 # }`
+            },
+
+            'create-label': {
+                title: 'Generate Shipment Label',
+                explanation: `
+                    <h4>What does this do?</h4>
+                    <p>Creates a shipment <strong>and</strong> generates a Zonos-managed shipping label in one call. Instead of using your own carrier label, Zonos creates the label using its carrier accounts — meaning Zonos carrier numbers, tax IDs, and declared value are automatically applied correctly.</p>
+
+                    <h4>When do merchants use this?</h4>
+                    <p>When they want Zonos to handle label generation rather than creating labels through their own shipping platform (e.g. ShipStation, EasyPost).</p>
+
+                    <div class="analogy">
+                        <strong>Real-world analogy:</strong> Instead of printing your own postage, you hand the package to a shipping agent who prints the correct international label for you — with all the customs paperwork already filled in.
+                    </div>
+
+                    <h4>Key differences from "Add Tracking Number":</h4>
+                    <ul>
+                        <li><strong>generateLabel: true</strong> — Zonos creates the label; you don't need your own carrier account</li>
+                        <li><strong>shipmentCartons</strong> — required so Zonos knows box weight and dimensions for the label</li>
+                        <li><strong>Returns a label URL</strong> — you print it and attach it to the box</li>
+                        <li>Carrier billing is handled by Zonos (billed to Zonos account)</li>
+                    </ul>
+
+                    <h4>What comes back?</h4>
+                    <ul>
+                        <li>Shipment ID (to void if needed)</li>
+                        <li>Tracking number (auto-assigned by Zonos)</li>
+                        <li>Label URL — a printable PDF/ZPL label</li>
+                    </ul>
+                `,
+                query: `# Generate a Shipment Label via Zonos
+# Zonos creates the label using its own carrier accounts
+#
+# ⚠️ STEP 1: Run "Create an Order" first!
+# STEP 2: Copy the Order ID from that response
+# STEP 3: Paste it below as orderId
+# STEP 4: Run this mutation — the response includes a label URL to print
+
+mutation GenerateShipmentLabel {
+  shipmentCreateWorkflow(input: {
+    # ⬇️ PASTE YOUR ORDER ID HERE (from Create Order response)
+    orderId: "PASTE_YOUR_ORDER_ID_HERE"
+
+    # Set to true so Zonos generates the label for you
+    generateLabel: true
+
+    # Carton details are required for label generation
+    shipmentCartons: [{
+      weight: 1.5
+      weightUnit: POUND
+
+      # Box dimensions
+      length: 10.0
+      width: 8.0
+      height: 6.0
+      dimensionalUnit: INCH
+    }]
+  }) {
+    id
+    status
+
+    # Tracking number Zonos assigned
+    trackingDetails {
+      number
+    }
+
+    # Carrier used for this shipment
+    serviceLevel {
+      name
+      carrier {
+        name
+      }
+    }
+
+    # The label — print this and attach to the package
+    shipmentCartons {
+      id
+      label {
+        url            # PDF/ZPL label to print
+        trackingNumber # Tracking number on the label
+      }
+    }
+  }
+}`
             },
 
             'cancel-order': {
@@ -1877,7 +2400,10 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
 
             // Update active button
             document.querySelectorAll('.query-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.query-btn').classList.add('active');
+            const activeBtn = [...document.querySelectorAll('.query-btn')].find(btn =>
+                btn.getAttribute('onclick') === `loadQuery('${queryId}')`
+            );
+            if (activeBtn) activeBtn.classList.add('active');
 
             // Clear response
             document.getElementById('responseArea').innerHTML = '<pre>Click "Run Query" to see the response...</pre>';
@@ -1985,6 +2511,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.getElementById('friendlyCopyBox').classList.remove('visible');
             document.getElementById('orderIdCopyBox').classList.remove('visible');
             document.getElementById('shipmentIdCopyBox').classList.remove('visible');
+            document.getElementById('labelUrlCopyBox').classList.remove('visible');
 
             const isLandedCost = query.includes('landedCostCalculateWorkflow');
             const isClassify = query.includes('classificationsCalculate');
@@ -2017,14 +2544,14 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // Parse what came back
                 let outputHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Classification Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Classification Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${escapeHtml(response.errors[0].message)}</p></div>`;
                 } else if (response.data && response.data.classificationsCalculate && response.data.classificationsCalculate.length > 0) {
                     const result = response.data.classificationsCalculate[0];
-                    const hsCode = result.hsCode?.code || '—';
-                    const hsDesc = result.hsCode?.description?.full || '—';
+                    const hsCode = escapeHtml(result.hsCode?.code || '—');
+                    const hsDesc = escapeHtml(result.hsCode?.description?.full || '—');
                     outputHtml += `<div class="friendly-row"><span class="friendly-label">HS Code</span><span class="friendly-value" style="color:var(--teal); font-size:1.1em; font-family:monospace;">${hsCode}</span></div>`;
                     outputHtml += `<div class="friendly-row" style="flex-direction:column; gap:6px; align-items:flex-start;"><span class="friendly-label">Description</span><span class="friendly-value" style="font-size:0.85em; line-height:1.5; color:var(--text-muted);">${hsDesc}</span></div>`;
-                    if (result.id) outputHtml += `<div class="friendly-row"><span class="friendly-label">Classification ID</span><span class="friendly-value" style="font-size:0.78em; font-family:monospace; color:var(--text-muted);">${result.id}</span></div>`;
+                    if (result.id) outputHtml += `<div class="friendly-row"><span class="friendly-label">Classification ID</span><span class="friendly-value" style="font-size:0.78em; font-family:monospace; color:var(--text-muted);">${escapeHtml(result.id)}</span></div>`;
                 } else {
                     outputHtml = '<p style="color:var(--text-muted)">No classification returned.</p>';
                 }
@@ -2055,7 +2582,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // Parse what came back
                 let outputHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Prediction Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Prediction Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${escapeHtml(response.errors[0].message)}</p></div>`;
                 } else if (response.data && response.data.countryOfOriginInfer && response.data.countryOfOriginInfer.length > 0) {
                     const result = response.data.countryOfOriginInfer[0];
                     const country = result.countryOfOrigin || '—';
@@ -2102,7 +2629,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // Parse what came back
                 let outputHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Estimate Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Estimate Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${escapeHtml(response.errors[0].message)}</p></div>`;
                 } else if (response.data && response.data.valueEstimate && response.data.valueEstimate.length > 0) {
                     const result = response.data.valueEstimate[0];
                     const currency = result.currency || 'USD';
@@ -2113,7 +2640,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                         outputHtml += `<div class="friendly-row"><span class="friendly-label">Low Estimate</span><span class="friendly-value">${fmt(result.valueEstimateRange.low)}</span></div>`;
                         outputHtml += `<div class="friendly-row"><span class="friendly-label">High Estimate</span><span class="friendly-value">${fmt(result.valueEstimateRange.high)}</span></div>`;
                     }
-                    if (result.brand) outputHtml += `<div class="friendly-row"><span class="friendly-label">Confirmed Brand</span><span class="friendly-value">${result.brand}</span></div>`;
+                    if (result.brand) outputHtml += `<div class="friendly-row"><span class="friendly-label">Confirmed Brand</span><span class="friendly-value">${escapeHtml(result.brand)}</span></div>`;
                 } else {
                     outputHtml = '<p style="color:var(--text-muted)">No estimate returned.</p>';
                 }
@@ -2144,7 +2671,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // Parse what came back
                 let outputHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Check Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Check Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${escapeHtml(response.errors[0].message)}</p></div>`;
                 } else if (response.data && response.data.itemRestrictionApply) {
                     const result = response.data.itemRestrictionApply;
                     const items = result.items || [];
@@ -2155,16 +2682,16 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                         const actionLabel = action === 'NO_MATCH' ? '✓ Clear to Ship' : action === 'PROHIBITIONS_APPLY' ? '✗ Prohibited' : '⚠ Restrictions Apply';
 
                         outputHtml += `<div class="friendly-row"><span class="friendly-label">Result</span><span class="friendly-value" style="color:${actionColor}; font-size:1.05em;">${actionLabel}</span></div>`;
-                        if (item.itemHsCode) outputHtml += `<div class="friendly-row"><span class="friendly-label">HS Code Used</span><span class="friendly-value" style="font-family:monospace;">${item.itemHsCode}</span></div>`;
+                        if (item.itemHsCode) outputHtml += `<div class="friendly-row"><span class="friendly-label">HS Code Used</span><span class="friendly-value" style="font-family:monospace;">${escapeHtml(item.itemHsCode)}</span></div>`;
 
                         const restrictions = item.itemRestrictions || [];
                         if (restrictions.length > 0) {
                             restrictions.forEach((r, i) => {
                                 outputHtml += `<div style="margin-top:12px; padding:12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; font-size:0.85em;">`;
-                                outputHtml += `<div style="font-weight:700; color:#f87171; margin-bottom:6px;">${r.type || ''} — ${r.controlType || ''}</div>`;
-                                if (r.controlSummary) outputHtml += `<div style="color:var(--text-muted); margin-bottom:4px;">${r.controlSummary}</div>`;
-                                if (r.note) outputHtml += `<div style="color:var(--text-dim); font-style:italic;">${r.note}</div>`;
-                                if (r.sources && r.sources.length > 0) outputHtml += `<div style="color:var(--text-dim); margin-top:4px;">Source: ${r.sources.join(', ')}</div>`;
+                                outputHtml += `<div style="font-weight:700; color:#f87171; margin-bottom:6px;">${escapeHtml(r.type || '')} — ${escapeHtml(r.controlType || '')}</div>`;
+                                if (r.controlSummary) outputHtml += `<div style="color:var(--text-muted); margin-bottom:4px;">${escapeHtml(r.controlSummary)}</div>`;
+                                if (r.note) outputHtml += `<div style="color:var(--text-dim); font-style:italic;">${escapeHtml(r.note)}</div>`;
+                                if (r.sources && r.sources.length > 0) outputHtml += `<div style="color:var(--text-dim); margin-top:4px;">Source: ${escapeHtml(r.sources.join(', '))}</div>`;
                                 outputHtml += `</div>`;
                             });
                         } else if (action === 'NO_MATCH') {
@@ -2205,7 +2732,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // Parse what came back
                 let outputHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700; font-size:1.2em;">Screening Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700; font-size:1.2em;">Screening Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${escapeHtml(response.errors[0].message)}</p></div>`;
                 } else if (response.data && response.data.partyScreen) {
                     const result = response.data.partyScreen;
                     const action = result.action;
@@ -2233,8 +2760,8 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                             const overall = m.scores && m.scores.overall !== undefined ? (m.scores.overall * 100).toFixed(0) + '%' : '—';
                             const nameScore = m.scores && m.scores.name !== undefined ? (m.scores.name * 100).toFixed(0) + '%' : '—';
                             const locScore = m.scores && m.scores.location !== undefined ? (m.scores.location * 100).toFixed(0) + '%' : '—';
-                            const matchName = m.companyName || m.name || '—';
-                            const location = [m.locality, m.countryCode].filter(Boolean).join(', ') || '—';
+                            const matchName = escapeHtml(m.companyName || m.name || '—');
+                            const location = escapeHtml([m.locality, m.countryCode].filter(Boolean).join(', ') || '—');
                             outputHtml += `<div style="border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:12px; margin-bottom:10px; background:rgba(245,158,11,0.05);">
                                 <div style="font-weight:600; color:#f59e0b; margin-bottom:6px;">${matchName}</div>
                                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; font-size:0.85em;">
@@ -2268,7 +2795,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 friendlyView.classList.add('visible');
 
                 // What was sent: the uploaded image thumbnail
-                const previewSrc = document.getElementById('visionPreviewImg').src;
+                const previewSrc = escapeHtml(document.getElementById('visionPreviewImg').src);
                 let inputHtml = '';
                 if (previewSrc) {
                     inputHtml += `<div style="text-align:center; margin-bottom:8px;"><img src="${previewSrc}" style="max-width:100%; max-height:140px; border-radius:10px; border:1px solid var(--border);"></div>`;
@@ -2281,19 +2808,19 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // What came back: one card per detected item
                 let outputHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Analysis Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${response.errors[0].message}</p></div>`;
+                    outputHtml = `<div style="text-align:center; padding:10px;"><span style="color:#f87171; font-weight:700;">Analysis Failed</span><p style="color:var(--text-muted); margin-top:8px; font-size:0.9em;">${escapeHtml(response.errors[0].message)}</p></div>`;
                 } else if (response.data && response.data.itemsExtract && response.data.itemsExtract.length > 0) {
                     const items = response.data.itemsExtract;
                     outputHtml += `<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:10px; font-weight:600;">${items.length} item${items.length > 1 ? 's' : ''} detected</div>`;
                     items.forEach((item, i) => {
                         const content = Array.isArray(item.content) ? item.content[0] : item.content;
-                        const name = content && content.name ? content.name : 'Unknown item';
-                        const desc = content && content.description ? content.description : '';
-                        const materials = content && content.materials ? content.materials : '';
-                        const hsCode = item.classification && item.classification.hsCode ? item.classification.hsCode.code : null;
+                        const name = escapeHtml(content && content.name ? content.name : 'Unknown item');
+                        const desc = escapeHtml(content && content.description ? content.description : '');
+                        const materials = escapeHtml(content && content.materials ? content.materials : '');
+                        const hsCode = item.classification && item.classification.hsCode ? escapeHtml(item.classification.hsCode.code) : null;
                         const confidence = item.classification && item.classification.confidenceScore !== undefined ? (item.classification.confidenceScore * 100).toFixed(0) + '%' : null;
                         const value = item.valueEstimation && item.valueEstimation.value !== undefined ? item.valueEstimation.value : null;
-                        const currency = item.valueEstimation ? (item.valueEstimation.currency || 'USD') : 'USD';
+                        const currency = escapeHtml(item.valueEstimation ? (item.valueEstimation.currency || 'USD') : 'USD');
                         const low = item.valueEstimation && item.valueEstimation.valueEstimateRange ? item.valueEstimation.valueEstimateRange.low : null;
                         const high = item.valueEstimation && item.valueEstimation.valueEstimateRange ? item.valueEstimation.valueEstimateRange.high : null;
 
@@ -2332,7 +2859,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 // Simple success/failed for non-landed-cost queries
                 let statusHtml = '';
                 if (response.errors && response.errors.length > 0) {
-                    statusHtml = '<div style="text-align: center; padding: 20px;"><span style="font-size: 1.5em; color: #dc2626; font-weight: 700;">Failed</span><p style="color: #6b7280; margin-top: 10px;">' + response.errors[0].message + '</p></div>';
+                    statusHtml = '<div style="text-align: center; padding: 20px;"><span style="font-size: 1.5em; color: #dc2626; font-weight: 700;">Failed</span><p style="color: #6b7280; margin-top: 10px;">' + escapeHtml(response.errors[0].message) + '</p></div>';
                 } else {
                     statusHtml = '<div style="text-align: center; padding: 20px;"><span style="font-size: 1.5em; color: #059669; font-weight: 700;">Success</span></div>';
                 }
@@ -2350,6 +2877,17 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                         const copyBox = document.getElementById('shipmentIdCopyBox');
                         document.getElementById('shipmentIdValue').textContent = data.shipmentCreateWorkflow.id;
                         copyBox.classList.add('visible');
+                    }
+                    if (data.shipmentCreateWorkflow &&
+                        data.shipmentCreateWorkflow.shipmentCartons &&
+                        data.shipmentCreateWorkflow.shipmentCartons.length > 0) {
+                        const carton = data.shipmentCreateWorkflow.shipmentCartons[0];
+                        if (carton.label && carton.label.url) {
+                            const labelBox = document.getElementById('labelUrlCopyBox');
+                            document.getElementById('labelUrlValue').textContent = carton.label.url;
+                            document.getElementById('labelUrlLink').href = carton.label.url;
+                            labelBox.classList.add('visible');
+                        }
                     }
                 }
 
@@ -2478,7 +3016,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             let outputHtml = '';
 
             if (response.errors && response.errors.length > 0) {
-                outputHtml = '<div class="friendly-row"><span class="friendly-label">Error</span><span class="friendly-value" style="color: #dc2626;">' + response.errors[0].message.substring(0, 50) + '...</span></div>';
+                outputHtml = '<div class="friendly-row"><span class="friendly-label">Error</span><span class="friendly-value" style="color: #dc2626;">' + escapeHtml(response.errors[0].message.substring(0, 50)) + '...</span></div>';
             } else if (response.data) {
                 const data = response.data;
 
@@ -2801,6 +3339,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
         function showWebhookView() {
             // Hide other panels
             document.getElementById('friendlyView').classList.remove('visible');
+            document.getElementById('rulesBuilder').classList.remove('visible');
 
             // Show webhook explanation
             const explanation = document.querySelector('.explanation');
@@ -2879,6 +3418,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.querySelector('.editor-area').style.display = '';
             document.querySelector('.explanation').style.display = '';
             stopWebhookPolling();
+            document.getElementById('rulesBuilder').classList.remove('visible');
         }
 
         function startWebhookPolling() {
@@ -2894,6 +3434,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
         }
 
         async function fetchWebhookEvents() {
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
             try {
                 let url = `${SUPABASE_URL}/rest/v1/webhook_events?session_id=eq.${webhookSessionId}&order=received_at.desc&limit=50`;
                 if (webhookClearedAt) {
@@ -3117,11 +3658,12 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                     timestamp: now,
                     data: { order: data.orderCreate }
                 };
-            } else if (data.shipmentCreateWorkflow) {
+            } else if (data.shipmentCreateWorkflow || data.shipmentCreateWithTracking) {
+                const shipment = data.shipmentCreateWorkflow || data.shipmentCreateWithTracking;
                 webhookPayload = {
                     event: 'SHIPMENT_CREATED',
                     timestamp: now,
-                    data: { shipment: data.shipmentCreateWorkflow }
+                    data: { shipment }
                 };
             } else if (data.orderCancel) {
                 webhookPayload = {
@@ -3148,22 +3690,348 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             }
         }
 
+        // ===== Rules Builder =====
+        const RULE_VARS = {
+            DUTIES_TAXES_FEES: [':ship_from_country:',':ship_to_country:',':ship_to_administrative_area_code:',':duties_total:',':taxes_total:',':fees_total:',':landed_cost_total:',':landed_cost_guarantee:',':method:'],
+            SHIPMENT_RATING:   [':ship_from_country:',':ship_to_country:',':ship_to_administrative_area_code:',':carrier:',':service_level:',':residential:',':weight:',':item_count:',':items_total:',':amount:']
+        };
+
+        const RULE_EXAMPLES = [
+            { label: 'Increase duties 15% — China → US', context: 'DUTIES_TAXES_FEES', name: 'China to US duties buffer', description: 'Add 15% buffer to duties for shipments from China to US', condition: 'if :ship_from_country: == cn and :ship_to_country: == us', action: 'then :duties_total: = :duties_total: * 1.15' },
+            { label: 'Absorb all taxes for UK orders', context: 'DUTIES_TAXES_FEES', name: 'Absorb UK taxes', description: 'Merchant covers all taxes for UK shipments', condition: 'if :ship_to_country: == gb', action: 'then :taxes_total: = 0 usd' },
+            { label: 'Flat $500 rate for UPS Ground', context: 'SHIPMENT_RATING', name: 'UPS Ground flat rate', description: 'Override UPS Ground to a flat $500 rate', condition: 'if :service_level: == ups.ground', action: 'then :amount: = 500 usd' },
+            { label: '50% surcharge — FedEx to CA or MX', context: 'SHIPMENT_RATING', name: 'FedEx CA/MX surcharge', description: '50% surcharge on FedEx international to Canada or Mexico', condition: 'if :service_level: == fedex.international_economy and (:ship_to_country: == mx or :ship_to_country: == ca)', action: 'then :amount: = :amount: * 1.5' },
+            { label: 'Free shipping to Germany', context: 'SHIPMENT_RATING', name: 'Free shipping to DE', description: 'Zero out shipping amount for Germany', condition: 'if :ship_to_country: == de', action: 'then :amount: = 0 usd' },
+        ];
+
+        function showRulesView() {
+            hideWebhookTester();
+            document.querySelector('.editor-area').style.display = 'none';
+            document.getElementById('rulesBuilder').classList.add('visible');
+            document.getElementById('friendlyView').classList.remove('visible');
+
+            document.getElementById('explanationTitle').textContent = 'Rules';
+            document.getElementById('explanationContent').innerHTML = `
+                <h4>What are Rules?</h4>
+                <p>Rules let merchants automatically modify duties, taxes, fees, or shipping costs based on conditions like destination country, carrier, or service level — without changing their code.</p>
+                <h4>How rules work:</h4>
+                <p>Each rule has one <strong>condition</strong> (when to fire) and one <strong>action</strong> (what to change). Syntax: <code>if [condition] then [action]</code></p>
+                <div class="analogy"><strong>Example:</strong> "If shipping to the US from China, increase duties by 15%"<br><code style="font-size:0.85em">if :ship_from_country: == cn and :ship_to_country: == us then :duties_total: = :duties_total: * 1.15</code></div>
+                <h4>Two rule contexts:</h4>
+                <ul><li><strong>Duties, Taxes &amp; Fees</strong> — merchant absorbs cost changes</li><li><strong>Shipment Rating</strong> — modifies shipping amounts &amp; availability</li></ul>
+                <p><strong>Note:</strong> Rules are advanced — mistakes can cause unintended calculations. To update a rule, archive the old one and create a new one.</p>
+            `;
+            document.getElementById('explanationContent').classList.remove('collapsed');
+            document.getElementById('explanationToggle').textContent = 'Hide ▲';
+
+            document.querySelectorAll('.query-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('rulesBtn').classList.add('active');
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+            updateRuleVars();
+            renderRuleExamples();
+            updateRulePreview();
+        }
+
+        function hideRulesBuilder() {
+            document.getElementById('rulesBuilder').classList.remove('visible');
+        }
+
+        const COUNTRIES = [
+            {code:'us',name:'United States'},{code:'ca',name:'Canada'},{code:'gb',name:'United Kingdom'},
+            {code:'de',name:'Germany'},{code:'fr',name:'France'},{code:'au',name:'Australia'},
+            {code:'jp',name:'Japan'},{code:'mx',name:'Mexico'},{code:'cn',name:'China'},
+            {code:'br',name:'Brazil'},{code:'in',name:'India'},{code:'kr',name:'South Korea'},
+            {code:'sg',name:'Singapore'},{code:'nl',name:'Netherlands'},{code:'es',name:'Spain'},
+            {code:'it',name:'Italy'},{code:'se',name:'Sweden'},{code:'no',name:'Norway'},
+            {code:'dk',name:'Denmark'},{code:'fi',name:'Finland'},{code:'ch',name:'Switzerland'},
+            {code:'at',name:'Austria'},{code:'be',name:'Belgium'},{code:'nz',name:'New Zealand'},
+            {code:'ie',name:'Ireland'},{code:'pt',name:'Portugal'},{code:'pl',name:'Poland'},
+            {code:'za',name:'South Africa'},{code:'ae',name:'United Arab Emirates'},{code:'sa',name:'Saudi Arabia'}
+        ];
+
+        const AC_TEMPLATES = {
+            condition: {
+                DUTIES_TAXES_FEES: [
+                    {label:'Ship to country', sub:'Trigger by destination', val:'if :ship_to_country: == '},
+                    {label:'Ship from country', sub:'Trigger by origin', val:'if :ship_from_country: == '},
+                    {label:'Origin AND destination', sub:'e.g. China → US', val:'if :ship_from_country: == cn and :ship_to_country: == us'},
+                    {label:'Ship to state/province', sub:'e.g. US + state code', val:'if :ship_to_country: == us and :ship_to_administrative_area_code: == CA'},
+                ],
+                SHIPMENT_RATING: [
+                    {label:'Service level', sub:'Trigger by carrier service', val:'if :service_level: == ups.ground'},
+                    {label:'Carrier', sub:'Trigger by carrier name', val:'if :carrier: == ups'},
+                    {label:'Ship to country', sub:'Trigger by destination', val:'if :ship_to_country: == '},
+                    {label:'Service level AND country', sub:'Combine carrier + destination', val:'if :service_level: == fedex.international_economy and :ship_to_country: == '},
+                    {label:'Residential delivery', sub:'Trigger for residential addresses', val:'if :residential: == true'},
+                ]
+            },
+            action: {
+                DUTIES_TAXES_FEES: [
+                    {label:'Increase duties by 15%', sub:'Add buffer on duties', val:'then :duties_total: = :duties_total: * 1.15'},
+                    {label:'Absorb all duties', sub:'Merchant covers duties', val:'then :duties_total: = 0 usd'},
+                    {label:'Absorb all taxes', sub:'Merchant covers taxes', val:'then :taxes_total: = 0 usd'},
+                    {label:'Absorb all fees', sub:'Merchant covers fees', val:'then :fees_total: = 0 usd'},
+                    {label:'Increase landed cost 10%', sub:'Buffer on total landed cost', val:'then :landed_cost_total: = :landed_cost_total: * 1.1'},
+                    {label:'Discount duties 20%', sub:'Reduce duties for customer', val:'then :duties_total: = :duties_total: * 0.8'},
+                ],
+                SHIPMENT_RATING: [
+                    {label:'Flat $500 rate', sub:'Override to fixed amount', val:'then :amount: = 500 usd'},
+                    {label:'Free shipping', sub:'Zero out shipping cost', val:'then :amount: = 0 usd'},
+                    {label:'Increase rate 50%', sub:'Add surcharge', val:'then :amount: = :amount: * 1.5'},
+                    {label:'Discount rate 20%', sub:'Reduce shipping cost', val:'then :amount: = :amount: * 0.8'},
+                    {label:'Flat $25 rate', sub:'Low flat rate', val:'then :amount: = 25 usd'},
+                ]
+            }
+        };
+
+        const COUNTRY_VAR_PATTERN = /(:ship_(?:from|to)_country:|:ship_to_administrative_area_code:)\s*==\s*(\S*)$/;
+
+        let acSelectedIdx = {};
+        const acCloseListeners = {};
+
+        function ruleAc(inputId, type) {
+            const input = document.getElementById(inputId);
+            const acEl  = document.getElementById(inputId + 'Ac');
+            const val   = input.value;
+            const ctx   = document.getElementById('ruleContext').value;
+            const suggestions = [];
+
+            // Check if cursor is after a country variable ==
+            const countryMatch = val.match(COUNTRY_VAR_PATTERN);
+            if (countryMatch) {
+                const partial = (countryMatch[2] || '').toLowerCase();
+                const filtered = COUNTRIES.filter(c => c.code.startsWith(partial) || c.name.toLowerCase().startsWith(partial));
+                if (filtered.length) {
+                    suggestions.push({group: 'Country codes'});
+                    filtered.slice(0, 8).forEach(c => suggestions.push({
+                        label: c.name, sub: c.code,
+                        val: val.slice(0, val.lastIndexOf(countryMatch[2])) + c.code
+                    }));
+                }
+            }
+
+            // Variable suggestions when typing :
+            const colonMatch = val.match(/:(\w*)$/);
+            if (colonMatch && !countryMatch) {
+                const partial = colonMatch[1].toLowerCase();
+                const vars = RULE_VARS[ctx] || [];
+                const filtered = vars.filter(v => v.includes(partial));
+                if (filtered.length) {
+                    suggestions.push({group: 'Variables'});
+                    filtered.forEach(v => suggestions.push({
+                        label: v, sub: null,
+                        val: val.slice(0, val.lastIndexOf(':' + colonMatch[1])) + v
+                    }));
+                }
+            }
+
+            // Template suggestions when field is empty or matches start
+            if (!colonMatch && !countryMatch) {
+                const templates = (AC_TEMPLATES[type] || {})[ctx] || [];
+                const lower = val.toLowerCase();
+                const filtered = templates.filter(t =>
+                    val === '' || t.val.toLowerCase().startsWith(lower) || t.label.toLowerCase().includes(lower)
+                );
+                if (filtered.length) {
+                    suggestions.push({group: 'Templates'});
+                    filtered.forEach(t => suggestions.push({label: t.label, sub: t.sub, val: t.val}));
+                }
+            }
+
+            renderAc(acEl, suggestions, inputId);
+        }
+
+        function renderAc(acEl, suggestions, inputId) {
+            if (!suggestions.length) { acEl.classList.remove('open'); return; }
+            acEl.innerHTML = '';
+            acSelectedIdx[inputId] = -1;
+            suggestions.forEach((s, i) => {
+                if (s.group) {
+                    const g = document.createElement('div');
+                    g.className = 'rule-ac-group';
+                    g.textContent = s.group;
+                    acEl.appendChild(g);
+                } else {
+                    const item = document.createElement('div');
+                    item.className = 'rule-ac-item';
+                    item.dataset.idx = i;
+                    item.innerHTML = `<span>${s.label}</span>${s.sub ? `<code>${s.sub}</code>` : ''}`;
+                    item.addEventListener('mousedown', e => { e.preventDefault(); applyAc(inputId, s.val); });
+                    acEl.appendChild(item);
+                }
+            });
+            acEl.classList.add('open');
+
+            // Close when clicking outside — remove any prior listener first to prevent accumulation
+            if (acCloseListeners[inputId]) {
+                document.removeEventListener('click', acCloseListeners[inputId]);
+            }
+            setTimeout(() => {
+                const closeAc = (e) => {
+                    if (!acEl.contains(e.target)) {
+                        acEl.classList.remove('open');
+                        document.removeEventListener('click', closeAc);
+                        delete acCloseListeners[inputId];
+                    }
+                };
+                acCloseListeners[inputId] = closeAc;
+                document.addEventListener('click', closeAc);
+            }, 10);
+        }
+
+        function applyAc(inputId, val) {
+            const input = document.getElementById(inputId);
+            input.value = val;
+            document.getElementById(inputId + 'Ac').classList.remove('open');
+            input.focus();
+            // Place cursor at end
+            input.setSelectionRange(val.length, val.length);
+            updateRulePreview();
+        }
+
+        function ruleAcKey(e, inputId) {
+            const acEl = document.getElementById(inputId + 'Ac');
+            if (!acEl.classList.contains('open')) return;
+            const items = acEl.querySelectorAll('.rule-ac-item');
+            let idx = acSelectedIdx[inputId] ?? -1;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                idx = Math.min(idx + 1, items.length - 1);
+                items.forEach((el, i) => el.classList.toggle('selected', i === idx));
+                acSelectedIdx[inputId] = idx;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                idx = Math.max(idx - 1, 0);
+                items.forEach((el, i) => el.classList.toggle('selected', i === idx));
+                acSelectedIdx[inputId] = idx;
+            } else if (e.key === 'Enter' && idx >= 0) {
+                e.preventDefault();
+                items[idx].dispatchEvent(new Event('mousedown'));
+            } else if (e.key === 'Escape') {
+                acEl.classList.remove('open');
+            }
+        }
+
+        function updateRuleVars() {
+            const ctx = document.getElementById('ruleContext').value;
+            const vars = RULE_VARS[ctx] || [];
+            document.getElementById('ruleVarList').innerHTML =
+                `<p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Variables — click to copy</p>` +
+                vars.map(v => `<span class="rule-var" onclick="copyRuleVar('${v}')" title="Click to copy">${v}</span>`).join('');
+        }
+
+        function copyRuleVar(v) {
+            navigator.clipboard.writeText(v).catch(() => {});
+        }
+
+        function toggleRuleRef() {
+            const body = document.getElementById('ruleRefBody');
+            const toggle = document.getElementById('ruleRefToggle');
+            const open = body.style.display === 'none';
+            body.style.display = open ? 'block' : 'none';
+            toggle.textContent = open ? 'Hide ▲' : 'Show ▼';
+        }
+
+        function updateRulePreview() {
+            const name        = document.getElementById('ruleName').value.trim();
+            const description = document.getElementById('ruleDescription').value.trim();
+            const context     = document.getElementById('ruleContext').value;
+            const condition   = document.getElementById('ruleCondition').value.trim();
+            const action      = document.getElementById('ruleAction').value.trim();
+            const startDate   = document.getElementById('ruleStartDate').value;
+            const endDate     = document.getElementById('ruleEndDate').value;
+
+            if (!name && !condition && !action) {
+                document.getElementById('rulePreview').value = '';
+                return;
+            }
+
+            let dateFields = '';
+            if (startDate) dateFields += `\n    startDate: "${startDate}"`;
+            if (endDate)   dateFields += `\n    endDate: "${endDate}"`;
+
+            const preview = `mutation RuleCreate {
+  ruleCreate(input: {
+    name: "${name || 'My Rule'}"
+    description: "${description || ''}"
+    context: ${context}
+    condition: "${condition || 'if ...'}"
+    action: "${action || 'then ...'}"${dateFields}
+  }) {
+    id
+    name
+    description
+    context
+    condition
+    action
+    status
+  }
+}`;
+            document.getElementById('rulePreview').value = preview;
+        }
+
+        function renderRuleExamples() {
+            document.getElementById('ruleExampleList').innerHTML = RULE_EXAMPLES.map((ex, i) =>
+                `<button class="rule-example-btn" onclick="loadRuleExample(${i})">
+                    <strong>${ex.label}</strong>
+                    <code>${ex.condition}</code>
+                </button>`
+            ).join('');
+        }
+
+        function loadRuleExample(i) {
+            const ex = RULE_EXAMPLES[i];
+            document.getElementById('ruleName').value = ex.name;
+            document.getElementById('ruleDescription').value = ex.description;
+            document.getElementById('ruleContext').value = ex.context;
+            document.getElementById('ruleCondition').value = ex.condition;
+            document.getElementById('ruleAction').value = ex.action;
+            document.getElementById('ruleStartDate').value = '';
+            document.getElementById('ruleEndDate').value = '';
+            updateRuleVars();
+            updateRulePreview();
+        }
+
+        function copyRuleMutation() {
+            const mutation = document.getElementById('rulePreview').value;
+            if (!mutation) return;
+            navigator.clipboard.writeText(mutation).then(() => {
+                const btn = document.querySelector('.rules-run-btn');
+                const orig = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => btn.textContent = orig, 2000);
+            });
+        }
+
         // Initialize
         loadConfig();
-        startWebhookPolling();
 
         // Access gate
-        const ACCESS_CODE = 'Zonosdemo26';
-        function checkAccessCode() {
+        async function checkAccessCode() {
             const input = document.getElementById('accessCodeInput').value;
-            if (input === ACCESS_CODE) {
-                sessionStorage.setItem('zonos_access', '1');
-                document.getElementById('accessGate').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-            } else {
-                document.getElementById('accessError').textContent = 'Incorrect access code. Try again.';
-                document.getElementById('accessCodeInput').value = '';
-                document.getElementById('accessCodeInput').focus();
+            const btn = document.querySelector('#accessGate button');
+            btn.disabled = true;
+            try {
+                const resp = await fetch('/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: input })
+                });
+                const data = await resp.json();
+                if (data.ok) {
+                    sessionStorage.setItem('zonos_access', '1');
+                    document.getElementById('accessGate').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                } else {
+                    document.getElementById('accessError').textContent = 'Incorrect access code. Try again.';
+                    document.getElementById('accessCodeInput').value = '';
+                    document.getElementById('accessCodeInput').focus();
+                }
+            } catch (e) {
+                document.getElementById('accessError').textContent = 'Connection error. Please try again.';
+            } finally {
+                btn.disabled = false;
             }
         }
 
@@ -3177,6 +4045,161 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 setTimeout(() => document.getElementById('accessCodeInput').focus(), 100);
             }
         })();
+    </script>
+
+    <!-- ===== Chat Widget ===== -->
+    <button class="chat-bubble" onclick="toggleChat()" title="Ask about Zonos API">💬</button>
+
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <span>Ask about Zonos API</span>
+            <button onclick="toggleChat()">✕</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">Hi! I can answer questions about the Zonos API, GraphQL queries, landed cost, webhooks, and more. What would you like to know?<br><br><small style="opacity:0.6">Tip: <code>/teach [info]</code> to add context · <code>/memory</code> to review · <code>/forget [#]</code> to remove</small></div>
+        </div>
+        <div class="chat-input-row">
+            <input id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChat();}">
+            <button id="chatSendBtn" onclick="sendChat()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let chatOpen = false;
+
+        function getTaught() {
+            return JSON.parse(localStorage.getItem('chat_taught') || '[]');
+        }
+        function saveTaught(arr) {
+            localStorage.setItem('chat_taught', JSON.stringify(arr));
+        }
+
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+            if (chatOpen) {
+                setTimeout(() => document.getElementById('chatInput').focus(), 150);
+            }
+        }
+
+        function appendMsg(role, text, isLoading) {
+            const el = document.createElement('div');
+            el.className = 'chat-msg ' + role + (isLoading ? ' chat-loading' : '');
+            if (isLoading) {
+                el.innerHTML = '<div class="cipher-spinner"><img src="cipher.png" alt=""></div>';
+            } else if (role === 'bot') {
+                el.innerHTML = marked.parse(text);
+            } else {
+                el.textContent = text;
+            }
+            const container = document.getElementById('chatMessages');
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+            return el;
+        }
+
+        function updateMsgContent(el, text) {
+            el.classList.remove('loading');
+            el.innerHTML = marked.parse(text);
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('chatSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+
+            // /teach command
+            if (text.startsWith('/teach ')) {
+                const info = text.slice(7).trim();
+                appendMsg('user', text);
+                if (info) {
+                    const taught = getTaught();
+                    if (taught.length >= 20) {
+                        appendMsg('bot', 'You\'ve reached the 20-item limit. Type `/forget [number]` to remove something first.');
+                    } else {
+                        taught.push(info);
+                        saveTaught(taught);
+                        appendMsg('bot', `Got it! I'll remember that.\n\nYou've taught me **${taught.length}** thing${taught.length !== 1 ? 's' : ''} so far. Type \`/memory\` to review or \`/forget [number]\` to remove a specific item.`);
+                    }
+                }
+                return;
+            }
+
+            // /memory command
+            if (text.trim() === '/memory') {
+                const taught = getTaught();
+                appendMsg('user', text);
+                if (taught.length === 0) {
+                    appendMsg('bot', 'You haven\'t taught me anything yet.');
+                } else {
+                    const list = taught.map((item, i) => `**${i + 1}.** ${item}`).join('\n');
+                    appendMsg('bot', `Here's what you've taught me:\n\n${list}\n\nType \`/forget [number]\` to remove a specific item, or \`/forget\` to clear all.`);
+                }
+                return;
+            }
+
+            // /forget command
+            if (text.trim().startsWith('/forget')) {
+                const arg = text.trim().slice(7).trim();
+                appendMsg('user', text);
+                if (arg === '') {
+                    saveTaught([]);
+                    appendMsg('bot', 'Done — I\'ve forgotten everything you taught me.');
+                } else {
+                    const n = parseInt(arg);
+                    const taught = getTaught();
+                    if (!isNaN(n) && n >= 1 && n <= taught.length) {
+                        const removed = taught.splice(n - 1, 1)[0];
+                        saveTaught(taught);
+                        appendMsg('bot', `Removed item ${n}: "${removed}"`);
+                    } else {
+                        appendMsg('bot', `No item #${arg} found. Type \`/memory\` to see the list.`);
+                    }
+                }
+                return;
+            }
+
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            appendMsg('user', text);
+            chatHistory.push({ role: 'user', content: text });
+
+            // Keep last 20 messages to avoid token limits
+            if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
+            const loadingEl = appendMsg('bot', '', true);
+
+            try {
+                const taught = getTaught();
+                const body = { messages: chatHistory };
+                if (taught.length > 0) body.context = taught.join('\n');
+
+                const res = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                const reply = data.reply || data.error || 'Sorry, something went wrong.';
+
+                updateMsgContent(loadingEl, reply);
+
+                chatHistory.push({ role: 'assistant', content: reply });
+            } catch (err) {
+                loadingEl.textContent = 'Connection error. Please try again.';
+                loadingEl.classList.remove('loading');
+                chatHistory.pop(); // remove the failed user message from history
+            }
+
+            input.disabled = false;
+            sendBtn.disabled = false;
+            input.focus();
+        }
     </script>
 </body>
 </html>

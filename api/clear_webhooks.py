@@ -36,6 +36,14 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'ok': False, 'error': 'Missing session ID'}).encode())
             return
 
+        if not supabase_url or not supabase_key:
+            self.send_response(503)
+            self.send_header('Content-Type', 'application/json')
+            self._cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({'ok': False, 'error': 'Storage not configured'}).encode())
+            return
+
         if supabase_url and supabase_key:
             req = urllib.request.Request(
                 f'{supabase_url}/rest/v1/webhook_events?session_id=eq.{session_id}',

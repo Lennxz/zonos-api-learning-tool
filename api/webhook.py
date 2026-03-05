@@ -1,10 +1,13 @@
 import json
 import os
+import re
 import urllib.request
 import urllib.error
 import ssl
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
+
+_UUID_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
 
 
 ALLOWED_ORIGIN = 'https://zonos-api-demo.vercel.app'
@@ -31,12 +34,12 @@ class handler(BaseHTTPRequestHandler):
         params = parse_qs(parsed.query)
         session_id = params.get('session', [None])[0]
 
-        if not session_id:
+        if not session_id or not _UUID_RE.match(session_id):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self._cors_headers()
             self.end_headers()
-            self.wfile.write(json.dumps({'ok': False, 'error': 'Missing session ID'}).encode())
+            self.wfile.write(json.dumps({'ok': False, 'error': 'Invalid session ID'}).encode())
             return
 
         # Read the POST body

@@ -3,6 +3,8 @@
     { "source": "/proxy", "destination": "/api/proxy" },
     { "source": "/config", "destination": "/api/config" },
     { "source": "/webhook/:session_id", "destination": "/api/webhook?session=:session_id" },
-    { "source": "/clear-webhooks", "destination": "/api/clear_webhooks" }
+    { "source": "/clear-webhooks", "destination": "/api/clear_webhooks" },
+    { "source": "/chat", "destination": "/api/chat" },
+    { "source": "/auth", "destination": "/api/auth" }
   ]
 }

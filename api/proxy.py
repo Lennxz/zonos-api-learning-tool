@@ -4,6 +4,10 @@ import urllib.request
 import urllib.error
 import ssl
 from http.server import BaseHTTPRequestHandler
+from urllib.parse import urlparse as _urlparse
+
+# Only allow proxying to Zonos API endpoints
+_ALLOWED_HOST = 'api.zonos.com'
 
 ALLOWED_ORIGIN = 'https://zonos-api-demo.vercel.app'
 
@@ -49,6 +53,19 @@ class handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({'error': True, 'message': 'Missing URL'}).encode())
                 return
+
+            # Only allow proxying to Zonos API endpoints
+            try:
+                _parsed = _urlparse(target_url)
+                if _parsed.scheme != 'https' or _parsed.netloc != _ALLOWED_HOST:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self._cors_headers()
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': True, 'message': 'Disallowed target URL'}).encode())
+                    return
+            except Exception:
+                pass
 
             req_body = None
             if payload:
