@@ -1486,13 +1486,8 @@
                 </div>
                 <span id="keyModeLabel" style="font-size: 0.8em; color: var(--text-muted);">Using Zonos test key</span>
             </div>
-
-            <!-- Live key input (hidden in test mode) -->
-            <div id="liveKeyRow" style="display: none; margin-bottom: 14px;">
-                <input type="password" id="liveApiKey" placeholder="credential_live_…"
-                    style="width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 0.88em;"
-                    oninput="saveLiveKey()" autocomplete="off">
-                <p style="color: var(--text-dim); font-size: 0.78em; margin-top: 6px;">Your key is stored only in this browser and never sent to our servers — it goes directly to api.zonos.com.</p>
+            <div id="liveKeyWarning" style="display: none; padding: 10px 14px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; margin-bottom: 12px; font-size: 0.82em; color: #fca5a5;">
+                Live key not configured on the server. Ask Lennon to add <code style="background:rgba(255,255,255,0.08); padding:1px 5px; border-radius:4px;">ZONOS_LIVE_API_KEY</code> to Vercel.
             </div>
 
             <div class="config-row">
@@ -2336,30 +2331,22 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
         };
 
         // Test / Live key mode
+        let serverHasLiveKey = false;
+
         function setKeyMode(mode) {
             const isLive = mode === 'live';
             document.getElementById('keyToggleTest').style.background = isLive ? 'transparent' : 'var(--gradient)';
             document.getElementById('keyToggleTest').style.color = isLive ? 'var(--text-muted)' : 'white';
             document.getElementById('keyToggleLive').style.background = isLive ? 'var(--gradient)' : 'transparent';
             document.getElementById('keyToggleLive').style.color = isLive ? 'white' : 'var(--text-muted)';
-            document.getElementById('liveKeyRow').style.display = isLive ? '' : 'none';
-            document.getElementById('keyModeLabel').textContent = isLive ? 'Using your live key' : 'Using Zonos test key';
+            document.getElementById('keyModeLabel').textContent = isLive ? 'Using live key' : 'Using test key';
+            document.getElementById('liveKeyWarning').style.display = (isLive && !serverHasLiveKey) ? '' : 'none';
             localStorage.setItem('zonos_key_mode', mode);
             updateStatus();
         }
 
-        function saveLiveKey() {
-            const val = document.getElementById('liveApiKey').value.trim();
-            if (val) localStorage.setItem('zonos_live_key', val);
-            else localStorage.removeItem('zonos_live_key');
-        }
-
-        function getActiveApiKey() {
-            const mode = localStorage.getItem('zonos_key_mode') || 'test';
-            if (mode === 'live') {
-                return localStorage.getItem('zonos_live_key') || '';
-            }
-            return ''; // let proxy use server key
+        function getKeyMode() {
+            return localStorage.getItem('zonos_key_mode') || 'test';
         }
 
         // Load config from localStorage, then try server-side key
@@ -2367,22 +2354,19 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             const apiKey = localStorage.getItem('zonos_api_key');
             const endpoint = localStorage.getItem('zonos_endpoint');
             const mode = localStorage.getItem('zonos_key_mode') || 'test';
-            const liveKey = localStorage.getItem('zonos_live_key') || '';
 
             if (apiKey) document.getElementById('apiKey').value = apiKey;
             if (endpoint) document.getElementById('endpoint').value = endpoint;
-            if (liveKey) document.getElementById('liveApiKey').value = liveKey;
-            setKeyMode(mode);
 
-            // Check if server has an API key configured
+            // Check which keys the server has configured
             fetch('/proxy')
                 .then(r => r.json())
                 .then(data => {
-                    if (data.hasKey) {
-                        updateStatus();
-                    }
+                    serverHasLiveKey = !!data.hasLiveKey;
+                    setKeyMode(mode);
+                    updateStatus();
                 })
-                .catch(() => {});
+                .catch(() => { setKeyMode(mode); });
 
             updateStatus();
         }
@@ -3263,7 +3247,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
 
         // Run the query
         async function runQuery() {
-            const apiKey = getActiveApiKey();
+            const keyMode = getKeyMode();
             const endpoint = document.getElementById('endpoint').value;
             const query = document.getElementById('queryEditor').value;
             const responseArea = document.getElementById('responseArea');
@@ -3304,10 +3288,8 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                     body: JSON.stringify({
                         url: endpoint,
                         method: 'POST',
-                        headers: Object.assign(
-                            { 'Content-Type': 'application/json' },
-                            apiKey ? { 'credentialToken': apiKey } : {}
-                        ),
+                        keyMode: keyMode,
+                        headers: { 'Content-Type': 'application/json' },
                         body: query.includes('itemsExtract') ? {
                             query: query,
                             variables: {

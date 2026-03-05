@@ -27,12 +27,14 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        env_api_key = os.environ.get('ZONOS_API_KEY', '')
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self._cors_headers()
         self.end_headers()
-        result = {'hasKey': True} if env_api_key else {'hasKey': False}
+        result = {
+            'hasKey': bool(os.environ.get('ZONOS_API_KEY', '')),
+            'hasLiveKey': bool(os.environ.get('ZONOS_LIVE_API_KEY', ''))
+        }
         self.wfile.write(json.dumps(result).encode())
 
     def do_POST(self):
@@ -74,10 +76,15 @@ class handler(BaseHTTPRequestHandler):
                 else:
                     req_body = payload.encode('utf-8')
 
-            # Use server-side API key if not provided by the client
-            env_api_key = os.environ.get('ZONOS_API_KEY', '')
-            if env_api_key and not headers.get('credentialToken'):
-                headers['credentialToken'] = env_api_key
+            # Use server-side API key based on keyMode (never trust client-supplied credentialToken)
+            key_mode = request_data.get('keyMode', 'test')
+            headers.pop('credentialToken', None)  # always strip any client-supplied key
+            if key_mode == 'live':
+                server_key = os.environ.get('ZONOS_LIVE_API_KEY', '')
+            else:
+                server_key = os.environ.get('ZONOS_API_KEY', '')
+            if server_key:
+                headers['credentialToken'] = server_key
 
             req = urllib.request.Request(target_url, data=req_body, method=method)
             for key, value in headers.items():
