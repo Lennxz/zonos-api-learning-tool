@@ -388,7 +388,7 @@
         /* Config Section */
         .left-col { display: flex; flex-direction: column; gap: 15px; }
         .config-section { padding: 25px; margin-top: 0; }
-        .config-section-bottom { margin-top: 15px; max-width: 50%; }
+        .config-section-bottom { margin-bottom: 15px; }
         .config-section h3 { color: var(--teal); margin-bottom: 18px; font-weight: 600; }
 
         .config-row { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
@@ -1124,6 +1124,48 @@
             </div>
         </section>
 
+        <!-- API Settings -->
+        <div class="config-section config-section-bottom">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                <h3 style="margin-bottom: 0;">API Settings</h3>
+
+                <!-- Test / Live toggle -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: var(--text-muted); font-size: 0.9em; font-weight: 500;">Key:</span>
+                    <div style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+                        <button id="keyToggleTest" onclick="setKeyMode('test')"
+                            style="padding: 7px 16px; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; font-family: inherit; transition: all 0.2s; background: var(--gradient); color: white;">
+                            Test
+                        </button>
+                        <button id="keyToggleLive" onclick="setKeyMode('live')"
+                            style="padding: 7px 16px; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; font-family: inherit; transition: all 0.2s; background: transparent; color: var(--text-muted);">
+                            Live
+                        </button>
+                    </div>
+                    <span id="keyModeLabel" style="font-size: 0.8em; color: var(--text-muted);">Using test key</span>
+                </div>
+
+                <!-- Endpoint -->
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">
+                    <label style="color: var(--text-muted); font-weight: 500; font-size: 0.9em; white-space: nowrap;">Endpoint:</label>
+                    <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()"
+                        style="flex: 1; padding: 8px 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 0.85em;">
+                </div>
+            </div>
+
+            <!-- Live mode warning -->
+            <div id="liveWarning" style="display: none; margin-top: 14px; padding: 12px 16px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.35); border-radius: 10px; font-size: 0.85em; color: #fde68a;">
+                ⚠️ <strong style="color: #fbbf24;">Live key active.</strong> Any orders or labels created will be real and <strong style="color: #fbbf24;">must be cancelled</strong> after testing to avoid being billed.
+            </div>
+
+            <!-- No live key configured warning -->
+            <div id="liveKeyWarning" style="display: none; margin-top: 14px; padding: 10px 14px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; font-size: 0.82em; color: #fca5a5;">
+                Live key not configured on the server. Ask Lennon to add <code style="background:rgba(255,255,255,0.08); padding:1px 5px; border-radius:4px;">ZONOS_LIVE_API_KEY</code> to Vercel.
+            </div>
+
+            <input type="hidden" id="apiKey" value="">
+        </div>
+
         <!-- Main Content Area -->
         <div class="main-content">
             <!-- Left column: sidebar + API settings -->
@@ -1468,35 +1510,6 @@
         </div>
 
         <!-- Config Section - half width -->
-        <div class="config-section config-section-bottom">
-            <h3>API Settings</h3>
-
-            <!-- Test / Live toggle -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                <span style="color: var(--text-muted); font-size: 0.9em; font-weight: 500;">Key:</span>
-                <div style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
-                    <button id="keyToggleTest" onclick="setKeyMode('test')"
-                        style="padding: 7px 16px; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; font-family: inherit; transition: all 0.2s; background: var(--gradient); color: white;">
-                        Test
-                    </button>
-                    <button id="keyToggleLive" onclick="setKeyMode('live')"
-                        style="padding: 7px 16px; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; font-family: inherit; transition: all 0.2s; background: transparent; color: var(--text-muted);">
-                        Live
-                    </button>
-                </div>
-                <span id="keyModeLabel" style="font-size: 0.8em; color: var(--text-muted);">Using Zonos test key</span>
-            </div>
-            <div id="liveKeyWarning" style="display: none; padding: 10px 14px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; margin-bottom: 12px; font-size: 0.82em; color: #fca5a5;">
-                Live key not configured on the server. Ask Lennon to add <code style="background:rgba(255,255,255,0.08); padding:1px 5px; border-radius:4px;">ZONOS_LIVE_API_KEY</code> to Vercel.
-            </div>
-
-            <div class="config-row">
-                <label>Endpoint:</label>
-                <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
-            </div>
-            <input type="hidden" id="apiKey" value="">
-        </div>
-
     </div>
     </div><!-- end mainApp -->
 
@@ -2345,6 +2358,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.getElementById('keyToggleLive').style.background = isLive ? 'var(--gradient)' : 'transparent';
             document.getElementById('keyToggleLive').style.color = isLive ? 'white' : 'var(--text-muted)';
             document.getElementById('keyModeLabel').textContent = isLive ? 'Using live key' : 'Using test key';
+            document.getElementById('liveWarning').style.display = (isLive && serverHasLiveKey) ? '' : 'none';
             document.getElementById('liveKeyWarning').style.display = (isLive && !serverHasLiveKey) ? '' : 'none';
             localStorage.setItem('zonos_key_mode', mode);
             updateStatus();
