@@ -1835,19 +1835,7 @@ mutation GenerateShipmentLabel {
     type
   }
 
-  # Step 2: Define the carton (carrier needs dimensions for label)
-  cartonsCreateWorkflow(input: [{
-    weight: 1.5
-    weightUnit: POUND
-    length: 10.0
-    width: 8.0
-    height: 6.0
-    dimensionalUnit: INCH
-  }]) {
-    id
-  }
-
-  # Step 3: Create the shipment and generate the label
+  # Step 2: Create the shipment and generate the label
   shipmentCreateWorkflow(input: {
     # ⬇️ PASTE YOUR ORDER ID HERE (from Create Order response)
     orderId: "PASTE_YOUR_ORDER_ID_HERE"
