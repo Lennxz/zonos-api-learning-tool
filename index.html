@@ -1837,12 +1837,12 @@ mutation GenerateShipmentLabel {
 
   # Step 2: Define the carton (carrier needs dimensions for label)
   cartonsCreateWorkflow(input: [{
-    measurements: [
-      { type: WEIGHT, value: 1.5, unitOfMeasure: POUND }
-      { type: LENGTH, value: 10.0, unitOfMeasure: INCH }
-      { type: WIDTH, value: 8.0, unitOfMeasure: INCH }
-      { type: HEIGHT, value: 6.0, unitOfMeasure: INCH }
-    ]
+    weight: 1.5
+    weightUnit: POUND
+    length: 10.0
+    width: 8.0
+    height: 6.0
+    dimensionalUnit: INCH
   }]) {
     id
   }
