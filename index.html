@@ -1779,8 +1779,9 @@ mutation AddTracking {
                     <h4>Key differences from "Add Tracking Number":</h4>
                     <ul>
                         <li><strong>generateLabel: true</strong> — Zonos creates the label; you don't need your own carrier account</li>
-                        <li><strong>No service level needed</strong> — Zonos automatically uses the service level from the landed cost calculation</li>
-                        <li><strong>Returns a label URL</strong> — you print it and attach it to the box</li>
+                        <li><strong>Requires shipper + recipient details</strong> — needed to print a valid shipping label</li>
+                        <li><strong>Requires carton dimensions</strong> — carrier needs weight and size to generate the label</li>
+                        <li><strong>Returns a label URL</strong> — print it and attach it to the box</li>
                         <li>Carrier billing is handled by Zonos (billed to Zonos account)</li>
                     </ul>
 
@@ -1792,20 +1793,67 @@ mutation AddTracking {
                     </ul>
                 `,
                 query: `# Generate a Shipment Label via Zonos
-# Zonos creates the label using its own carrier accounts
+# This is the "Advanced" workflow — required when generating labels
+# because the carrier needs full address and package details.
 #
 # ⚠️ STEP 1: Run "Create an Order" first!
 # STEP 2: Copy the Order ID from that response
 # STEP 3: Paste it below as orderId
-# STEP 4: Run this mutation — the response includes a label URL to print
+# STEP 4: Update the shipper (ORIGIN) and recipient (DESTINATION) addresses
+# STEP 5: Run this mutation — the response includes a label URL to print
 
 mutation GenerateShipmentLabel {
+  # Step 1: Provide shipper and recipient details (required for label)
+  partyCreateWorkflow(input: [
+    {
+      type: ORIGIN
+      person: {
+        firstName: "Acme"
+        lastName: "Warehouse"
+      }
+      location: {
+        line1: "123 Main Street"
+        locality: "St. George"
+        administrativeAreaCode: "UT"
+        postalCode: "84770"
+        countryCode: US
+      }
+    },
+    {
+      type: DESTINATION
+      person: {
+        firstName: "Claude"
+        lastName: "Code"
+      }
+      location: {
+        line1: "456 Queen Street"
+        locality: "Toronto"
+        administrativeAreaCode: "ON"
+        postalCode: "M5V3A8"
+        countryCode: CA
+      }
+    }
+  ]) {
+    id
+    type
+  }
+
+  # Step 2: Define the carton (carrier needs dimensions for label)
+  cartonsCreateWorkflow(input: [{
+    measurements: [
+      { type: WEIGHT, value: 1.5, unitOfMeasure: POUND }
+      { type: LENGTH, value: 10.0, unitOfMeasure: INCH }
+      { type: WIDTH, value: 8.0, unitOfMeasure: INCH }
+      { type: HEIGHT, value: 6.0, unitOfMeasure: INCH }
+    ]
+  }]) {
+    id
+  }
+
+  # Step 3: Create the shipment and generate the label
   shipmentCreateWorkflow(input: {
     # ⬇️ PASTE YOUR ORDER ID HERE (from Create Order response)
     orderId: "PASTE_YOUR_ORDER_ID_HERE"
-
-    # Set to true so Zonos generates the label for you
-    # Service level is automatically pulled from the landed cost — no need to specify it
     generateLabel: true
   }) {
     id
