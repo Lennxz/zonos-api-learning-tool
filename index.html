@@ -1793,14 +1793,11 @@ mutation AddTracking {
                     </ul>
                 `,
                 query: `# Generate a Shipment Label via Zonos
-# This is the "Advanced" workflow — required when generating labels
-# because the carrier needs full address and package details.
+# Zonos creates the label using its own carrier accounts.
 #
 # ⚠️ STEP 1: Run "Create an Order" first!
 # STEP 2: Copy the Order ID from that response
-# STEP 3: Paste it below as orderId
-# STEP 4: Update the shipper (ORIGIN) and recipient (DESTINATION) addresses
-# STEP 5: Run this mutation — the response includes a label URL to print
+# STEP 3: Paste it below as orderId, then click Run Query
 
 mutation GenerateShipmentLabel {
   # Step 1: Provide shipper and recipient details (required for label)
