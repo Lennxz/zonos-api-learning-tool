@@ -359,19 +359,51 @@
             font-weight: 600;
         }
 
-        textarea {
-            width: 100%;
+        .query-editor-wrapper {
+            position: relative;
             height: 650px;
             background: var(--inner);
+        }
+
+        .query-highlight-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            padding: 18px;
+            font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: transparent;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .query-highlight-overlay mark {
+            background: rgba(251,191,36,0.28);
+            color: transparent;
+            border-radius: 3px;
+            outline: 1px solid rgba(251,191,36,0.5);
+        }
+
+        textarea {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
             border: none;
             color: #7dd3fc;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
             font-size: 13px;
             padding: 18px;
             resize: none;
+            z-index: 1;
         }
 
-        textarea:focus { outline: none; background: rgba(0,185,183,0.03); }
+        textarea:focus { outline: none; }
 
         .response-area {
             padding: 18px;
@@ -1323,7 +1355,10 @@
                     <div class="editor-body">
                         <div class="editor-pane">
                             <div class="pane-header">QUERY (editable - modify values before running)</div>
-                            <textarea id="queryEditor" placeholder="Select a query from the left, or use this space to paste a query or create your own."></textarea>
+                            <div class="query-editor-wrapper">
+                                <div id="queryHighlightOverlay" class="query-highlight-overlay"></div>
+                                <textarea id="queryEditor" placeholder="Select a query from the left, or use this space to paste a query or create your own." oninput="syncHighlight()" onscroll="syncHighlightScroll()"></textarea>
+                            </div>
                         </div>
                         <div class="editor-pane">
                             <div class="pane-header">RESPONSE (what Zonos sends back)</div>
@@ -2369,6 +2404,23 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             return localStorage.getItem('zonos_key_mode') || 'test';
         }
 
+        // Highlight PASTE_YOUR_... placeholders in the query editor
+        function syncHighlight() {
+            const ta = document.getElementById('queryEditor');
+            const overlay = document.getElementById('queryHighlightOverlay');
+            const escaped = ta.value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            overlay.innerHTML = escaped.replace(/(PASTE_YOUR_\w+)/g, '<mark>$1</mark>');
+            overlay.scrollTop = ta.scrollTop;
+        }
+
+        function syncHighlightScroll() {
+            const ta = document.getElementById('queryEditor');
+            document.getElementById('queryHighlightOverlay').scrollTop = ta.scrollTop;
+        }
+
         // Load config from localStorage, then try server-side key
         function loadConfig() {
             const apiKey = localStorage.getItem('zonos_api_key');
@@ -2441,6 +2493,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 queryText = queryText.replace('ORD-2024-12345', orderNum);
             }
             document.getElementById('queryEditor').value = queryText;
+            syncHighlight();
 
             // Update active button
             document.querySelectorAll('.query-btn').forEach(btn => btn.classList.remove('active'));
