@@ -1470,10 +1470,31 @@
         <!-- Config Section - half width -->
         <div class="config-section config-section-bottom">
             <h3>API Settings</h3>
-            <div id="serverKeyStatus" style="display: none; padding: 12px 16px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 10px; border: 1px solid #a7f3d0; margin-bottom: 15px;">
-                <span style="color: #047857; font-weight: 600;">Server API key is active</span>
-                <span style="color: #6b7280; font-size: 0.85em; margin-left: 8px;">- no setup needed, just run queries</span>
+
+            <!-- Test / Live toggle -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <span style="color: var(--text-muted); font-size: 0.9em; font-weight: 500;">Key:</span>
+                <div style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+                    <button id="keyToggleTest" onclick="setKeyMode('test')"
+                        style="padding: 7px 16px; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; font-family: inherit; transition: all 0.2s; background: var(--gradient); color: white;">
+                        Test
+                    </button>
+                    <button id="keyToggleLive" onclick="setKeyMode('live')"
+                        style="padding: 7px 16px; border: none; cursor: pointer; font-size: 0.85em; font-weight: 600; font-family: inherit; transition: all 0.2s; background: transparent; color: var(--text-muted);">
+                        Live
+                    </button>
+                </div>
+                <span id="keyModeLabel" style="font-size: 0.8em; color: var(--text-muted);">Using Zonos test key</span>
             </div>
+
+            <!-- Live key input (hidden in test mode) -->
+            <div id="liveKeyRow" style="display: none; margin-bottom: 14px;">
+                <input type="password" id="liveApiKey" placeholder="credential_live_…"
+                    style="width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 0.88em;"
+                    oninput="saveLiveKey()" autocomplete="off">
+                <p style="color: var(--text-dim); font-size: 0.78em; margin-top: 6px;">Your key is stored only in this browser and never sent to our servers — it goes directly to api.zonos.com.</p>
+            </div>
+
             <div class="config-row">
                 <label>Endpoint:</label>
                 <input type="text" id="endpoint" value="https://api.zonos.com/graphql" onchange="saveConfig()">
@@ -2314,20 +2335,50 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
 
         };
 
+        // Test / Live key mode
+        function setKeyMode(mode) {
+            const isLive = mode === 'live';
+            document.getElementById('keyToggleTest').style.background = isLive ? 'transparent' : 'var(--gradient)';
+            document.getElementById('keyToggleTest').style.color = isLive ? 'var(--text-muted)' : 'white';
+            document.getElementById('keyToggleLive').style.background = isLive ? 'var(--gradient)' : 'transparent';
+            document.getElementById('keyToggleLive').style.color = isLive ? 'white' : 'var(--text-muted)';
+            document.getElementById('liveKeyRow').style.display = isLive ? '' : 'none';
+            document.getElementById('keyModeLabel').textContent = isLive ? 'Using your live key' : 'Using Zonos test key';
+            localStorage.setItem('zonos_key_mode', mode);
+            updateStatus();
+        }
+
+        function saveLiveKey() {
+            const val = document.getElementById('liveApiKey').value.trim();
+            if (val) localStorage.setItem('zonos_live_key', val);
+            else localStorage.removeItem('zonos_live_key');
+        }
+
+        function getActiveApiKey() {
+            const mode = localStorage.getItem('zonos_key_mode') || 'test';
+            if (mode === 'live') {
+                return localStorage.getItem('zonos_live_key') || '';
+            }
+            return ''; // let proxy use server key
+        }
+
         // Load config from localStorage, then try server-side key
         function loadConfig() {
             const apiKey = localStorage.getItem('zonos_api_key');
             const endpoint = localStorage.getItem('zonos_endpoint');
+            const mode = localStorage.getItem('zonos_key_mode') || 'test';
+            const liveKey = localStorage.getItem('zonos_live_key') || '';
 
             if (apiKey) document.getElementById('apiKey').value = apiKey;
             if (endpoint) document.getElementById('endpoint').value = endpoint;
+            if (liveKey) document.getElementById('liveApiKey').value = liveKey;
+            setKeyMode(mode);
 
             // Check if server has an API key configured
             fetch('/proxy')
                 .then(r => r.json())
                 .then(data => {
                     if (data.hasKey) {
-                        document.getElementById('serverKeyStatus').style.display = '';
                         updateStatus();
                     }
                 })
@@ -3212,7 +3263,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
 
         // Run the query
         async function runQuery() {
-            const apiKey = document.getElementById('apiKey').value;
+            const apiKey = getActiveApiKey();
             const endpoint = document.getElementById('endpoint').value;
             const query = document.getElementById('queryEditor').value;
             const responseArea = document.getElementById('responseArea');
