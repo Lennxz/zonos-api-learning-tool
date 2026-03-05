@@ -1806,44 +1806,7 @@ mutation AddTracking {
 # STEP 3: Paste it below as orderId, then click Run Query
 
 mutation GenerateShipmentLabel {
-  # Step 1: Provide shipper and recipient details (required for label)
-  partyCreateWorkflow(input: [
-    {
-      type: ORIGIN
-      person: {
-        firstName: "Acme"
-        lastName: "Warehouse"
-        phone: "4357730000"
-      }
-      location: {
-        line1: "123 Main Street"
-        locality: "St. George"
-        administrativeAreaCode: "UT"
-        postalCode: "84770"
-        countryCode: US
-      }
-    },
-    {
-      type: DESTINATION
-      person: {
-        firstName: "Claude"
-        lastName: "Code"
-        phone: "4165550123"
-      }
-      location: {
-        line1: "456 Queen Street"
-        locality: "Toronto"
-        administrativeAreaCode: "ON"
-        postalCode: "M5V3A8"
-        countryCode: CA
-      }
-    }
-  ]) {
-    id
-    type
-  }
-
-  # Step 2: Create the shipment and generate the label
+  # Party and item data comes from the original order — no need to recreate it
   shipmentCreateWorkflow(input: {
     # ⬇️ PASTE YOUR ORDER ID HERE (from Create Order response)
     orderId: "PASTE_YOUR_ORDER_ID_HERE"
