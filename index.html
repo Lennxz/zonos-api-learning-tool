@@ -372,20 +372,26 @@
             padding: 18px;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 19.5px;
             white-space: pre-wrap;
             word-wrap: break-word;
+            word-break: break-all;
             color: transparent;
             pointer-events: none;
-            overflow: hidden;
+            overflow-y: scroll;
+            scrollbar-width: none;
             z-index: 0;
+            border: none;
+            box-sizing: border-box;
         }
 
+        .query-highlight-overlay::-webkit-scrollbar { display: none; }
+
         .query-highlight-overlay mark {
-            background: rgba(251,191,36,0.28);
+            background: rgba(251,191,36,0.3);
             color: transparent;
             border-radius: 3px;
-            outline: 1px solid rgba(251,191,36,0.5);
+            outline: 1px solid rgba(251,191,36,0.55);
         }
 
         textarea {
@@ -398,9 +404,11 @@
             color: #7dd3fc;
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
             font-size: 13px;
+            line-height: 19.5px;
             padding: 18px;
             resize: none;
             z-index: 1;
+            box-sizing: border-box;
         }
 
         textarea:focus { outline: none; }
@@ -2418,7 +2426,9 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
 
         function syncHighlightScroll() {
             const ta = document.getElementById('queryEditor');
-            document.getElementById('queryHighlightOverlay').scrollTop = ta.scrollTop;
+            const overlay = document.getElementById('queryHighlightOverlay');
+            overlay.scrollTop = ta.scrollTop;
+            overlay.scrollLeft = ta.scrollLeft;
         }
 
         // Load config from localStorage, then try server-side key
