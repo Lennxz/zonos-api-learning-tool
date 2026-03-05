@@ -11,19 +11,19 @@
     <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
     <style>
         :root {
-            --bg: #1a1a26;
-            --card: rgba(255,255,255,0.08);
-            --card-border: rgba(255,255,255,0.13);
+            --bg: #12121d;
+            --card: rgba(255,255,255,0.07);
+            --card-border: rgba(255,255,255,0.18);
             --teal: #00B9B7;
             --purple: #3122F6;
             --gradient: linear-gradient(135deg, #00B9B7 0%, #3122F6 100%);
-            --text: #e8eaf0;
-            --text-muted: rgba(255,255,255,0.45);
-            --text-dim: rgba(255,255,255,0.28);
-            --border: rgba(255,255,255,0.09);
-            --hover-border: rgba(0,185,183,0.4);
-            --input-bg: rgba(255,255,255,0.06);
-            --inner: rgba(0,185,183,0.07);
+            --text: #eceef4;
+            --text-muted: rgba(255,255,255,0.55);
+            --text-dim: rgba(255,255,255,0.35);
+            --border: rgba(255,255,255,0.13);
+            --hover-border: rgba(0,185,183,0.5);
+            --input-bg: rgba(255,255,255,0.08);
+            --inner: rgba(0,185,183,0.09);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,7 +44,7 @@
             transform: translate(-50%, -50%);
             width: 85vw; height: 85vh;
             background-image: url('cipher.png');
-            opacity: 0.12;
+            opacity: 0.07;
             filter: invert(1);
             background-repeat: no-repeat;
             background-size: contain;
@@ -105,6 +105,7 @@
             border: 1px solid var(--card-border);
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.35);
         }
 
         .journey {
