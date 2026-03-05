@@ -799,11 +799,13 @@
         .webhook-clear-btn:hover { border-color: #f87171; color: #f87171; }
 
         /* ===== Rules Builder ===== */
-        .rules-builder { padding: 25px; display: none; }
+        .rules-builder { padding: 25px; display: none; overflow: hidden; }
         .rules-builder.visible { display: block; }
         .rules-builder h3 { color: var(--teal); margin-bottom: 6px; font-weight: 600; }
 
-        .rules-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .rules-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; margin-top: 4px; }
+        .rules-layout > * { min-width: 0; }
+        .rules-form-col { display: block; }
         @media (max-width: 900px) { .rules-layout { grid-template-columns: 1fr; } }
 
         .rules-field { margin-bottom: 14px; }
