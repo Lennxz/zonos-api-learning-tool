@@ -1537,6 +1537,11 @@ mutation CalculateLandedCost {
   partyCreateWorkflow(input: [
     {
       type: ORIGIN
+      person: {
+        firstName: "Acme"
+        lastName: "Warehouse"
+        phone: "4357730000"
+      }
       location: {
         line1: "123 Main Street"
         locality: "St. George"
