@@ -24,6 +24,63 @@
             --hover-border: rgba(0,185,183,0.5);
             --input-bg: rgba(255,255,255,0.08);
             --inner: rgba(0,185,183,0.09);
+            --card-shadow: rgba(0,0,0,0.35);
+            --code-text: #7dd3fc;
+            --pre-bg: rgba(0,0,0,0.4);
+            --analogy-bg: rgba(49,34,246,0.12);
+            --analogy-accent: #a78bfa;
+            --editor-header-bg: rgba(255,255,255,0.04);
+            --highlight-bg: rgba(251,191,36,0.3);
+            --highlight-border: rgba(251,191,36,0.55);
+            --chat-panel-bg: #1e1e2e;
+            --autocomplete-bg: #1e1e2e;
+            --scrollbar-track: rgba(255,255,255,0.03);
+            --scrollbar-thumb: rgba(255,255,255,0.12);
+            --logo-filter: none;
+            --watermark-filter: invert(1);
+            --watermark-opacity: 0.07;
+            --friendly-section-bg: rgba(255,255,255,0.04);
+            --friendly-row-border: rgba(255,255,255,0.05);
+            --ref-card-bg: rgba(255,255,255,0.03);
+            --webhook-event-bg: rgba(255,255,255,0.03);
+            --loading-border: rgba(255,255,255,0.3);
+            --btn-disabled-bg: rgba(255,255,255,0.15);
+            --error-color: #f87171;
+        }
+
+        [data-theme="light"] {
+            --bg: #f5f5f8;
+            --card: rgba(255,255,255,0.85);
+            --card-border: rgba(0,0,0,0.1);
+            --text: #1a1a2e;
+            --text-muted: rgba(0,0,0,0.55);
+            --text-dim: rgba(0,0,0,0.35);
+            --border: rgba(0,0,0,0.1);
+            --hover-border: rgba(0,185,183,0.5);
+            --input-bg: rgba(0,0,0,0.04);
+            --inner: rgba(0,185,183,0.06);
+            --card-shadow: rgba(0,0,0,0.08);
+            --code-text: #0369a1;
+            --pre-bg: rgba(0,0,0,0.06);
+            --analogy-bg: rgba(49,34,246,0.06);
+            --analogy-accent: #6d28d9;
+            --editor-header-bg: rgba(0,0,0,0.03);
+            --highlight-bg: rgba(251,191,36,0.25);
+            --highlight-border: rgba(202,138,4,0.6);
+            --chat-panel-bg: #ffffff;
+            --autocomplete-bg: #ffffff;
+            --scrollbar-track: rgba(0,0,0,0.03);
+            --scrollbar-thumb: rgba(0,0,0,0.12);
+            --logo-filter: none;
+            --watermark-filter: none;
+            --watermark-opacity: 0.04;
+            --friendly-section-bg: rgba(0,0,0,0.02);
+            --friendly-row-border: rgba(0,0,0,0.06);
+            --ref-card-bg: rgba(0,0,0,0.02);
+            --webhook-event-bg: rgba(0,0,0,0.02);
+            --loading-border: rgba(0,0,0,0.2);
+            --btn-disabled-bg: rgba(0,0,0,0.1);
+            --error-color: #dc2626;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,8 +101,8 @@
             transform: translate(-50%, -50%);
             width: 85vw; height: 85vh;
             background-image: url('cipher.png');
-            opacity: 0.07;
-            filter: invert(1);
+            opacity: var(--watermark-opacity);
+            filter: var(--watermark-filter);
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
@@ -99,87 +156,15 @@
         }
 
         /* Cards */
-        .journey, .sidebar, .explanation, .editor-area,
+        .sidebar, .explanation, .editor-area,
         .config-section, .quick-ref, .webhook-tester, .rules-builder {
             background: var(--card);
             border: 1px solid var(--card-border);
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+            box-shadow: 0 4px 24px var(--card-shadow);
         }
 
-        .journey {
-            padding: 20px 25px;
-            margin-bottom: 15px;
-        }
-
-        .journey h2 {
-            color: var(--teal);
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            font-weight: 600;
-        }
-
-        .journey-steps {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .step {
-            flex: 1;
-            min-width: 180px;
-            background: var(--inner);
-            border-radius: 16px;
-            padding: 14px 14px;
-            text-align: center;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid var(--border);
-        }
-
-        .step:hover {
-            transform: translateY(-8px);
-            border-color: rgba(0,185,183,0.4);
-            box-shadow: 0 12px 30px rgba(0,185,183,0.1);
-        }
-
-        .step.active {
-            background: rgba(0,185,183,0.08);
-            border-color: var(--teal);
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0,185,183,0.15);
-        }
-
-        .step-number {
-            background: var(--gradient);
-            color: white;
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin: 0 auto 10px;
-            font-size: 0.95em;
-            box-shadow: 0 4px 12px rgba(0,185,183,0.3);
-        }
-
-        .step h3 { color: var(--text); font-size: 1.05em; margin-bottom: 8px; font-weight: 600; }
-        .step p { color: var(--text-muted); font-size: 0.88em; }
-
-        .step-arrow {
-            position: absolute;
-            right: -20px; top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-dim);
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        .step:last-child .step-arrow { display: none; }
 
         /* Main Content */
         .main-content {
@@ -220,7 +205,7 @@
         }
 
         .query-btn:hover {
-            background: rgba(0,185,183,0.06);
+            background: var(--inner);
             border-color: var(--hover-border);
             transform: translateX(4px);
         }
@@ -242,7 +227,6 @@
         .explanation-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; padding: 4px 10px; font-size: 0.8em; transition: all 0.2s; }
         .explanation-toggle:hover { border-color: var(--teal); color: var(--teal); }
         .explanation-content { margin-top: 16px; }
-        .explanation-content.collapsed { display: none; }
 
         .explanation-content { color: var(--text-muted); }
         .explanation-content h4 { color: var(--text); margin: 18px 0 10px; font-weight: 600; }
@@ -251,20 +235,20 @@
         .explanation-content li::before { content: '–'; position: absolute; left: 0; color: var(--teal); font-weight: 600; }
 
         .analogy {
-            background: rgba(49,34,246,0.12);
+            background: var(--analogy-bg);
             border-left: 3px solid var(--purple);
             padding: 18px;
             margin: 18px 0;
             border-radius: 0 12px 12px 0;
         }
 
-        .analogy strong { color: #a78bfa; }
+        .analogy strong { color: var(--analogy-accent); }
 
         /* Editor Area */
         .editor-area { overflow: hidden; }
 
         .editor-header {
-            background: rgba(255,255,255,0.04);
+            background: var(--editor-header-bg);
             padding: 18px 24px;
             display: flex;
             justify-content: space-between;
@@ -288,7 +272,7 @@
         }
 
         .run-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,185,183,0.35); }
-        .run-btn:disabled { background: rgba(255,255,255,0.15); box-shadow: none; cursor: not-allowed; transform: none; }
+        .run-btn:disabled { background: var(--btn-disabled-bg); box-shadow: none; cursor: not-allowed; transform: none; }
 
         /* Vision Upload Panel */
         .vision-panel {
@@ -335,7 +319,7 @@
             color: var(--text-muted); cursor: pointer; padding: 4px 10px; font-size: 0.8em;
             transition: all 0.2s;
         }
-        .vision-remove-btn:hover { border-color: #f87171; color: #f87171; }
+        .vision-remove-btn:hover { border-color: var(--error-color); color: var(--error-color); }
 
         .editor-body {
             display: grid;
@@ -388,10 +372,10 @@
         .query-highlight-overlay::-webkit-scrollbar { display: none; }
 
         .query-highlight-overlay mark {
-            background: rgba(251,191,36,0.3);
+            background: var(--highlight-bg);
             color: transparent;
             border-radius: 3px;
-            outline: 1px solid rgba(251,191,36,0.55);
+            outline: 1px solid var(--highlight-border);
         }
 
         .query-editor-wrapper textarea {
@@ -401,7 +385,7 @@
             height: 100%;
             background: transparent;
             border: none;
-            color: #7dd3fc;
+            color: var(--code-text);
             font-family: 'Monaco', 'Menlo', 'Fira Code', monospace;
             font-size: 13px;
             line-height: 19.5px;
@@ -424,7 +408,7 @@
 
         .response-area pre { white-space: pre-wrap; word-wrap: break-word; }
         .response-success { color: var(--teal); }
-        .response-error { color: #f87171; }
+        .response-error { color: var(--error-color); }
 
         /* Config Section */
         .left-col { display: flex; flex-direction: column; gap: 15px; }
@@ -459,7 +443,7 @@
         .ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
 
         .ref-card {
-            background: rgba(255,255,255,0.03);
+            background: var(--ref-card-bg);
             border-radius: 14px;
             padding: 20px;
             border: 1px solid var(--border);
@@ -486,7 +470,7 @@
 
         /* Friendly View */
         .friendly-view {
-            background: rgba(0,185,183,0.06);
+            background: var(--inner);
             border-radius: 20px;
             padding: 25px;
             margin-top: 20px;
@@ -514,7 +498,7 @@
         }
 
         .friendly-section {
-            background: rgba(255,255,255,0.04);
+            background: var(--friendly-section-bg);
             border-radius: 14px;
             padding: 20px;
             border: 1px solid var(--border);
@@ -531,7 +515,7 @@
             font-weight: 600;
         }
 
-        .friendly-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .friendly-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--friendly-row-border); }
         .friendly-row:last-child { border-bottom: none; }
         .friendly-label { color: var(--text-muted); font-size: 0.92em; }
         .friendly-value { color: var(--text); font-weight: 600; font-size: 0.92em; }
@@ -614,7 +598,7 @@
         .loading {
             display: inline-block;
             width: 20px; height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid var(--loading-border);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -633,12 +617,12 @@
         }
 
         .status.connected { background: rgba(0,185,183,0.15); color: var(--teal); border: 1px solid rgba(0,185,183,0.3); }
-        .status.disconnected { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+        .status.disconnected { background: rgba(248,113,113,0.12); color: var(--error-color); border: 1px solid rgba(248,113,113,0.3); }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,185,183,0.4); }
 
         /* Webhook Tester */
@@ -674,7 +658,7 @@
             padding: 10px 14px;
             font-family: 'Monaco', 'Menlo', monospace;
             font-size: 0.85em;
-            color: #a78bfa;
+            color: var(--analogy-accent);
             word-break: break-all;
         }
 
@@ -726,7 +710,7 @@
         }
 
         .webhook-event-item {
-            background: rgba(255,255,255,0.03);
+            background: var(--webhook-event-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             margin-bottom: 10px;
@@ -756,8 +740,8 @@
         .webhook-event-item.expanded .webhook-event-body { display: block; }
 
         .webhook-event-body pre {
-            background: rgba(0,0,0,0.4);
-            color: #a78bfa;
+            background: var(--pre-bg);
+            color: var(--analogy-accent);
             border-radius: 8px;
             padding: 14px;
             font-size: 0.8em;
@@ -796,7 +780,7 @@
             font-family: inherit;
         }
 
-        .webhook-clear-btn:hover { border-color: #f87171; color: #f87171; }
+        .webhook-clear-btn:hover { border-color: var(--error-color); color: var(--error-color); }
 
         /* ===== Rules Builder ===== */
         .rules-builder { padding: 25px; display: none; overflow: hidden; }
@@ -824,7 +808,7 @@
         .rules-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
         .rules-ref { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 4px; }
-        .rules-ref-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; cursor: pointer; background: var(--inner); }
+        .rules-ref-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--inner); }
         .rules-ref-header:hover { border-color: var(--hover-border); }
         .rules-ref-body { padding: 14px; border-top: 1px solid var(--border); }
         .rule-var { display: inline-block; background: rgba(0,185,183,0.1); border: 1px solid rgba(0,185,183,0.2); color: var(--teal); border-radius: 6px; padding: 2px 8px; font-family: monospace; font-size: 0.78em; margin: 3px 2px; cursor: pointer; transition: background 0.15s; }
@@ -836,7 +820,7 @@
         .rules-preview-textarea {
             width: 100%; height: 220px;
             background: var(--inner); border: 1px solid var(--border);
-            border-radius: 12px; color: #7dd3fc;
+            border-radius: 12px; color: var(--code-text);
             font-family: 'Monaco', 'Menlo', monospace; font-size: 12px;
             padding: 14px; resize: none; line-height: 1.6;
         }
@@ -861,11 +845,11 @@
 
         .rules-result { padding: 12px 16px; border-radius: 10px; font-size: 0.85em; border: 1px solid; }
         .rules-result.success { background: rgba(0,185,183,0.1); border-color: rgba(0,185,183,0.3); color: var(--teal); }
-        .rules-result.error { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: #f87171; }
+        .rules-result.error { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--error-color); }
 
         .rule-autocomplete {
             position: absolute; z-index: 9999;
-            background: #1e1e2e; border: 1px solid var(--hover-border);
+            background: var(--autocomplete-bg); border: 1px solid var(--hover-border);
             border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
             max-height: 240px; overflow-y: auto;
             min-width: 280px; display: none;
@@ -912,13 +896,13 @@
             right: 28px;
             width: min(900px, calc(100vw - 56px));
             height: 400px;
-            background: #1e1e2e;
+            background: var(--chat-panel-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
             z-index: 10000;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 40px var(--card-shadow);
             opacity: 0;
             transform: translateY(12px) scale(0.97);
             pointer-events: none;
@@ -1026,7 +1010,7 @@
             padding-left: 18px;
         }
         .chat-msg.bot li { margin-bottom: 3px; }
-        .chat-msg.bot strong { color: #e8eaf0; }
+        .chat-msg.bot strong { color: var(--text); }
         .chat-msg.bot code {
             background: rgba(0,185,183,0.12);
             color: var(--teal);
@@ -1036,7 +1020,7 @@
             font-family: 'SF Mono', Monaco, monospace;
         }
         .chat-msg.bot pre {
-            background: rgba(0,0,0,0.3);
+            background: var(--pre-bg);
             border-radius: 8px;
             padding: 10px 12px;
             overflow-x: auto;
@@ -1084,6 +1068,67 @@
         }
         .chat-input-row button:hover { opacity: 0.88; }
         .chat-input-row button:disabled { opacity: 0.45; cursor: default; }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.1em;
+            line-height: 1;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle:hover {
+            border-color: var(--hover-border);
+            color: var(--teal);
+        }
+
+        /* Light mode overrides for elements with inline styles or remaining hardcoded colors */
+        [data-theme="light"] .chat-msg.bot code {
+            background: rgba(0,185,183,0.1);
+        }
+        [data-theme="light"] .chat-msg.bot .cipher-spinner img {
+            filter: none;
+        }
+        [data-theme="light"] .loading {
+            border-top-color: var(--text);
+        }
+        [data-theme="light"] .query-btn.active small { color: rgba(255,255,255,0.8); }
+
+        /* Logo switching */
+        header img.logo-light { display: none; }
+        [data-theme="light"] header img.logo-dark { display: none; }
+        [data-theme="light"] header img.logo-light { display: block; }
+
+        /* Light mode: Access Gate */
+        [data-theme="light"] #accessGate {
+            background: #f0f0f5 !important;
+        }
+        [data-theme="light"] #accessGate .gate-card {
+            background: rgba(255,255,255,0.9) !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        [data-theme="light"] #accessGate .gate-title {
+            color: #1a1a2e !important;
+        }
+        [data-theme="light"] #accessGate .gate-subtitle {
+            color: rgba(0,0,0,0.5) !important;
+        }
+        [data-theme="light"] #accessGate .gate-input {
+            background: rgba(0,0,0,0.04) !important;
+            border-color: rgba(0,0,0,0.12) !important;
+            color: #1a1a2e !important;
+        }
+        [data-theme="light"] #accessGate .gate-watermark {
+            filter: none !important;
+            opacity: 0.03 !important;
+        }
     </style>
 </head>
 <body>
@@ -1091,13 +1136,13 @@
     <!-- Access Gate -->
     <div id="accessGate" style="display:none; position:fixed; inset:0; z-index:9999; background:#0c0c14; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden; align-items:center; justify-content:center;">
         <!-- Background cipher watermark -->
-        <img src="/cipher.png" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80vmin; opacity:0.04; pointer-events:none; user-select:none;" alt="">
+        <img src="/cipher.png" class="gate-watermark" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80vmin; opacity:0.04; pointer-events:none; user-select:none;" alt="">
         <!-- Gradient orbs for depth -->
         <div style="position:absolute; top:-20%; left:-10%; width:60vw; height:60vw; background:radial-gradient(circle, rgba(0,185,183,0.15) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
         <div style="position:absolute; bottom:-20%; right:-10%; width:60vw; height:60vw; background:radial-gradient(circle, rgba(49,34,246,0.18) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
 
         <!-- Card -->
-        <div style="position:relative; z-index:1; background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:48px 40px 40px; width:calc(100% - 32px); max-width:400px; display:flex; flex-direction:column; align-items:center; gap:28px;">
+        <div class="gate-card" style="position:relative; z-index:1; background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:48px 40px 40px; width:calc(100% - 32px); max-width:400px; display:flex; flex-direction:column; align-items:center; gap:28px;">
 
                 <!-- Logo -->
                 <img src="/zonos-logo.png" style="height:36px; width:auto; object-fit:contain;" alt="Zonos">
@@ -1107,13 +1152,13 @@
 
                 <!-- Text -->
                 <div style="text-align:center; display:flex; flex-direction:column; gap:8px;">
-                    <h1 style="color:#ffffff; font-size:1.4em; font-weight:700; margin:0; letter-spacing:-0.02em;">API Playground</h1>
-                    <p style="color:rgba(255,255,255,0.5); font-size:0.9em; margin:0; line-height:1.5;">Enter your access code to continue</p>
+                    <h1 class="gate-title" style="color:#ffffff; font-size:1.4em; font-weight:700; margin:0; letter-spacing:-0.02em;">API Playground</h1>
+                    <p class="gate-subtitle" style="color:rgba(255,255,255,0.5); font-size:0.9em; margin:0; line-height:1.5;">Enter your access code to continue</p>
                 </div>
 
                 <!-- Input & Button -->
                 <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
-                    <input id="accessCodeInput" type="password" placeholder="Access code" autocomplete="off"
+                    <input id="accessCodeInput" class="gate-input" type="password" placeholder="Access code" autocomplete="off"
                         style="width:100%; padding:14px 18px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:#fff; font-size:1em; outline:none; text-align:center; letter-spacing:3px; transition:border-color 0.2s; box-sizing:border-box; font-family:inherit;"
                         onfocus="this.style.borderColor='rgba(0,185,183,0.6)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
                         onkeydown="if(event.key==='Enter') checkAccessCode()">
@@ -1130,42 +1175,14 @@
     <div id="mainApp" style="display:none;">
     <div class="container">
         <header>
-            <img src="/zonos-logo.png" class="site-logo" alt="Zonos">
+            <img src="/zonos-logo.png" class="site-logo logo-dark" alt="Zonos">
+            <img src="/zonos-logo-dark.png" class="site-logo logo-light" alt="Zonos">
             <div class="header-text">
                 <h1>API Playground</h1>
                 <p>Understand how the Zonos APIs work.</p>
             </div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" id="themeToggle">&#9790;</button>
         </header>
-
-        <!-- The Merchant Journey -->
-        <section class="journey">
-            <h2>The Merchant Journey: How Zonos Works</h2>
-            <div class="journey-steps">
-                <div class="step" onclick="showStep(1)">
-                    <div class="step-number">1</div>
-                    <h3>Calculate Landed Cost</h3>
-                    <p>Zonos calculates duties, taxes & fees</p>
-                    <span class="step-arrow">&rarr;</span>
-                </div>
-                <div class="step" onclick="showStep(2)">
-                    <div class="step-number">2</div>
-                    <h3>Customer Pays</h3>
-                    <p>Total includes all import costs</p>
-                    <span class="step-arrow">&rarr;</span>
-                </div>
-                <div class="step" onclick="showStep(3)">
-                    <div class="step-number">3</div>
-                    <h3>Create Order</h3>
-                    <p>Merchant sends order to Zonos</p>
-                    <span class="step-arrow">&rarr;</span>
-                </div>
-                <div class="step" onclick="showStep(4)">
-                    <div class="step-number">4</div>
-                    <h3>Ship & Track</h3>
-                    <p>Add tracking, Zonos handles customs</p>
-                </div>
-            </div>
-        </section>
 
         <!-- API Settings -->
         <div class="config-section config-section-bottom">
@@ -1321,9 +1338,8 @@
             <div class="right-content">
                 <!-- Explanation Panel -->
                 <div class="explanation" id="explanation">
-                    <div class="explanation-header" onclick="toggleExplanation()">
+                    <div class="explanation-header">
                         <h3 id="explanationTitle">Select an API from the left to get started</h3>
-                        <button class="explanation-toggle" id="explanationToggle">Hide ▲</button>
                     </div>
                     <div class="explanation-content" id="explanationContent">
                         <p>This tool helps you understand how merchants use the Zonos API. Each button on the left shows you:</p>
@@ -1504,11 +1520,10 @@
 
                             <!-- Variable reference -->
                             <div class="rules-ref">
-                                <div class="rules-ref-header" onclick="toggleRuleRef()">
+                                <div class="rules-ref-header">
                                     <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference</span>
-                                    <span id="ruleRefToggle" style="color:var(--text-dim);font-size:0.8em;">Show ▼</span>
                                 </div>
-                                <div class="rules-ref-body" id="ruleRefBody" style="display:none;">
+                                <div class="rules-ref-body" id="ruleRefBody">
                                     <div id="ruleVarList"></div>
                                     <div style="margin-top:12px;">
                                         <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
@@ -1535,10 +1550,6 @@
                         <div class="rules-preview-col">
                             <div class="rules-preview-header">
                                 <span style="color:var(--teal);font-weight:600;font-size:0.85em;">GraphQL Preview</span>
-                                <button class="rules-run-btn" onclick="copyRuleMutation()">Copy Mutation</button>
-                            </div>
-                            <div style="background:rgba(49,34,246,0.1);border:1px solid rgba(49,34,246,0.25);border-radius:10px;padding:10px 14px;font-size:0.8em;color:var(--text-muted);margin-bottom:6px;">
-                                ⚠️ Rule mutations require a <strong style="color:var(--text);">production API key</strong> with rules permissions. Use this playground to build and copy the mutation, then run it from your server or the <a href="https://zonos.com/dashboard" target="_blank" style="color:var(--teal);">Zonos Dashboard</a>.
                             </div>
                             <textarea id="rulePreview" class="rules-preview-textarea" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
 
@@ -1560,6 +1571,31 @@
     </div><!-- end mainApp -->
 
     <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('themeToggle').innerHTML = next === 'light' ? '&#9728;' : '&#9790;';
+        }
+
+        // Apply saved theme on load
+        (function() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            if (saved === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+
+        // Update toggle icon after DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.innerHTML = theme === 'light' ? '&#9728;' : '&#9790;';
+        });
+
         // Query templates with explanations
         const queries = {
             'landed-cost': {
@@ -2492,11 +2528,11 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 visionPanel.classList.remove('visible');
             }
 
-            // Update explanation (collapse content when loading a query)
+            // Update explanation
             document.getElementById('explanationTitle').textContent = query.title;
             document.getElementById('explanationContent').innerHTML = query.explanation;
-            document.getElementById('explanationContent').classList.add('collapsed');
-            document.getElementById('explanationToggle').textContent = 'Show ▼';
+            document.getElementById('explanationContent').classList.remove('collapsed');
+            document.getElementById('explanationToggle').textContent = 'Hide ▲';
 
             // Update query editor - generate unique order number for Create Order
             let queryText = query.query;
@@ -2518,97 +2554,6 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.getElementById('responseArea').innerHTML = '<pre>Click "Run Query" to see the response...</pre>';
         }
 
-        // Show journey step explanation
-        function showStep(step) {
-            // Hide webhook tester if visible
-            hideWebhookTester();
-
-            const explanations = {
-                1: {
-                    title: 'Step 1: Calculate Landed Cost',
-                    content: `
-                        <p>When the customer enters their shipping address, the merchant's website calls Zonos to calculate the total cost.</p>
-                        <h4>The API call:</h4>
-                        <p><code>landedCostCalculateWorkflow</code></p>
-                        <h4>What Zonos returns:</h4>
-                        <ul>
-                            <li><strong>Duties</strong> - Import taxes (based on product type)</li>
-                            <li><strong>Taxes</strong> - VAT/GST for the destination country</li>
-                            <li><strong>Fees</strong> - Processing and handling fees</li>
-                            <li><strong>Shipping</strong> - Carrier rates if configured</li>
-                        </ul>
-                        <div class="analogy">
-                            <strong>Why this matters:</strong> Customers see the TOTAL cost upfront. No surprise charges at delivery!
-                        </div>
-                    `
-                },
-                2: {
-                    title: 'Step 2: Customer Pays',
-                    content: `
-                        <p>The customer sees the full total (product + shipping + duties + taxes) and completes payment.</p>
-                        <h4>What they pay:</h4>
-                        <ul>
-                            <li>Product price</li>
-                            <li>Shipping cost</li>
-                            <li>Duties & taxes (collected by merchant on behalf of Zonos)</li>
-                        </ul>
-                        <div class="analogy">
-                            <strong>DDP vs DAP:</strong>
-                            <br><strong>DDP</strong> (Delivered Duty Paid) - No additional costs. Customer pays everything upfront
-                            <br><strong>DAP</strong> (Delivered At Place) - Customer pays customs fees at delivery. Surprise shock experience
-                        </div>
-                    `
-                },
-                3: {
-                    title: 'Step 3: Create Order',
-                    content: `
-                        <p>After payment is confirmed, the merchant's system sends the order to Zonos.</p>
-                        <h4>The API call:</h4>
-                        <p><code>orderCreate</code></p>
-                        <h4>What the merchant sends:</h4>
-                        <ul>
-                            <li>Their order number (from platform, ERP, etc.)</li>
-                            <li>The landed cost ID (from step 1)</li>
-                            <li>Currency code</li>
-                        </ul>
-                        <h4>What happens:</h4>
-                        <ul>
-                            <li>Zonos records the order</li>
-                            <li>Zonos fee is charged to merchant</li>
-                            <li>Order appears in Zonos Dashboard</li>
-                        </ul>
-                    `
-                },
-                4: {
-                    title: 'Step 4: Ship & Track',
-                    content: `
-                        <p>Merchant ships the package and updates Zonos with tracking info.</p>
-                        <h4>The API call:</h4>
-                        <p><code>shipmentCreateWithTracking</code> or <code>shipmentCreateWorkflow</code></p>
-                        <h4>What happens when tracking is added:</h4>
-                        <ul>
-                            <li>Order status changes to "Fulfilled"</li>
-                            <li>Merchant is billed for the duties/taxes they collected</li>
-                            <li>Package clears customs smoothly (duties pre-paid!)</li>
-                        </ul>
-                        <div class="analogy">
-                            <strong>This is the magic:</strong> Because Zonos pre-paid the duties, the package doesn't get held at customs waiting for the customer to pay fees. It goes straight through!
-                        </div>
-                    `
-                }
-            };
-
-            const exp = explanations[step];
-            document.getElementById('explanationTitle').textContent = exp.title;
-            document.getElementById('explanationContent').innerHTML = exp.content;
-            document.getElementById('explanationContent').classList.add('collapsed');
-            document.getElementById('explanationToggle').textContent = 'Show ▼';
-
-            // Update active step
-            document.querySelectorAll('.step').forEach((s, i) => {
-                s.classList.toggle('active', i === step - 1);
-            });
-        }
 
         // Parse and display friendly view
         function showFriendlyView(query, response) {
@@ -4098,17 +4043,6 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.getElementById('ruleEndDate').value = '';
             updateRuleVars();
             updateRulePreview();
-        }
-
-        function copyRuleMutation() {
-            const mutation = document.getElementById('rulePreview').value;
-            if (!mutation) return;
-            navigator.clipboard.writeText(mutation).then(() => {
-                const btn = document.querySelector('.rules-run-btn');
-                const orig = btn.textContent;
-                btn.textContent = '✓ Copied!';
-                setTimeout(() => btn.textContent = orig, 2000);
-            });
         }
 
         // Initialize
