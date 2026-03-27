@@ -814,6 +814,14 @@
         .rule-var { display: inline-block; background: rgba(0,185,183,0.1); border: 1px solid rgba(0,185,183,0.2); color: var(--teal); border-radius: 6px; padding: 2px 8px; font-family: monospace; font-size: 0.78em; margin: 3px 2px; cursor: pointer; transition: background 0.15s; }
         .rule-var:hover { background: rgba(0,185,183,0.2); }
         .rule-chip { background: rgba(255,255,255,0.07); border: 1px solid var(--border); color: var(--text-muted); border-radius: 6px; padding: 2px 8px; font-size: 0.78em; }
+        .sl-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+        .sl-tab { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-dim); border-radius: 6px; padding: 4px 12px; font-size: 0.78em; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+        .sl-tab:hover { background: rgba(0,185,183,0.1); color: var(--teal); }
+        .sl-tab.active { background: rgba(0,185,183,0.15); border-color: var(--teal); color: var(--teal); }
+        .sl-panel { display: none; flex-wrap: wrap; gap: 6px; }
+        .sl-panel.active { display: flex; }
+        .sl-chip { cursor: pointer; transition: all 0.15s; }
+        .sl-chip:hover { background: rgba(0,185,183,0.15); border-color: var(--teal); color: var(--teal); }
 
         .rules-preview-col { display: flex; flex-direction: column; gap: 14px; }
         .rules-preview-header { display: flex; justify-content: space-between; align-items: center; }
@@ -1477,7 +1485,7 @@
                 <!-- Rules Builder Panel -->
                 <div class="rules-builder" id="rulesBuilder">
                     <h3>Rule Builder</h3>
-                    <p style="color:var(--text-muted);font-size:0.9em;margin-bottom:20px;">Write a rule below and the GraphQL mutation will build automatically. Rules modify duties, taxes, fees, or shipping calculations.</p>
+                    <p style="color:var(--text-muted);font-size:0.9em;margin-bottom:20px;">Build your rule below, then click <strong>Copy Mutation</strong> and run it in Zonos Explore.</p>
 
                     <div class="rules-layout">
                         <!-- Left: Form -->
@@ -1518,47 +1526,82 @@
                                 </div>
                             </div>
 
-                            <!-- Variable reference -->
-                            <div class="rules-ref">
-                                <div class="rules-ref-header">
-                                    <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference</span>
-                                </div>
-                                <div class="rules-ref-body" id="ruleRefBody">
-                                    <div id="ruleVarList"></div>
-                                    <div style="margin-top:12px;">
-                                        <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
-                                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                                            <code class="rule-chip">* / + -</code>
-                                            <code class="rule-chip">== &gt; &gt;= &lt; &lt;=</code>
-                                            <code class="rule-chip">and or</code>
-                                            <code class="rule-chip">%</code>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top:12px;">
-                                        <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Money Examples</p>
-                                        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                                            <code class="rule-chip">10 usd</code>
-                                            <code class="rule-chip">500 cad</code>
-                                            <code class="rule-chip">1.5</code>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Right: GraphQL preview + examples -->
                         <div class="rules-preview-col">
                             <div class="rules-preview-header">
                                 <span style="color:var(--teal);font-weight:600;font-size:0.85em;">GraphQL Preview</span>
+                                <button class="rules-run-btn" style="padding:6px 14px;font-size:0.78em;" onclick="copyRuleMutation(this)">Copy Mutation</button>
                             </div>
                             <textarea id="rulePreview" class="rules-preview-textarea" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
 
-                            <div class="rules-examples">
-                                <p style="color:var(--text-dim);font-size:0.78em;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Examples — click to load</p>
-                                <div class="rules-example-list" id="ruleExampleList"></div>
-                            </div>
+                        </div>
+                    </div>
 
-                            <div id="ruleResult" class="rules-result" style="display:none;"></div>
+                    <!-- Variable reference — full width below grid -->
+                    <div class="rules-ref" style="margin-top:16px;">
+                        <div class="rules-ref-header">
+                            <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference</span>
+                        </div>
+                        <div class="rules-ref-body" id="ruleRefBody">
+                            <div id="ruleVarList"></div>
+                            <div style="margin-top:12px;">
+                                <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
+                                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                    <code class="rule-chip">* / + -</code>
+                                    <code class="rule-chip">== &gt; &gt;= &lt; &lt;=</code>
+                                    <code class="rule-chip">and or</code>
+                                    <code class="rule-chip">%</code>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px;">
+                                <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Money Examples</p>
+                                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                    <code class="rule-chip">10 usd</code>
+                                    <code class="rule-chip">500 cad</code>
+                                    <code class="rule-chip">1.5</code>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px;">
+                                <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Service Levels</p>
+                                <div class="sl-tabs">
+                                    <button class="sl-tab active" onclick="openSlTab(this,'sl-fedex')">FedEx</button>
+                                    <button class="sl-tab" onclick="openSlTab(this,'sl-ups')">UPS</button>
+                                    <button class="sl-tab" onclick="openSlTab(this,'sl-dhl')">DHL</button>
+                                </div>
+                                <div class="sl-panel active" id="sl-fedex">
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_economy</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_priority</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_priority_express</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_connect_plus</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_first</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_ground</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.ground</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.express_saver</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.home_delivery</code>
+                                </div>
+                                <div class="sl-panel" id="sl-ups">
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.ground</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.standard</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express_plus</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express_saver</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.expedited</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_expedited</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_express</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_express_plus</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_saver</code>
+                                </div>
+                                <div class="sl-panel" id="sl-dhl">
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_worldwide</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_12</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_9</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.economy_select</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_envelope</code>
+                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_easy</code>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3838,6 +3881,35 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
         };
 
         const COUNTRY_VAR_PATTERN = /(:ship_(?:from|to)_country:|:ship_to_administrative_area_code:)\s*==\s*(\S*)$/;
+        const SERVICE_LEVEL_PATTERN = /:service_level:\s*==\s*(\S*)$/;
+
+        const SERVICE_LEVELS = [
+            {code:'fedex.international_economy', carrier:'FedEx'},
+            {code:'fedex.international_priority', carrier:'FedEx'},
+            {code:'fedex.international_priority_express', carrier:'FedEx'},
+            {code:'fedex.international_connect_plus', carrier:'FedEx'},
+            {code:'fedex.international_first', carrier:'FedEx'},
+            {code:'fedex.international_ground', carrier:'FedEx'},
+            {code:'fedex.ground', carrier:'FedEx'},
+            {code:'fedex.express_saver', carrier:'FedEx'},
+            {code:'fedex.home_delivery', carrier:'FedEx'},
+            {code:'ups.ground', carrier:'UPS'},
+            {code:'ups.standard', carrier:'UPS'},
+            {code:'ups.express', carrier:'UPS'},
+            {code:'ups.express_plus', carrier:'UPS'},
+            {code:'ups.express_saver', carrier:'UPS'},
+            {code:'ups.expedited', carrier:'UPS'},
+            {code:'ups.worldwide_expedited', carrier:'UPS'},
+            {code:'ups.worldwide_express', carrier:'UPS'},
+            {code:'ups.worldwide_express_plus', carrier:'UPS'},
+            {code:'ups.worldwide_saver', carrier:'UPS'},
+            {code:'dhl_express.express_worldwide', carrier:'DHL'},
+            {code:'dhl_express.express_12', carrier:'DHL'},
+            {code:'dhl_express.express_9', carrier:'DHL'},
+            {code:'dhl_express.economy_select', carrier:'DHL'},
+            {code:'dhl_express.express_envelope', carrier:'DHL'},
+            {code:'dhl_express.express_easy', carrier:'DHL'},
+        ];
 
         let acSelectedIdx = {};
         const acCloseListeners = {};
@@ -3863,9 +3935,23 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                 }
             }
 
+            // Check if cursor is after :service_level: ==
+            const slMatch = val.match(SERVICE_LEVEL_PATTERN);
+            if (slMatch && !countryMatch) {
+                const partial = (slMatch[1] || '').toLowerCase();
+                const filtered = SERVICE_LEVELS.filter(s => s.code.toLowerCase().startsWith(partial) || s.carrier.toLowerCase().startsWith(partial));
+                if (filtered.length) {
+                    suggestions.push({group: 'Service levels'});
+                    filtered.slice(0, 10).forEach(s => suggestions.push({
+                        label: s.code, sub: s.carrier,
+                        val: val.slice(0, val.length - slMatch[1].length) + s.code
+                    }));
+                }
+            }
+
             // Variable suggestions when typing :
             const colonMatch = val.match(/:(\w*)$/);
-            if (colonMatch && !countryMatch) {
+            if (colonMatch && !countryMatch && !slMatch) {
                 const partial = colonMatch[1].toLowerCase();
                 const vars = RULE_VARS[ctx] || [];
                 const filtered = vars.filter(v => v.includes(partial));
@@ -3879,7 +3965,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             }
 
             // Template suggestions when field is empty or matches start
-            if (!colonMatch && !countryMatch) {
+            if (!colonMatch && !countryMatch && !slMatch) {
                 const templates = (AC_TEMPLATES[type] || {})[ctx] || [];
                 const lower = val.toLowerCase();
                 const filtered = templates.filter(t =>
@@ -3977,6 +4063,21 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             navigator.clipboard.writeText(v).catch(() => {});
         }
 
+        function openSlTab(btn, panelId) {
+            btn.parentElement.querySelectorAll('.sl-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.sl-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+        }
+
+        function copySl(el) {
+            const val = el.textContent.trim();
+            navigator.clipboard.writeText(val).catch(() => {});
+            el.style.borderColor = 'var(--teal)';
+            el.style.color = 'var(--teal)';
+            setTimeout(() => { el.style.borderColor = ''; el.style.color = ''; }, 600);
+        }
+
         function toggleRuleRef() {
             const body = document.getElementById('ruleRefBody');
             const toggle = document.getElementById('ruleRefToggle');
@@ -4007,17 +4108,11 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
   ruleCreate(input: {
     name: "${name || 'My Rule'}"
     description: "${description || ''}"
-    context: ${context}
+    context: "${context}"
     condition: "${condition || 'if ...'}"
-    action: "${action || 'then ...'}"${dateFields}
+    actions: "${action || 'then ...'}"${dateFields}
   }) {
     id
-    name
-    description
-    context
-    condition
-    action
-    status
   }
 }`;
             document.getElementById('rulePreview').value = preview;
@@ -4044,6 +4139,18 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             updateRuleVars();
             updateRulePreview();
         }
+
+        function copyRuleMutation(btn) {
+            const mutation = document.getElementById('rulePreview').value;
+            if (!mutation) return;
+            navigator.clipboard.writeText(mutation).catch(() => {});
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.borderColor = 'var(--teal)';
+            btn.style.color = 'var(--teal)';
+            setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 1200);
+        }
+
 
         // Initialize
         loadConfig();
