@@ -787,6 +787,17 @@
         .rules-builder.visible { display: block; }
         .rules-builder h3 { color: var(--teal); margin-bottom: 6px; font-weight: 600; }
 
+        .rule-type-tabs { display: flex; gap: 4px; margin: 12px 0 16px; }
+        .rule-type-tab {
+            padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px;
+            background: var(--inner); color: var(--text-muted); font-size: 0.85em;
+            font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .rule-type-tab:hover { border-color: var(--hover-border); color: var(--text); }
+        .rule-type-tab.active { background: var(--gradient); color: #fff; border-color: transparent; box-shadow: 0 4px 15px rgba(0,185,183,0.25); }
+        .rule-tab-panel { display: none; }
+        .rule-tab-panel.active { display: block; }
+
         .rules-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; margin-top: 4px; }
         .rules-layout > * { min-width: 0; }
         .rules-form-col { display: block; }
@@ -1334,7 +1345,7 @@
                     <li>
                         <button class="query-btn" id="rulesBtn" onclick="showRulesView()">
                             Rule Builder
-                            <small>Create duties, taxes &amp; shipping rules</small>
+                            <small>Create RuleDgs &amp; Store Fee rules</small>
                         </button>
                     </li>
                 </ul>
@@ -1485,121 +1496,312 @@
                 <!-- Rules Builder Panel -->
                 <div class="rules-builder" id="rulesBuilder">
                     <h3>Rule Builder</h3>
-                    <p style="color:var(--text-muted);font-size:0.9em;margin-bottom:20px;">Build your rule below, then click <strong>Copy Mutation</strong> and run it in Zonos Explore.</p>
 
-                    <div class="rules-layout">
-                        <!-- Left: Form -->
-                        <div class="rules-form-col">
-                            <div class="rules-field">
-                                <label>Rule Name</label>
-                                <input id="ruleName" placeholder="e.g. Increase duties for China → US" oninput="updateRulePreview()">
-                            </div>
-                            <div class="rules-field">
-                                <label>Description</label>
-                                <input id="ruleDescription" placeholder="What does this rule do?" oninput="updateRulePreview()">
-                            </div>
-                            <div class="rules-field">
-                                <label>Context</label>
-                                <select id="ruleContext" onchange="updateRulePreview(); updateRuleVars()">
-                                    <option value="DUTIES_TAXES_FEES">Duties, Taxes &amp; Fees</option>
-                                    <option value="SHIPMENT_RATING">Shipment Rating</option>
-                                </select>
-                            </div>
-                            <div class="rules-field" style="position:relative;">
-                                <label>Condition <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— starts with <code>if</code></span></label>
-                                <input id="ruleCondition" placeholder="if :ship_to_country: == us" oninput="updateRulePreview(); ruleAc('ruleCondition', 'condition')" onfocus="ruleAc('ruleCondition', 'condition')" onkeydown="ruleAcKey(event, 'ruleCondition')" autocomplete="off">
-                                <div class="rule-autocomplete" id="ruleConditionAc"></div>
-                            </div>
-                            <div class="rules-field" style="position:relative;">
-                                <label>Action <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— starts with <code>then</code></span></label>
-                                <input id="ruleAction" placeholder="then :duties_total: = :duties_total: * 1.15" oninput="updateRulePreview(); ruleAc('ruleAction', 'action')" onfocus="ruleAc('ruleAction', 'action')" onkeydown="ruleAcKey(event, 'ruleAction')" autocomplete="off">
-                                <div class="rule-autocomplete" id="ruleActionAc"></div>
-                            </div>
-                            <div class="rules-dates">
+                    <!-- Rule type tabs -->
+                    <div class="rule-type-tabs">
+                        <button class="rule-type-tab active" onclick="switchRuleTab('ruledgs')">RuleDgs Rules</button>
+                        <button class="rule-type-tab" onclick="switchRuleTab('storefee')">Store Fee Rules</button>
+                    </div>
+
+                    <!-- ===== RuleDgs Rules Tab ===== -->
+                    <div class="rule-tab-panel active" id="ruledgsPanel">
+                        <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:16px;">Automate shipping, landed cost, tax, discount, and item logic with conditional rules.</p>
+                        <div class="rules-layout">
+                            <div class="rules-form-col">
                                 <div class="rules-field">
-                                    <label>Start Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
-                                    <input id="ruleStartDate" type="date" oninput="updateRulePreview()">
+                                    <label>Rule Name</label>
+                                    <input id="rdgName" placeholder="e.g. UPS Ground Surcharge" oninput="updateRdgPreview()">
                                 </div>
                                 <div class="rules-field">
-                                    <label>End Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
-                                    <input id="ruleEndDate" type="date" oninput="updateRulePreview()">
+                                    <label>Description</label>
+                                    <input id="rdgDescription" placeholder="What does this rule do?" oninput="updateRdgPreview()">
+                                </div>
+                                <div class="rules-field">
+                                    <label>Context</label>
+                                    <select id="rdgContext" onchange="updateRdgPreview(); updateRdgVars()">
+                                        <option value="SHIPMENT_RATING_BUFFER">Shipment Rating</option>
+                                        <option value="LANDED_COST_CALCULATE_POST">Landed Cost (Post-Calc)</option>
+                                        <option value="ITEM_CREATE_POST">Item Create (Post)</option>
+                                        <option value="DISCOUNT_CONTEXT">Discounts</option>
+                                        <option value="TAX_ADJUSTMENTS">Tax Adjustments</option>
+                                    </select>
+                                </div>
+                                <div class="rules-field" style="position:relative;">
+                                    <label>Condition <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— boolean expression</span></label>
+                                    <input id="rdgCondition" placeholder="e.g. ship_to_country == 'US' and items_total > 100 usd" oninput="updateRdgPreview(); ruleAc('rdgCondition', 'condition')" onfocus="ruleAc('rdgCondition', 'condition')" onkeydown="ruleAcKey(event, 'rdgCondition')" autocomplete="off">
+                                    <div class="rule-autocomplete" id="rdgConditionAc"></div>
+                                </div>
+                                <div class="rules-field" style="position:relative;">
+                                    <label>Action(s) <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— assignment expression</span></label>
+                                    <input id="rdgAction" placeholder="e.g. amount = amount + 5 usd" oninput="updateRdgPreview(); ruleAc('rdgAction', 'action')" onfocus="ruleAc('rdgAction', 'action')" onkeydown="ruleAcKey(event, 'rdgAction')" autocomplete="off">
+                                    <div class="rule-autocomplete" id="rdgActionAc"></div>
+                                </div>
+                                <div class="rules-dates">
+                                    <div class="rules-field">
+                                        <label>Start Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                        <input id="rdgStartDate" type="date" oninput="updateRdgPreview()">
+                                    </div>
+                                    <div class="rules-field">
+                                        <label>End Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                        <input id="rdgEndDate" type="date" oninput="updateRdgPreview()">
+                                    </div>
                                 </div>
                             </div>
 
+                            <div class="rules-preview-col">
+                                <div class="rules-preview-header">
+                                    <span style="color:var(--teal);font-weight:600;font-size:0.85em;">GraphQL Preview</span>
+                                    <div style="display:flex;gap:8px;">
+                                        <button class="rules-run-btn" style="padding:6px 14px;font-size:0.78em;" onclick="copyRuleMutation('rdgPreview', this)">Copy</button>
+                                        <button class="rules-run-btn" style="padding:6px 14px;font-size:0.78em;" onclick="executeRule('ruledgs')">Run Rule</button>
+                                    </div>
+                                </div>
+                                <textarea id="rdgPreview" class="rules-preview-textarea" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
+                                <div id="rdgResult" class="rules-result" style="display:none;"></div>
+                            </div>
                         </div>
 
-                        <!-- Right: GraphQL preview + examples -->
-                        <div class="rules-preview-col">
-                            <div class="rules-preview-header">
-                                <span style="color:var(--teal);font-weight:600;font-size:0.85em;">GraphQL Preview</span>
-                                <button class="rules-run-btn" style="padding:6px 14px;font-size:0.78em;" onclick="copyRuleMutation(this)">Copy Mutation</button>
-                            </div>
-                            <textarea id="rulePreview" class="rules-preview-textarea" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
+                        <!-- RuleDgs examples -->
+                        <div style="margin-top:16px;">
+                            <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Quick Examples — click to load</p>
+                            <div class="rules-example-list" id="rdgExampleList"></div>
+                        </div>
 
+                        <!-- RuleDgs variable reference -->
+                        <div class="rules-ref" style="margin-top:16px;">
+                            <div class="rules-ref-header" onclick="toggleRuleRef('rdgRefBody')" style="cursor:pointer;">
+                                <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference</span>
+                                <span style="color:var(--text-dim);font-size:0.78em;" id="rdgRefToggle">Show ▼</span>
+                            </div>
+                            <div class="rules-ref-body" id="rdgRefBody" style="display:none;">
+                                <div id="rdgVarList"></div>
+                                <div style="margin-top:12px;">
+                                    <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                        <code class="rule-chip">==</code><code class="rule-chip">!=</code>
+                                        <code class="rule-chip">&gt;</code><code class="rule-chip">&lt;</code>
+                                        <code class="rule-chip">&gt;=</code><code class="rule-chip">&lt;=</code>
+                                        <code class="rule-chip">and</code><code class="rule-chip">or</code><code class="rule-chip">not</code>
+                                        <code class="rule-chip">+ - * / %</code>
+                                        <code class="rule-chip">any_eq</code><code class="rule-chip">all_eq</code>
+                                        <code class="rule-chip">contains</code><code class="rule-chip">count_contains</code>
+                                    </div>
+                                </div>
+                                <div style="margin-top:12px;">
+                                    <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Data Types</p>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                        <code class="rule-chip">100 usd</code><code class="rule-chip">5 cad</code><code class="rule-chip">10 eur</code>
+                                        <code class="rule-chip">50 pound</code><code class="rule-chip">12 inch</code>
+                                        <code class="rule-chip">'text'</code><code class="rule-chip">true</code><code class="rule-chip">false</code>
+                                    </div>
+                                </div>
+                                <div style="margin-top:12px;">
+                                    <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Service Levels</p>
+                                    <div class="sl-tabs">
+                                        <button class="sl-tab active" onclick="openSlTab(this,'sl-fedex')">FedEx</button>
+                                        <button class="sl-tab" onclick="openSlTab(this,'sl-ups')">UPS</button>
+                                        <button class="sl-tab" onclick="openSlTab(this,'sl-dhl')">DHL</button>
+                                    </div>
+                                    <div class="sl-panel active" id="sl-fedex">
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_economy</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_priority</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_priority_express</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_connect_plus</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_first</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_ground</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.ground</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.express_saver</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.home_delivery</code>
+                                    </div>
+                                    <div class="sl-panel" id="sl-ups">
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.ground</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.standard</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express_plus</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express_saver</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.expedited</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_expedited</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_express</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_express_plus</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_saver</code>
+                                    </div>
+                                    <div class="sl-panel" id="sl-dhl">
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_worldwide</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_12</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_9</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.economy_select</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_envelope</code>
+                                        <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_easy</code>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Variable reference — full width below grid -->
-                    <div class="rules-ref" style="margin-top:16px;">
-                        <div class="rules-ref-header">
-                            <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference</span>
+                    <!-- ===== Store Fee Rules Tab ===== -->
+                    <div class="rule-tab-panel" id="storefeePanel">
+                        <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:16px;">Custom fee rules using SpEL (Spring Expression Language) for landed cost calculations.</p>
+                        <div class="rules-layout">
+                            <div class="rules-form-col">
+                                <div class="rules-field">
+                                    <label>Label <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— display name</span></label>
+                                    <input id="sfLabel" placeholder="e.g. US Processing Fee" oninput="updateSfPreview()">
+                                </div>
+                                <div class="rules-field">
+                                    <label>Note <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                    <input id="sfNote" placeholder="Business purpose of this fee" oninput="updateSfPreview()">
+                                </div>
+                                <div class="rules-field">
+                                    <label>Detail Category</label>
+                                    <select id="sfCategory" onchange="updateSfPreview()">
+                                        <option value="SHIPPING_FEE">Shipping Fee</option>
+                                        <option value="API_GUARANTEE_ORDER">API Guarantee Order</option>
+                                        <option value="DUTY_BUFFER">Duty Buffer</option>
+                                        <option value="TAX_BUFFER">Tax Buffer</option>
+                                        <option value="CURRENCY_CONVERSION_FEE">Currency Conversion Fee</option>
+                                        <option value="BROKERAGE_FEE">Brokerage Fee</option>
+                                        <option value="CUSTOM">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="rules-field" style="position:relative;">
+                                    <label>If Statement <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— SpEL (Spring Expression Language) condition</span></label>
+                                    <input id="sfIfStatement" placeholder="e.g. ship_to_country == 'US' and items_total > 100 usd" oninput="updateSfPreview(); ruleAc('sfIfStatement', 'sfCondition')" onfocus="ruleAc('sfIfStatement', 'sfCondition')" onkeydown="ruleAcKey(event, 'sfIfStatement')" autocomplete="off">
+                                    <div class="rule-autocomplete" id="sfIfStatementAc"></div>
+                                </div>
+                                <div class="rules-field" style="position:relative;">
+                                    <label>Then <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">— fee calculation</span></label>
+                                    <input id="sfThen" placeholder="e.g. 5 usd + (items_total * 0.02)" oninput="updateSfPreview(); ruleAc('sfThen', 'sfAction')" onfocus="ruleAc('sfThen', 'sfAction')" onkeydown="ruleAcKey(event, 'sfThen')" autocomplete="off">
+                                    <div class="rule-autocomplete" id="sfThenAc"></div>
+                                </div>
+
+                                <!-- Shipping Context -->
+                                <p style="color:var(--text-dim);font-size:0.78em;margin:12px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Shipping Context <span style="font-weight:400;text-transform:none;">(at least one required)</span></p>
+                                <div class="rules-dates">
+                                    <div class="rules-field">
+                                        <label>Ship From Country</label>
+                                        <select id="sfShipFrom" onchange="updateSfPreview()">
+                                            <option value="">— none —</option>
+                                        </select>
+                                    </div>
+                                    <div class="rules-field">
+                                        <label>Ship To Country</label>
+                                        <select id="sfShipTo" onchange="updateSfPreview()">
+                                            <option value="">— none —</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="rules-dates">
+                                    <div class="rules-field">
+                                        <label>Carrier Code <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                        <input id="sfCarrierCode" placeholder="e.g. UPS" oninput="updateSfPreview()">
+                                    </div>
+                                    <div class="rules-field">
+                                        <label>Service Level Code <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                        <input id="sfServiceLevel" placeholder="e.g. GROUND" oninput="updateSfPreview()">
+                                    </div>
+                                </div>
+
+                                <!-- Optional config -->
+                                <p style="color:var(--text-dim);font-size:0.78em;margin:12px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Optional Configuration</p>
+                                <div class="rules-dates">
+                                    <div class="rules-field">
+                                        <label>Rule Type</label>
+                                        <select id="sfType" onchange="updateSfPreview()">
+                                            <option value="">— default —</option>
+                                            <option value="CUSTOM">Custom</option>
+                                            <option value="NEGOTIABLE">Negotiable</option>
+                                            <option value="NON_NEGOTIABLE">Non-Negotiable</option>
+                                            <option value="REQUIRED_CUSTOM">Required Custom</option>
+                                            <option value="REQUIRED_NEGOTIABLE">Required Negotiable</option>
+                                            <option value="REQUIRED_NON_NEGOTIABLE">Required Non-Negotiable</option>
+                                            <option value="TRANSITORY">Transitory</option>
+                                            <option value="TRANSITORY_CUSTOM">Transitory Custom</option>
+                                        </select>
+                                    </div>
+                                    <div class="rules-field">
+                                        <label>Locale Type</label>
+                                        <select id="sfLocale" onchange="updateSfPreview()">
+                                            <option value="INTERNATIONAL">International</option>
+                                            <option value="DOMESTIC">Domestic</option>
+                                            <option value="EITHER">Either</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="rules-dates">
+                                    <div class="rules-field">
+                                        <label>Processing Group</label>
+                                        <select id="sfProcessingGroup" onchange="updateSfPreview()">
+                                            <option value="0">0 (Default)</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                    <div class="rules-field">
+                                        <label>Taxable</label>
+                                        <select id="sfTaxable" onchange="updateSfPreview()">
+                                            <option value="false">No</option>
+                                            <option value="true">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="rules-dates">
+                                    <div class="rules-field">
+                                        <label>Start Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                        <input id="sfStartDate" type="date" oninput="updateSfPreview()">
+                                    </div>
+                                    <div class="rules-field">
+                                        <label>End Date <span style="color:var(--text-dim);font-weight:400;font-size:0.85em;">optional</span></label>
+                                        <input id="sfEndDate" type="date" oninput="updateSfPreview()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rules-preview-col">
+                                <div class="rules-preview-header">
+                                    <span style="color:var(--teal);font-weight:600;font-size:0.85em;">GraphQL Preview</span>
+                                    <div style="display:flex;gap:8px;">
+                                        <button class="rules-run-btn" style="padding:6px 14px;font-size:0.78em;" onclick="copyRuleMutation('sfPreview', this)">Copy</button>
+                                        <button class="rules-run-btn" style="padding:6px 14px;font-size:0.78em;" onclick="executeRule('storefee')">Run Rule</button>
+                                    </div>
+                                </div>
+                                <textarea id="sfPreview" class="rules-preview-textarea" style="height:340px;" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
+                                <div id="sfResult" class="rules-result" style="display:none;"></div>
+                            </div>
                         </div>
-                        <div class="rules-ref-body" id="ruleRefBody">
-                            <div id="ruleVarList"></div>
-                            <div style="margin-top:12px;">
-                                <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
-                                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                                    <code class="rule-chip">* / + -</code>
-                                    <code class="rule-chip">== &gt; &gt;= &lt; &lt;=</code>
-                                    <code class="rule-chip">and or</code>
-                                    <code class="rule-chip">%</code>
-                                </div>
+
+                        <!-- Store Fee examples -->
+                        <div style="margin-top:16px;">
+                            <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Quick Examples — click to load</p>
+                            <div class="rules-example-list" id="sfExampleList"></div>
+                        </div>
+
+                        <!-- Store Fee variable reference -->
+                        <div class="rules-ref" style="margin-top:16px;">
+                            <div class="rules-ref-header" onclick="toggleRuleRef('sfRefBody')" style="cursor:pointer;">
+                                <span style="color:var(--teal);font-weight:600;font-size:0.85em;">Variable Reference — SpEL (Spring Expression Language)</span>
+                                <span style="color:var(--text-dim);font-size:0.78em;" id="sfRefToggle">Show ▼</span>
                             </div>
-                            <div style="margin-top:12px;">
-                                <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Money Examples</p>
-                                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                                    <code class="rule-chip">10 usd</code>
-                                    <code class="rule-chip">500 cad</code>
-                                    <code class="rule-chip">1.5</code>
+                            <div class="rules-ref-body" id="sfRefBody" style="display:none;">
+                                <div id="sfVarList"></div>
+                                <div style="margin-top:12px;">
+                                    <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Operators</p>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                        <code class="rule-chip">==</code><code class="rule-chip">!=</code>
+                                        <code class="rule-chip">&gt;</code><code class="rule-chip">&lt;</code>
+                                        <code class="rule-chip">&gt;=</code><code class="rule-chip">&lt;=</code>
+                                        <code class="rule-chip">and</code><code class="rule-chip">or</code><code class="rule-chip">not</code>
+                                        <code class="rule-chip">+ - * / %</code>
+                                        <code class="rule-chip">? :</code>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="margin-top:12px;">
-                                <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Service Levels</p>
-                                <div class="sl-tabs">
-                                    <button class="sl-tab active" onclick="openSlTab(this,'sl-fedex')">FedEx</button>
-                                    <button class="sl-tab" onclick="openSlTab(this,'sl-ups')">UPS</button>
-                                    <button class="sl-tab" onclick="openSlTab(this,'sl-dhl')">DHL</button>
-                                </div>
-                                <div class="sl-panel active" id="sl-fedex">
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_economy</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_priority</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_priority_express</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_connect_plus</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_first</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.international_ground</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.ground</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.express_saver</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">fedex.home_delivery</code>
-                                </div>
-                                <div class="sl-panel" id="sl-ups">
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.ground</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.standard</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express_plus</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.express_saver</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.expedited</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_expedited</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_express</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_express_plus</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">ups.worldwide_saver</code>
-                                </div>
-                                <div class="sl-panel" id="sl-dhl">
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_worldwide</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_12</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_9</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.economy_select</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_envelope</code>
-                                    <code class="rule-chip sl-chip" onclick="copySl(this)">dhl_express.express_easy</code>
+                                <div style="margin-top:12px;">
+                                    <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Money Examples</p>
+                                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                                        <code class="rule-chip">5 usd</code><code class="rule-chip">10 cad</code><code class="rule-chip">5 eur</code>
+                                        <code class="rule-chip">items_total * 0.02</code>
+                                        <code class="rule-chip">items_total &gt; 100 usd ? 10 usd : 5 usd</code>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3786,102 +3988,204 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
         }
 
         // ===== Rules Builder =====
-        const RULE_VARS = {
-            DUTIES_TAXES_FEES: [':ship_from_country:',':ship_to_country:',':ship_to_administrative_area_code:',':duties_total:',':taxes_total:',':fees_total:',':landed_cost_total:',':landed_cost_guarantee:',':method:'],
-            SHIPMENT_RATING:   [':ship_from_country:',':ship_to_country:',':ship_to_administrative_area_code:',':carrier:',':service_level:',':residential:',':weight:',':item_count:',':items_total:',':amount:']
+
+        // --- RuleDgs Variables per Context ---
+        const RDG_VARS = {
+            SHIPMENT_RATING_BUFFER: [
+                {name:'amount', type:'Money', note:'Current shipping cost (assignable)'},
+                {name:'item_count', type:'Number', note:'Number of items'},
+                {name:'items_total', type:'Money', note:'Total value of items'},
+                {name:'ship_from_country', type:'Country', note:'Origin country'},
+                {name:'ship_to_country', type:'Country', note:'Destination country'},
+                {name:'weight', type:'Weight', note:'Package weight'},
+                {name:'service_level', type:'String', note:'Shipping service code'},
+                {name:'carrier', type:'String', note:'Carrier name'},
+                {name:'enabled', type:'Boolean', note:'Whether rate is available (assignable)'},
+                {name:'residential', type:'Boolean', note:'Is destination residential'},
+                {name:'items.amount', type:'Money List', note:'List of item prices'},
+                {name:'items.sku', type:'String List', note:'List of SKUs'},
+            ],
+            LANDED_COST_CALCULATE_POST: [
+                {name:'duties_total', type:'Money', note:'Total duties (assignable)'},
+                {name:'taxes_total', type:'Money', note:'Total taxes (assignable)'},
+                {name:'fees_total', type:'Money', note:'Total fees (assignable)'},
+                {name:'items_total', type:'Money', note:'Total value of items'},
+                {name:'landed_cost_total', type:'Money', note:'Combined total cost'},
+                {name:'shipping_total', type:'Money', note:'Shipping cost'},
+                {name:'ship_from_country', type:'Country', note:'Origin country'},
+                {name:'ship_to_country', type:'Country', note:'Destination country'},
+                {name:'method', type:'String', note:'Calculation method'},
+            ],
+            ITEM_CREATE_POST: [
+                {name:'amount', type:'Money', note:'Item price (assignable)'},
+                {name:'name', type:'String', note:'Item name (assignable)'},
+                {name:'description', type:'String', note:'Item description (assignable)'},
+                {name:'sku', type:'String', note:'SKU identifier'},
+                {name:'quantity', type:'Number', note:'Item quantity'},
+                {name:'ship_from_country', type:'Country', note:'Origin country'},
+                {name:'ship_to_country', type:'Country', note:'Destination country'},
+                {name:'country_of_origin', type:'Country', note:'Manufacturing country (assignable)'},
+                {name:'hs_code', type:'String', note:'HS code (assignable)'},
+                {name:'weight', type:'Weight', note:'Item weight (assignable)'},
+                {name:'restrict_cart', type:'Boolean', note:'Blocks checkout if true (assignable)'},
+            ],
+            DISCOUNT_CONTEXT: [
+                {name:'amount', type:'Money', note:'Discount amount (assignable)'},
+                {name:'type', type:'String', note:'Discount type (assignable)'},
+                {name:'items_total', type:'Money', note:'Total item value'},
+                {name:'shipping', type:'Money', note:'Shipping cost'},
+                {name:'item_count', type:'Number', note:'Number of items'},
+                {name:'promo_codes', type:'String List', note:'Applied promo codes'},
+            ],
+            TAX_ADJUSTMENTS: [
+                {name:'taxes_total', type:'Money', note:'Total taxes (assignable)'},
+                {name:'items_total', type:'Money', note:'Total item value'},
+                {name:'ship_from_country', type:'Country', note:'Origin country'},
+                {name:'ship_to_country', type:'Country', note:'Destination country'},
+            ],
         };
 
-        const RULE_EXAMPLES = [
-            { label: 'Increase duties 15% — China → US', context: 'DUTIES_TAXES_FEES', name: 'China to US duties buffer', description: 'Add 15% buffer to duties for shipments from China to US', condition: 'if :ship_from_country: == cn and :ship_to_country: == us', action: 'then :duties_total: = :duties_total: * 1.15' },
-            { label: 'Absorb all taxes for UK orders', context: 'DUTIES_TAXES_FEES', name: 'Absorb UK taxes', description: 'Merchant covers all taxes for UK shipments', condition: 'if :ship_to_country: == gb', action: 'then :taxes_total: = 0 usd' },
-            { label: 'Flat $500 rate for UPS Ground', context: 'SHIPMENT_RATING', name: 'UPS Ground flat rate', description: 'Override UPS Ground to a flat $500 rate', condition: 'if :service_level: == ups.ground', action: 'then :amount: = 500 usd' },
-            { label: '50% surcharge — FedEx to CA or MX', context: 'SHIPMENT_RATING', name: 'FedEx CA/MX surcharge', description: '50% surcharge on FedEx international to Canada or Mexico', condition: 'if :service_level: == fedex.international_economy and (:ship_to_country: == mx or :ship_to_country: == ca)', action: 'then :amount: = :amount: * 1.5' },
-            { label: 'Free shipping to Germany', context: 'SHIPMENT_RATING', name: 'Free shipping to DE', description: 'Zero out shipping amount for Germany', condition: 'if :ship_to_country: == de', action: 'then :amount: = 0 usd' },
+        // --- Store Fee Variables (SpEL) ---
+        const SF_VARS = [
+            {name:'items_total', type:'Money', note:'Total value of items'},
+            {name:'duty', type:'Money', note:'Calculated duty amount'},
+            {name:'tax', type:'Money', note:'Calculated tax amount'},
+            {name:'fees', type:'Money', note:'Total fees'},
+            {name:'shipping', type:'Money', note:'Shipping cost'},
+            {name:'value_of_goods', type:'Money', note:'Value of goods'},
+            {name:'remittance', type:'Money', note:'Remittance amount'},
+            {name:'ship_to_country', type:'Country', note:'Destination country'},
+            {name:'country_of_origin', type:'Country List', note:'Countries of origin'},
+            {name:'hs_code', type:'String', note:'Harmonized System code'},
+            {name:'line_count', type:'Number', note:'Number of tariff lines'},
+            {name:'items_quantity', type:'Number', note:'Total item quantity'},
+            {name:'ddp', type:'Boolean', note:'Delivery Duty Paid'},
+            {name:'ddu', type:'Boolean', note:'Delivery Duty Unpaid'},
+            {name:'lc_guarantee', type:'Boolean', note:'Landed cost guarantee'},
+            {name:'inclusive_price', type:'Boolean', note:'Inclusive pricing'},
+            {name:'free_version', type:'Boolean', note:'Free version of service'},
+            {name:'postal', type:'Boolean', note:'Postal service'},
+            {name:'base_currency', type:'Currency', note:'Base currency'},
+            {name:'destination_currency', type:'Currency', note:'Destination currency'},
         ];
 
-        function showRulesView() {
-            hideWebhookTester();
-            document.querySelector('.editor-area').style.display = 'none';
-            document.getElementById('rulesBuilder').classList.add('visible');
-            document.getElementById('friendlyView').classList.remove('visible');
-
-            document.getElementById('explanationTitle').textContent = 'Rules';
-            document.getElementById('explanationContent').innerHTML = `
-                <h4>What are Rules?</h4>
-                <p>Rules let merchants automatically modify duties, taxes, fees, or shipping costs based on conditions like destination country, carrier, or service level — without changing their code.</p>
-                <h4>How rules work:</h4>
-                <p>Each rule has one <strong>condition</strong> (when to fire) and one <strong>action</strong> (what to change). Syntax: <code>if [condition] then [action]</code></p>
-                <div class="analogy"><strong>Example:</strong> "If shipping to the US from China, increase duties by 15%"<br><code style="font-size:0.85em">if :ship_from_country: == cn and :ship_to_country: == us then :duties_total: = :duties_total: * 1.15</code></div>
-                <h4>Two rule contexts:</h4>
-                <ul><li><strong>Duties, Taxes &amp; Fees</strong> — merchant absorbs cost changes</li><li><strong>Shipment Rating</strong> — modifies shipping amounts &amp; availability</li></ul>
-                <p><strong>Note:</strong> Rules are advanced — mistakes can cause unintended calculations. To update a rule, archive the old one and create a new one.</p>
-            `;
-            document.getElementById('explanationContent').classList.remove('collapsed');
-            document.getElementById('explanationToggle').textContent = 'Hide ▲';
-
-            document.querySelectorAll('.query-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('rulesBtn').classList.add('active');
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-
-            updateRuleVars();
-            renderRuleExamples();
-            updateRulePreview();
-        }
-
-        function hideRulesBuilder() {
-            document.getElementById('rulesBuilder').classList.remove('visible');
-        }
-
-        const COUNTRIES = [
-            {code:'us',name:'United States'},{code:'ca',name:'Canada'},{code:'gb',name:'United Kingdom'},
-            {code:'de',name:'Germany'},{code:'fr',name:'France'},{code:'au',name:'Australia'},
-            {code:'jp',name:'Japan'},{code:'mx',name:'Mexico'},{code:'cn',name:'China'},
-            {code:'br',name:'Brazil'},{code:'in',name:'India'},{code:'kr',name:'South Korea'},
-            {code:'sg',name:'Singapore'},{code:'nl',name:'Netherlands'},{code:'es',name:'Spain'},
-            {code:'it',name:'Italy'},{code:'se',name:'Sweden'},{code:'no',name:'Norway'},
-            {code:'dk',name:'Denmark'},{code:'fi',name:'Finland'},{code:'ch',name:'Switzerland'},
-            {code:'at',name:'Austria'},{code:'be',name:'Belgium'},{code:'nz',name:'New Zealand'},
-            {code:'ie',name:'Ireland'},{code:'pt',name:'Portugal'},{code:'pl',name:'Poland'},
-            {code:'za',name:'South Africa'},{code:'ae',name:'United Arab Emirates'},{code:'sa',name:'Saudi Arabia'}
+        // --- RuleDgs Examples ---
+        const RDG_EXAMPLES = [
+            { label: 'UPS Ground Surcharge', context: 'SHIPMENT_RATING_BUFFER', name: 'UPS Ground Surcharge', description: 'Add 10% surcharge for UPS Ground', condition: "carrier == 'ups' and service_level == 'ups.ground'", action: 'amount = amount + (amount * 0.10)' },
+            { label: 'Heavy Package Restriction', context: 'SHIPMENT_RATING_BUFFER', name: 'Heavy Package Restriction', description: 'Disable rates for packages over 100 lbs', condition: 'weight > 100 pound', action: 'enabled = false' },
+            { label: 'Duty Cap at 20%', context: 'LANDED_COST_CALCULATE_POST', name: 'Duty Cap', description: 'Cap duties at 20% of item value', condition: 'duties_total > (items_total * 0.20)', action: 'duties_total = items_total * 0.20' },
+            { label: 'Absorb taxes for UK', context: 'LANDED_COST_CALCULATE_POST', name: 'Absorb UK taxes', description: 'Merchant covers all taxes for UK shipments', condition: "ship_to_country == 'GB'", action: 'taxes_total = 0 usd' },
+            { label: 'Volume Discount 10%', context: 'DISCOUNT_CONTEXT', name: 'Volume Discount', description: '10% discount for orders over $100', condition: 'items_total > 100 usd', action: "amount = items_total * 0.10" },
+            { label: 'Free Shipping Over $50', context: 'DISCOUNT_CONTEXT', name: 'Free Shipping Threshold', description: 'Free shipping for orders over $50', condition: 'items_total > 50 usd', action: "amount = shipping" },
+            { label: 'Educational Tax Exemption', context: 'TAX_ADJUSTMENTS', name: 'Educational Tax Exemption', description: 'Zero taxes for educational materials', condition: "items.attributes.category any_eq 'education,books'", action: 'taxes_total = 0 usd' },
+            { label: 'Hazardous Goods Block', context: 'ITEM_CREATE_POST', name: 'Dangerous Goods Restriction', description: 'Block hazardous items from checkout', condition: "attributes.hazardous == 'true'", action: 'restrict_cart = true' },
         ];
 
-        const AC_TEMPLATES = {
+        // --- Store Fee Examples ---
+        const SF_EXAMPLES = [
+            { label: 'Fixed $5 US Processing Fee', ifStatement: "ship_to_country == 'US'", then: '5 usd', category: 'SHIPPING_FEE', shipFrom: 'CN', shipTo: 'US', labelVal: 'US Processing Fee', note: 'Fixed processing fee for US shipments' },
+            { label: '2% Fee on Orders Over $100', ifStatement: 'items_total > 100 usd', then: 'items_total * 0.02', category: 'API_GUARANTEE_ORDER', shipTo: 'US', labelVal: 'High Value Fee', note: 'Percentage fee for high-value shipments' },
+            { label: 'Canada $5 CAD Fee', ifStatement: "ship_to_country == 'CA'", then: '5 cad', category: 'SHIPPING_FEE', shipTo: 'CA', labelVal: 'Canada Processing Fee', note: 'Currency-specific fee for Canada' },
+            { label: 'US DDP Premium Fee', ifStatement: "ship_to_country == 'US' and items_total > 200 usd and ddp == true", then: '10 usd + (items_total * 0.01)', category: 'SHIPPING_FEE', shipTo: 'US', labelVal: 'US DDP Premium Fee', note: 'Complex conditional DDP fee' },
+            { label: 'Tiered US Fee', ifStatement: "ship_to_country == 'US'", then: 'items_total > 100 usd ? 10 usd : 5 usd', category: 'SHIPPING_FEE', shipTo: 'US', labelVal: 'Tiered US Fee', note: 'Tiered pricing based on value' },
+        ];
+
+        // --- Autocomplete templates for RuleDgs ---
+        const RDG_AC_TEMPLATES = {
             condition: {
-                DUTIES_TAXES_FEES: [
-                    {label:'Ship to country', sub:'Trigger by destination', val:'if :ship_to_country: == '},
-                    {label:'Ship from country', sub:'Trigger by origin', val:'if :ship_from_country: == '},
-                    {label:'Origin AND destination', sub:'e.g. China → US', val:'if :ship_from_country: == cn and :ship_to_country: == us'},
-                    {label:'Ship to state/province', sub:'e.g. US + state code', val:'if :ship_to_country: == us and :ship_to_administrative_area_code: == CA'},
+                SHIPMENT_RATING_BUFFER: [
+                    {label:'Service level check', sub:'Trigger by carrier service', val:"service_level == 'ups.ground'"},
+                    {label:'Carrier check', sub:'Trigger by carrier name', val:"carrier == 'ups'"},
+                    {label:'Ship to country', sub:'Trigger by destination', val:"ship_to_country == '"},
+                    {label:'Heavy package', sub:'Weight threshold', val:'weight > 50 pound'},
+                    {label:'High value shipment', sub:'Value threshold', val:'items_total > 100 usd'},
+                    {label:'Residential delivery', sub:'Residential address', val:'residential == true'},
                 ],
-                SHIPMENT_RATING: [
-                    {label:'Service level', sub:'Trigger by carrier service', val:'if :service_level: == ups.ground'},
-                    {label:'Carrier', sub:'Trigger by carrier name', val:'if :carrier: == ups'},
-                    {label:'Ship to country', sub:'Trigger by destination', val:'if :ship_to_country: == '},
-                    {label:'Service level AND country', sub:'Combine carrier + destination', val:'if :service_level: == fedex.international_economy and :ship_to_country: == '},
-                    {label:'Residential delivery', sub:'Trigger for residential addresses', val:'if :residential: == true'},
-                ]
+                LANDED_COST_CALCULATE_POST: [
+                    {label:'Ship to country', sub:'Trigger by destination', val:"ship_to_country == '"},
+                    {label:'Duties over threshold', sub:'Cap or adjust duties', val:'duties_total > (items_total * 0.20)'},
+                    {label:'High landed cost', sub:'Total cost threshold', val:'landed_cost_total > 500 usd'},
+                    {label:'Origin and destination', sub:'Route-based rule', val:"ship_from_country == 'CN' and ship_to_country == 'US'"},
+                ],
+                ITEM_CREATE_POST: [
+                    {label:'Item attribute check', sub:'Category or property', val:"attributes.category == 'electronics'"},
+                    {label:'Hazardous material', sub:'Block dangerous goods', val:"attributes.hazardous == 'true'"},
+                    {label:'High value item', sub:'Price threshold', val:'amount > 500 usd'},
+                ],
+                DISCOUNT_CONTEXT: [
+                    {label:'Order value threshold', sub:'Minimum order amount', val:'items_total > 100 usd'},
+                    {label:'Free shipping threshold', sub:'Free shipping over amount', val:'items_total > 50 usd'},
+                    {label:'Item count check', sub:'Volume discount', val:'item_count > 10'},
+                ],
+                TAX_ADJUSTMENTS: [
+                    {label:'Ship to country', sub:'Tax by destination', val:"ship_to_country == '"},
+                    {label:'High value order', sub:'Tax threshold', val:'items_total > 1000 usd'},
+                ],
             },
             action: {
-                DUTIES_TAXES_FEES: [
-                    {label:'Increase duties by 15%', sub:'Add buffer on duties', val:'then :duties_total: = :duties_total: * 1.15'},
-                    {label:'Absorb all duties', sub:'Merchant covers duties', val:'then :duties_total: = 0 usd'},
-                    {label:'Absorb all taxes', sub:'Merchant covers taxes', val:'then :taxes_total: = 0 usd'},
-                    {label:'Absorb all fees', sub:'Merchant covers fees', val:'then :fees_total: = 0 usd'},
-                    {label:'Increase landed cost 10%', sub:'Buffer on total landed cost', val:'then :landed_cost_total: = :landed_cost_total: * 1.1'},
-                    {label:'Discount duties 20%', sub:'Reduce duties for customer', val:'then :duties_total: = :duties_total: * 0.8'},
+                SHIPMENT_RATING_BUFFER: [
+                    {label:'Add flat surcharge', sub:'Fixed amount added', val:'amount = amount + 5 usd'},
+                    {label:'Percentage surcharge', sub:'Add percentage', val:'amount = amount + (amount * 0.10)'},
+                    {label:'Flat rate override', sub:'Set fixed rate', val:'amount = 500 usd'},
+                    {label:'Free shipping', sub:'Zero out cost', val:'amount = 0 usd'},
+                    {label:'Disable rate', sub:'Hide this option', val:'enabled = false'},
+                    {label:'Discount 20%', sub:'Reduce rate', val:'amount = amount * 0.8'},
                 ],
-                SHIPMENT_RATING: [
-                    {label:'Flat $500 rate', sub:'Override to fixed amount', val:'then :amount: = 500 usd'},
-                    {label:'Free shipping', sub:'Zero out shipping cost', val:'then :amount: = 0 usd'},
-                    {label:'Increase rate 50%', sub:'Add surcharge', val:'then :amount: = :amount: * 1.5'},
-                    {label:'Discount rate 20%', sub:'Reduce shipping cost', val:'then :amount: = :amount: * 0.8'},
-                    {label:'Flat $25 rate', sub:'Low flat rate', val:'then :amount: = 25 usd'},
-                ]
+                LANDED_COST_CALCULATE_POST: [
+                    {label:'Absorb all duties', sub:'Set duties to zero', val:'duties_total = 0 usd'},
+                    {label:'Absorb all taxes', sub:'Set taxes to zero', val:'taxes_total = 0 usd'},
+                    {label:'Cap duties at 20%', sub:'Limit duties', val:'duties_total = items_total * 0.20'},
+                    {label:'Increase duties 15%', sub:'Add buffer', val:'duties_total = duties_total * 1.15'},
+                    {label:'Absorb all fees', sub:'Set fees to zero', val:'fees_total = 0 usd'},
+                ],
+                ITEM_CREATE_POST: [
+                    {label:'Block from cart', sub:'Prevent checkout', val:'restrict_cart = true'},
+                    {label:'Set HS code', sub:'Override classification', val:"hs_code = '6109.10'"},
+                    {label:'Set country of origin', sub:'Override origin', val:"country_of_origin = 'CN'"},
+                ],
+                DISCOUNT_CONTEXT: [
+                    {label:'Order total discount', sub:'Percentage off order', val:"amount = items_total * 0.10"},
+                    {label:'Free shipping discount', sub:'Offset shipping', val:"amount = shipping"},
+                    {label:'Fixed discount', sub:'Flat amount off', val:'amount = 10 usd'},
+                ],
+                TAX_ADJUSTMENTS: [
+                    {label:'Zero taxes', sub:'Tax exemption', val:'taxes_total = 0 usd'},
+                    {label:'Add luxury tax', sub:'Percentage surcharge', val:'taxes_total = taxes_total + (items_total * 0.05)'},
+                    {label:'Reduce taxes 50%', sub:'Partial exemption', val:'taxes_total = taxes_total * 0.5'},
+                ],
             }
         };
 
-        const COUNTRY_VAR_PATTERN = /(:ship_(?:from|to)_country:|:ship_to_administrative_area_code:)\s*==\s*(\S*)$/;
-        const SERVICE_LEVEL_PATTERN = /:service_level:\s*==\s*(\S*)$/;
+        // --- Store Fee autocomplete templates ---
+        const SF_AC_TEMPLATES = {
+            sfCondition: [
+                {label:'Ship to country', sub:'Destination check', val:"ship_to_country == 'US'"},
+                {label:'Value threshold', sub:'Items over amount', val:'items_total > 100 usd'},
+                {label:'DDP flag', sub:'Duty paid check', val:'ddp == true'},
+                {label:'Country + value', sub:'Combined condition', val:"ship_to_country == 'US' and items_total > 200 usd"},
+                {label:'Always apply', sub:'No condition', val:'true'},
+            ],
+            sfAction: [
+                {label:'Fixed amount', sub:'e.g. $5 fee', val:'5 usd'},
+                {label:'Percentage fee', sub:'% of item total', val:'items_total * 0.02'},
+                {label:'Base + percentage', sub:'Combined fee', val:'2 usd + (items_total * 0.015)'},
+                {label:'Tiered fee', sub:'Conditional amount', val:'items_total > 100 usd ? 10 usd : 5 usd'},
+                {label:'Currency-specific', sub:'e.g. CAD fee', val:'5 cad'},
+            ],
+        };
+
+        const COUNTRIES = [
+            {code:'US',name:'United States'},{code:'CA',name:'Canada'},{code:'GB',name:'United Kingdom'},
+            {code:'DE',name:'Germany'},{code:'FR',name:'France'},{code:'AU',name:'Australia'},
+            {code:'JP',name:'Japan'},{code:'MX',name:'Mexico'},{code:'CN',name:'China'},
+            {code:'BR',name:'Brazil'},{code:'IN',name:'India'},{code:'KR',name:'South Korea'},
+            {code:'SG',name:'Singapore'},{code:'NL',name:'Netherlands'},{code:'ES',name:'Spain'},
+            {code:'IT',name:'Italy'},{code:'SE',name:'Sweden'},{code:'NO',name:'Norway'},
+            {code:'DK',name:'Denmark'},{code:'FI',name:'Finland'},{code:'CH',name:'Switzerland'},
+            {code:'AT',name:'Austria'},{code:'BE',name:'Belgium'},{code:'NZ',name:'New Zealand'},
+            {code:'IE',name:'Ireland'},{code:'PT',name:'Portugal'},{code:'PL',name:'Poland'},
+            {code:'ZA',name:'South Africa'},{code:'AE',name:'United Arab Emirates'},{code:'SA',name:'Saudi Arabia'}
+        ];
 
         const SERVICE_LEVELS = [
             {code:'fedex.international_economy', carrier:'FedEx'},
@@ -3911,62 +4215,120 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             {code:'dhl_express.express_easy', carrier:'DHL'},
         ];
 
+        const COUNTRY_VAR_PATTERN = /(?:ship_(?:from|to)_country|country_of_origin)\s*==\s*'?(\w*)$/;
+        const SERVICE_LEVEL_PATTERN = /service_level\s*==\s*'?(\S*)$/;
+
         let acSelectedIdx = {};
         const acCloseListeners = {};
 
+        // --- Tab switching ---
+        function switchRuleTab(tab) {
+            document.querySelectorAll('.rule-type-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.rule-tab-panel').forEach(p => p.classList.remove('active'));
+            if (tab === 'ruledgs') {
+                document.querySelector('.rule-type-tab:nth-child(1)').classList.add('active');
+                document.getElementById('ruledgsPanel').classList.add('active');
+            } else {
+                document.querySelector('.rule-type-tab:nth-child(2)').classList.add('active');
+                document.getElementById('storefeePanel').classList.add('active');
+            }
+        }
+
+        // --- Show/Hide Rules View ---
+        function showRulesView() {
+            hideWebhookTester();
+            document.querySelector('.editor-area').style.display = 'none';
+            document.getElementById('rulesBuilder').classList.add('visible');
+            document.getElementById('friendlyView').classList.remove('visible');
+
+            document.getElementById('explanationTitle').textContent = 'Rule Builder';
+            document.getElementById('explanationContent').innerHTML = `
+                <h4>Two Rule Systems</h4>
+                <p>Zonos has two rule engines. Use the tabs below to switch between them.</p>
+                <h4>1. RuleDgs Rules</h4>
+                <p>Automate shipping, landed cost, tax, discount, and item logic. Each rule has a <strong>condition</strong> (when to fire) and <strong>action(s)</strong> (what to change).</p>
+                <div class="analogy"><strong>Example:</strong> "If UPS Ground, add 10% surcharge"<br><code style="font-size:0.85em">carrier == 'ups' and service_level == 'ups.ground'</code><br><code style="font-size:0.85em">amount = amount + (amount * 0.10)</code></div>
+                <h4>Contexts:</h4>
+                <ul>
+                    <li><strong>Shipment Rating</strong> — modify shipping costs &amp; availability</li>
+                    <li><strong>Landed Cost (Post)</strong> — adjust duties, taxes, fees after calculation</li>
+                    <li><strong>Item Create (Post)</strong> — validate or modify items</li>
+                    <li><strong>Discounts</strong> — apply order or shipping discounts</li>
+                    <li><strong>Tax Adjustments</strong> — modify or exempt taxes</li>
+                </ul>
+                <h4>2. Store Fee Rules</h4>
+                <p>Custom fee rules using SpEL (Spring Expression Language). Requires a <strong>detail category</strong> and at least one <strong>shipping context</strong> (country, carrier, or service level).</p>
+                <p><strong>Note:</strong> Rules are powerful — mistakes can cause unintended calculations. Test thoroughly before deploying to production.</p>
+            `;
+            document.getElementById('explanationContent').classList.remove('collapsed');
+            document.getElementById('explanationToggle').textContent = 'Hide ▲';
+
+            document.querySelectorAll('.query-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('rulesBtn').classList.add('active');
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+            updateRdgVars();
+            renderRdgExamples();
+            renderSfExamples();
+            populateSfCountryDropdowns();
+            updateSfVars();
+        }
+
+        function hideRulesBuilder() {
+            document.getElementById('rulesBuilder').classList.remove('visible');
+        }
+
+        // --- Autocomplete (shared) ---
         function ruleAc(inputId, type) {
             const input = document.getElementById(inputId);
             const acEl  = document.getElementById(inputId + 'Ac');
             const val   = input.value;
-            const ctx   = document.getElementById('ruleContext').value;
             const suggestions = [];
 
-            // Check if cursor is after a country variable ==
+            // Country autocomplete after == or == '
             const countryMatch = val.match(COUNTRY_VAR_PATTERN);
             if (countryMatch) {
-                const partial = (countryMatch[2] || '').toLowerCase();
-                const filtered = COUNTRIES.filter(c => c.code.startsWith(partial) || c.name.toLowerCase().startsWith(partial));
+                const partial = (countryMatch[1] || '').toUpperCase();
+                const filtered = COUNTRIES.filter(c => c.code.startsWith(partial) || c.name.toUpperCase().startsWith(partial));
                 if (filtered.length) {
                     suggestions.push({group: 'Country codes'});
-                    filtered.slice(0, 8).forEach(c => suggestions.push({
-                        label: c.name, sub: c.code,
-                        val: val.slice(0, val.lastIndexOf(countryMatch[2])) + c.code
-                    }));
+                    const needsQuote = !val.match(/==\s*'[^']*$/);
+                    filtered.slice(0, 8).forEach(c => {
+                        const replaceFrom = val.length - (countryMatch[1] || '').length;
+                        const prefix = val.slice(0, replaceFrom);
+                        // For RuleDgs: use 'XX' with quotes. For StoreFee SpEL: also 'XX'.
+                        const formatted = needsQuote ? "'" + c.code + "'" : c.code + "'";
+                        suggestions.push({ label: c.name, sub: c.code, val: prefix + formatted });
+                    });
                 }
             }
 
-            // Check if cursor is after :service_level: ==
+            // Service level autocomplete
             const slMatch = val.match(SERVICE_LEVEL_PATTERN);
             if (slMatch && !countryMatch) {
-                const partial = (slMatch[1] || '').toLowerCase();
+                const partial = (slMatch[1] || '').replace(/'/g, '').toLowerCase();
                 const filtered = SERVICE_LEVELS.filter(s => s.code.toLowerCase().startsWith(partial) || s.carrier.toLowerCase().startsWith(partial));
                 if (filtered.length) {
                     suggestions.push({group: 'Service levels'});
-                    filtered.slice(0, 10).forEach(s => suggestions.push({
-                        label: s.code, sub: s.carrier,
-                        val: val.slice(0, val.length - slMatch[1].length) + s.code
-                    }));
+                    filtered.slice(0, 10).forEach(s => {
+                        const replaceFrom = val.length - (slMatch[1] || '').length;
+                        const prefix = val.slice(0, replaceFrom);
+                        suggestions.push({ label: s.code, sub: s.carrier, val: prefix + "'" + s.code + "'" });
+                    });
                 }
             }
 
-            // Variable suggestions when typing :
-            const colonMatch = val.match(/:(\w*)$/);
-            if (colonMatch && !countryMatch && !slMatch) {
-                const partial = colonMatch[1].toLowerCase();
-                const vars = RULE_VARS[ctx] || [];
-                const filtered = vars.filter(v => v.includes(partial));
-                if (filtered.length) {
-                    suggestions.push({group: 'Variables'});
-                    filtered.forEach(v => suggestions.push({
-                        label: v, sub: null,
-                        val: val.slice(0, val.lastIndexOf(':' + colonMatch[1])) + v
-                    }));
+            // Template suggestions when field is mostly empty
+            if (!countryMatch && !slMatch) {
+                let templates = [];
+                if (type === 'sfCondition') {
+                    templates = SF_AC_TEMPLATES.sfCondition || [];
+                } else if (type === 'sfAction') {
+                    templates = SF_AC_TEMPLATES.sfAction || [];
+                } else {
+                    const ctx = document.getElementById('rdgContext').value;
+                    templates = (RDG_AC_TEMPLATES[type] || {})[ctx] || [];
                 }
-            }
-
-            // Template suggestions when field is empty or matches start
-            if (!colonMatch && !countryMatch && !slMatch) {
-                const templates = (AC_TEMPLATES[type] || {})[ctx] || [];
                 const lower = val.toLowerCase();
                 const filtered = templates.filter(t =>
                     val === '' || t.val.toLowerCase().startsWith(lower) || t.label.toLowerCase().includes(lower)
@@ -4001,7 +4363,6 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             });
             acEl.classList.add('open');
 
-            // Close when clicking outside — remove any prior listener first to prevent accumulation
             if (acCloseListeners[inputId]) {
                 document.removeEventListener('click', acCloseListeners[inputId]);
             }
@@ -4023,9 +4384,10 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             input.value = val;
             document.getElementById(inputId + 'Ac').classList.remove('open');
             input.focus();
-            // Place cursor at end
             input.setSelectionRange(val.length, val.length);
-            updateRulePreview();
+            // Trigger appropriate preview update
+            if (inputId.startsWith('sf')) { updateSfPreview(); }
+            else { updateRdgPreview(); }
         }
 
         function ruleAcKey(e, inputId) {
@@ -4051,18 +4413,27 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             }
         }
 
-        function updateRuleVars() {
-            const ctx = document.getElementById('ruleContext').value;
-            const vars = RULE_VARS[ctx] || [];
-            document.getElementById('ruleVarList').innerHTML =
+        // --- Variable reference rendering ---
+        function renderVarList(vars, containerId) {
+            document.getElementById(containerId).innerHTML =
                 `<p style="color:var(--text-dim);font-size:0.78em;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Variables — click to copy</p>` +
-                vars.map(v => `<span class="rule-var" onclick="copyRuleVar('${v}')" title="Click to copy">${v}</span>`).join('');
+                vars.map(v => `<span class="rule-var" onclick="copyRuleVar('${v.name}')" title="${v.type}: ${v.note}">${v.name}</span>`).join('');
+        }
+
+        function updateRdgVars() {
+            const ctx = document.getElementById('rdgContext').value;
+            renderVarList(RDG_VARS[ctx] || [], 'rdgVarList');
+        }
+
+        function updateSfVars() {
+            renderVarList(SF_VARS, 'sfVarList');
         }
 
         function copyRuleVar(v) {
             navigator.clipboard.writeText(v).catch(() => {});
         }
 
+        // --- Shared helpers ---
         function openSlTab(btn, panelId) {
             btn.parentElement.querySelectorAll('.sl-tab').forEach(t => t.classList.remove('active'));
             btn.classList.add('active');
@@ -4078,70 +4449,182 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             setTimeout(() => { el.style.borderColor = ''; el.style.color = ''; }, 600);
         }
 
-        function toggleRuleRef() {
-            const body = document.getElementById('ruleRefBody');
-            const toggle = document.getElementById('ruleRefToggle');
+        function toggleRuleRef(bodyId) {
+            const body = document.getElementById(bodyId);
+            const toggleId = bodyId.replace('Body', 'Toggle').replace('Ref', 'Ref');
+            const toggle = document.getElementById(toggleId);
             const open = body.style.display === 'none';
             body.style.display = open ? 'block' : 'none';
-            toggle.textContent = open ? 'Hide ▲' : 'Show ▼';
+            if (toggle) toggle.textContent = open ? 'Hide ▲' : 'Show ▼';
         }
 
-        function updateRulePreview() {
-            const name        = document.getElementById('ruleName').value.trim();
-            const description = document.getElementById('ruleDescription').value.trim();
-            const context     = document.getElementById('ruleContext').value;
-            const condition   = document.getElementById('ruleCondition').value.trim();
-            const action      = document.getElementById('ruleAction').value.trim();
-            const startDate   = document.getElementById('ruleStartDate').value;
-            const endDate     = document.getElementById('ruleEndDate').value;
+        function escapeGql(str) {
+            return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        }
+
+        // --- RuleDgs Preview ---
+        function updateRdgPreview() {
+            const name        = document.getElementById('rdgName').value.trim();
+            const description = document.getElementById('rdgDescription').value.trim();
+            const context     = document.getElementById('rdgContext').value;
+            const condition   = document.getElementById('rdgCondition').value.trim();
+            const action      = document.getElementById('rdgAction').value.trim();
+            const startDate   = document.getElementById('rdgStartDate').value;
+            const endDate     = document.getElementById('rdgEndDate').value;
 
             if (!name && !condition && !action) {
-                document.getElementById('rulePreview').value = '';
+                document.getElementById('rdgPreview').value = '';
                 return;
             }
 
             let dateFields = '';
-            if (startDate) dateFields += `\n    startDate: "${startDate}"`;
-            if (endDate)   dateFields += `\n    endDate: "${endDate}"`;
+            if (startDate) dateFields += `\n    startsAt: "${startDate}T00:00:00Z"`;
+            if (endDate)   dateFields += `\n    endsAt: "${endDate}T23:59:59Z"`;
 
             const preview = `mutation RuleCreate {
   ruleCreate(input: {
-    name: "${name || 'My Rule'}"
-    description: "${description || ''}"
+    name: "${escapeGql(name || 'My Rule')}"
+    description: "${escapeGql(description || '')}"
     context: "${context}"
-    condition: "${condition || 'if ...'}"
-    actions: "${action || 'then ...'}"${dateFields}
+    condition: "${escapeGql(condition || '')}"
+    actions: ["${escapeGql(action || '')}"]${dateFields}
   }) {
     id
+    name
+    description
+    context
+    condition
+    actions
   }
 }`;
-            document.getElementById('rulePreview').value = preview;
+            document.getElementById('rdgPreview').value = preview;
         }
 
-        function renderRuleExamples() {
-            document.getElementById('ruleExampleList').innerHTML = RULE_EXAMPLES.map((ex, i) =>
-                `<button class="rule-example-btn" onclick="loadRuleExample(${i})">
+        // --- Store Fee Preview ---
+        function updateSfPreview() {
+            const label     = document.getElementById('sfLabel').value.trim();
+            const note      = document.getElementById('sfNote').value.trim();
+            const category  = document.getElementById('sfCategory').value;
+            const ifStmt    = document.getElementById('sfIfStatement').value.trim();
+            const thenStmt  = document.getElementById('sfThen').value.trim();
+            const shipFrom  = document.getElementById('sfShipFrom').value;
+            const shipTo    = document.getElementById('sfShipTo').value;
+            const carrier   = document.getElementById('sfCarrierCode').value.trim();
+            const svcLevel  = document.getElementById('sfServiceLevel').value.trim();
+            const type      = document.getElementById('sfType').value;
+            const locale    = document.getElementById('sfLocale').value;
+            const procGroup = document.getElementById('sfProcessingGroup').value;
+            const taxable   = document.getElementById('sfTaxable').value;
+            const startDate = document.getElementById('sfStartDate').value;
+            const endDate   = document.getElementById('sfEndDate').value;
+
+            if (!ifStmt && !thenStmt && !label) {
+                document.getElementById('sfPreview').value = '';
+                return;
+            }
+
+            let inputFields = '';
+            inputFields += `\n    ifStatement: "${escapeGql(ifStmt || '')}"`;
+            inputFields += `\n    then: "${escapeGql(thenStmt || '')}"`;
+            inputFields += `\n    detailCategoryId: "${category}"`;
+            if (label) inputFields += `\n    label: "${escapeGql(label)}"`;
+            if (note)  inputFields += `\n    note: "${escapeGql(note)}"`;
+            if (shipFrom)  inputFields += `\n    shipFromCountry: ${shipFrom}`;
+            if (shipTo)    inputFields += `\n    shipToCountry: ${shipTo}`;
+            if (carrier)   inputFields += `\n    carrierCode: "${escapeGql(carrier)}"`;
+            if (svcLevel)  inputFields += `\n    serviceLevelCode: "${escapeGql(svcLevel)}"`;
+            if (type)      inputFields += `\n    type: ${type}`;
+            inputFields += `\n    localeType: ${locale}`;
+            inputFields += `\n    processingGroup: ${procGroup}`;
+            inputFields += `\n    taxable: ${taxable}`;
+            if (startDate) inputFields += `\n    startsAt: "${startDate}T00:00:00Z"`;
+            if (endDate)   inputFields += `\n    endsAt: "${endDate}T23:59:59Z"`;
+
+            const preview = `mutation CreateStoreFeeRule {
+  createStoreFeeRule(input: {${inputFields}
+  }) {
+    id
+    label
+    note
+    ifStatement
+    then
+    type
+    taxable
+    createdAt
+  }
+}`;
+            document.getElementById('sfPreview').value = preview;
+        }
+
+        // --- Examples ---
+        function renderRdgExamples() {
+            document.getElementById('rdgExampleList').innerHTML = RDG_EXAMPLES.map((ex, i) =>
+                `<button class="rule-example-btn" onclick="loadRdgExample(${i})">
                     <strong>${ex.label}</strong>
                     <code>${ex.condition}</code>
                 </button>`
             ).join('');
         }
 
-        function loadRuleExample(i) {
-            const ex = RULE_EXAMPLES[i];
-            document.getElementById('ruleName').value = ex.name;
-            document.getElementById('ruleDescription').value = ex.description;
-            document.getElementById('ruleContext').value = ex.context;
-            document.getElementById('ruleCondition').value = ex.condition;
-            document.getElementById('ruleAction').value = ex.action;
-            document.getElementById('ruleStartDate').value = '';
-            document.getElementById('ruleEndDate').value = '';
-            updateRuleVars();
-            updateRulePreview();
+        function loadRdgExample(i) {
+            const ex = RDG_EXAMPLES[i];
+            document.getElementById('rdgName').value = ex.name;
+            document.getElementById('rdgDescription').value = ex.description;
+            document.getElementById('rdgContext').value = ex.context;
+            document.getElementById('rdgCondition').value = ex.condition;
+            document.getElementById('rdgAction').value = ex.action;
+            document.getElementById('rdgStartDate').value = '';
+            document.getElementById('rdgEndDate').value = '';
+            updateRdgVars();
+            updateRdgPreview();
         }
 
-        function copyRuleMutation(btn) {
-            const mutation = document.getElementById('rulePreview').value;
+        function renderSfExamples() {
+            document.getElementById('sfExampleList').innerHTML = SF_EXAMPLES.map((ex, i) =>
+                `<button class="rule-example-btn" onclick="loadSfExample(${i})">
+                    <strong>${ex.label}</strong>
+                    <code>${ex.ifStatement}</code>
+                </button>`
+            ).join('');
+        }
+
+        function loadSfExample(i) {
+            const ex = SF_EXAMPLES[i];
+            document.getElementById('sfLabel').value = ex.labelVal || '';
+            document.getElementById('sfNote').value = ex.note || '';
+            document.getElementById('sfCategory').value = ex.category || 'SHIPPING_FEE';
+            document.getElementById('sfIfStatement').value = ex.ifStatement;
+            document.getElementById('sfThen').value = ex.then;
+            document.getElementById('sfShipFrom').value = ex.shipFrom || '';
+            document.getElementById('sfShipTo').value = ex.shipTo || '';
+            document.getElementById('sfCarrierCode').value = ex.carrierCode || '';
+            document.getElementById('sfServiceLevel').value = ex.serviceLevelCode || '';
+            document.getElementById('sfType').value = '';
+            document.getElementById('sfLocale').value = 'INTERNATIONAL';
+            document.getElementById('sfProcessingGroup').value = '0';
+            document.getElementById('sfTaxable').value = 'false';
+            document.getElementById('sfStartDate').value = '';
+            document.getElementById('sfEndDate').value = '';
+            updateSfPreview();
+        }
+
+        // --- Populate Store Fee country dropdowns ---
+        function populateSfCountryDropdowns() {
+            ['sfShipFrom', 'sfShipTo'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel.options.length > 1) return; // already populated
+                COUNTRIES.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.code;
+                    opt.textContent = `${c.code} — ${c.name}`;
+                    sel.appendChild(opt);
+                });
+            });
+        }
+
+        // --- Copy mutation ---
+        function copyRuleMutation(previewId, btn) {
+            const mutation = document.getElementById(previewId).value;
             if (!mutation) return;
             navigator.clipboard.writeText(mutation).catch(() => {});
             const orig = btn.textContent;
@@ -4149,6 +4632,81 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             btn.style.borderColor = 'var(--teal)';
             btn.style.color = 'var(--teal)';
             setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 1200);
+        }
+
+        // --- Execute rule via proxy ---
+        async function executeRule(ruleType) {
+            const previewId = ruleType === 'ruledgs' ? 'rdgPreview' : 'sfPreview';
+            const resultId  = ruleType === 'ruledgs' ? 'rdgResult' : 'sfResult';
+            const mutation  = document.getElementById(previewId).value;
+            const resultEl  = document.getElementById(resultId);
+
+            if (!mutation) {
+                resultEl.style.display = 'block';
+                resultEl.className = 'rules-result error';
+                resultEl.textContent = 'Please fill in the form first.';
+                return;
+            }
+
+            const keyMode = getKeyMode();
+            if (keyMode !== 'live') {
+                resultEl.style.display = 'block';
+                resultEl.className = 'rules-result error';
+                resultEl.innerHTML = '<strong>Live API key required.</strong> Switch to Live mode in API Settings above to create rules.';
+                return;
+            }
+
+            resultEl.style.display = 'block';
+            resultEl.className = 'rules-result';
+            resultEl.style.background = 'rgba(255,255,255,0.05)';
+            resultEl.style.borderColor = 'var(--border)';
+            resultEl.style.color = 'var(--text-muted)';
+            resultEl.innerHTML = '<span class="loading" style="display:inline-block;width:14px;height:14px;"></span> Creating rule...';
+
+            try {
+                const endpoint = document.getElementById('endpoint').value;
+                const response = await fetch('/proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: endpoint,
+                        method: 'POST',
+                        keyMode: 'live',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: { query: mutation }
+                    })
+                });
+
+                const proxyData = await response.json();
+                if (proxyData.error) {
+                    resultEl.className = 'rules-result error';
+                    resultEl.textContent = 'Proxy error: ' + (proxyData.message || 'Unknown error');
+                    return;
+                }
+
+                const apiResponse = JSON.parse(proxyData.body);
+                if (apiResponse.errors && apiResponse.errors.length > 0) {
+                    resultEl.className = 'rules-result error';
+                    const errMsg = apiResponse.errors[0].message;
+                    const reqId = apiResponse.errors[0].extensions?.requestId || '';
+                    resultEl.innerHTML = '<strong>Error:</strong> ' + escapeHtml(errMsg) + (reqId ? '<br><small style="opacity:0.7;">Request ID: ' + escapeHtml(reqId) + '</small>' : '');
+                } else {
+                    const ruleData = ruleType === 'ruledgs'
+                        ? apiResponse.data?.ruleCreate
+                        : apiResponse.data?.createStoreFeeRule;
+                    resultEl.className = 'rules-result success';
+                    if (ruleData) {
+                        resultEl.innerHTML = '<strong>Rule created successfully!</strong><br>ID: <code>' + escapeHtml(ruleData.id) + '</code>'
+                            + (ruleData.name ? '<br>Name: ' + escapeHtml(ruleData.name) : '')
+                            + (ruleData.label ? '<br>Label: ' + escapeHtml(ruleData.label) : '');
+                    } else {
+                        resultEl.innerHTML = '<strong>Rule created!</strong><br><small>' + escapeHtml(JSON.stringify(apiResponse.data)) + '</small>';
+                    }
+                }
+            } catch (err) {
+                resultEl.className = 'rules-result error';
+                resultEl.textContent = 'Network error: ' + err.message;
+            }
         }
 
 
