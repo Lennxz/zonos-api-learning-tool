@@ -1495,7 +1495,7 @@
 
                 <!-- Rules Builder Panel -->
                 <div class="rules-builder" id="rulesBuilder">
-                    <h3>Rule Builder</h3>
+                    <h3>Rule Playground</h3>
 
                     <!-- Rule type tabs -->
                     <div class="rule-type-tabs">
@@ -1642,20 +1642,6 @@
                     <div class="rule-tab-panel" id="storefeePanel">
                         <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:12px;"><strong style="color:var(--teal);">Add new fee line items</strong> to landed cost quotes — processing fees, brokerage fees, handling charges. Unlike RuleDgs rules (which modify existing values), Store Fee rules create a <em>new charge</em> that appears as its own line in the cost breakdown.</p>
 
-                        <!-- Store Fee example scenario -->
-                        <div style="background:rgba(0,185,183,0.08);border:1px solid rgba(0,185,183,0.25);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:0.85em;">
-                            <p style="color:var(--teal);font-weight:600;margin-bottom:8px;">Example: Adding a $5 processing fee for US-bound shipments</p>
-                            <p style="color:var(--text-muted);margin-bottom:10px;">A merchant ships from China. They want to add a flat $5 handling fee on every order going to the US. This fee shows up as its own line item in the landed cost breakdown alongside duties, taxes, and shipping.</p>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;color:var(--text-muted);">
-                                <div><span style="color:var(--text-dim);">Label:</span> US Processing Fee</div>
-                                <div><span style="color:var(--text-dim);">Category:</span> Shipping Fee</div>
-                                <div><span style="color:var(--text-dim);">If:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">ship_to_country == 'US'</code></div>
-                                <div><span style="color:var(--text-dim);">Then:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">5 usd</code></div>
-                                <div><span style="color:var(--text-dim);">Ship From:</span> CN</div>
-                                <div><span style="color:var(--text-dim);">Ship To:</span> US</div>
-                            </div>
-                            <p style="color:var(--text-dim);font-size:0.9em;margin-top:10px;margin-bottom:0;font-style:italic;">Try it: click "Fixed $5 US Processing Fee" below to load this into the form.</p>
-                        </div>
                         <div class="rules-layout">
                             <div class="rules-form-col">
                                 <div class="rules-field">
@@ -1783,6 +1769,21 @@
                                 <textarea id="sfPreview" class="rules-preview-textarea" style="height:340px;" readonly placeholder="Fill in the form to generate the mutation..."></textarea>
                                 <div id="sfResult" class="rules-result" style="display:none;"></div>
                             </div>
+                        </div>
+
+                        <!-- Store Fee example scenario -->
+                        <div style="background:rgba(0,185,183,0.08);border:1px solid rgba(0,185,183,0.25);border-radius:8px;padding:14px 16px;margin-top:16px;font-size:0.85em;">
+                            <p style="color:var(--teal);font-weight:600;margin-bottom:8px;">Example: Adding a $5 processing fee for US-bound shipments</p>
+                            <p style="color:var(--text-muted);margin-bottom:10px;">A merchant ships from China. They want to add a flat $5 handling fee on every order going to the US. This fee shows up as its own line item in the landed cost breakdown alongside duties, taxes, and shipping.</p>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;color:var(--text-muted);">
+                                <div><span style="color:var(--text-dim);">Label:</span> US Processing Fee</div>
+                                <div><span style="color:var(--text-dim);">Category:</span> Shipping Fee</div>
+                                <div><span style="color:var(--text-dim);">If:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">ship_to_country == 'US'</code></div>
+                                <div><span style="color:var(--text-dim);">Then:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">5 usd</code></div>
+                                <div><span style="color:var(--text-dim);">Ship From:</span> CN</div>
+                                <div><span style="color:var(--text-dim);">Ship To:</span> US</div>
+                            </div>
+                            <p style="color:var(--text-dim);font-size:0.9em;margin-top:10px;margin-bottom:0;font-style:italic;">Try it: click "Fixed $5 US Processing Fee" below to load this into the form.</p>
                         </div>
 
                         <!-- Store Fee examples -->
@@ -2628,7 +2629,7 @@ mutation ScreenParty {
             },
 
         'vision': {
-                title: 'Vision — Extract Items from Photo',
+                title: 'Vision',
                 explanation: `
                     <h4>What does this do?</h4>
                     <p>Zonos Vision uses AI to <strong>look at a photo and automatically extract item details</strong> — name, description, materials, HS code, and estimated customs value. No manual data entry required.</p>
@@ -4256,7 +4257,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.getElementById('rulesBuilder').classList.add('visible');
             document.getElementById('friendlyView').classList.remove('visible');
 
-            document.getElementById('explanationTitle').textContent = 'Rule Builder';
+            document.getElementById('explanationTitle').textContent = 'Rule Playground';
             document.getElementById('explanationContent').innerHTML = `
                 <h4>Two Rule Systems</h4>
                 <p>Zonos has two rule engines. Use the tabs below to switch between them.</p>
