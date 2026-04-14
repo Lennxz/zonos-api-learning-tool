@@ -1505,7 +1505,7 @@
 
                     <!-- ===== RuleDgs Rules Tab ===== -->
                     <div class="rule-tab-panel active" id="ruledgsPanel">
-                        <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:16px;">Automate shipping, landed cost, tax, discount, and item logic with conditional rules.</p>
+                        <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:16px;"><strong style="color:var(--teal);">Modify existing values</strong> during calculations — adjust shipping costs, cap duties, zero out taxes, apply discounts, or block items. These rules fire within a specific <em>context</em> (e.g. after landed cost is calculated) and change the numbers that are already there.</p>
                         <div class="rules-layout">
                             <div class="rules-form-col">
                                 <div class="rules-field">
@@ -1640,7 +1640,22 @@
 
                     <!-- ===== Store Fee Rules Tab ===== -->
                     <div class="rule-tab-panel" id="storefeePanel">
-                        <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:16px;">Custom fee rules using SpEL (Spring Expression Language) for landed cost calculations.</p>
+                        <p style="color:var(--text-muted);font-size:0.88em;margin-bottom:12px;"><strong style="color:var(--teal);">Add new fee line items</strong> to landed cost quotes — processing fees, brokerage fees, handling charges. Unlike RuleDgs rules (which modify existing values), Store Fee rules create a <em>new charge</em> that appears as its own line in the cost breakdown.</p>
+
+                        <!-- Store Fee example scenario -->
+                        <div style="background:rgba(0,185,183,0.08);border:1px solid rgba(0,185,183,0.25);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:0.85em;">
+                            <p style="color:var(--teal);font-weight:600;margin-bottom:8px;">Example: Adding a $5 processing fee for US-bound shipments</p>
+                            <p style="color:var(--text-muted);margin-bottom:10px;">A merchant ships from China. They want to add a flat $5 handling fee on every order going to the US. This fee shows up as its own line item in the landed cost breakdown alongside duties, taxes, and shipping.</p>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;color:var(--text-muted);">
+                                <div><span style="color:var(--text-dim);">Label:</span> US Processing Fee</div>
+                                <div><span style="color:var(--text-dim);">Category:</span> Shipping Fee</div>
+                                <div><span style="color:var(--text-dim);">If:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">ship_to_country == 'US'</code></div>
+                                <div><span style="color:var(--text-dim);">Then:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">5 usd</code></div>
+                                <div><span style="color:var(--text-dim);">Ship From:</span> CN</div>
+                                <div><span style="color:var(--text-dim);">Ship To:</span> US</div>
+                            </div>
+                            <p style="color:var(--text-dim);font-size:0.9em;margin-top:10px;margin-bottom:0;font-style:italic;">Try it: click "Fixed $5 US Processing Fee" below to load this into the form.</p>
+                        </div>
                         <div class="rules-layout">
                             <div class="rules-form-col">
                                 <div class="rules-field">
