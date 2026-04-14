@@ -1771,21 +1771,6 @@
                             </div>
                         </div>
 
-                        <!-- Store Fee example scenario -->
-                        <div style="background:rgba(0,185,183,0.08);border:1px solid rgba(0,185,183,0.25);border-radius:8px;padding:14px 16px;margin-top:16px;font-size:0.85em;">
-                            <p style="color:var(--teal);font-weight:600;margin-bottom:8px;">Example: Adding a $5 processing fee for US-bound shipments</p>
-                            <p style="color:var(--text-muted);margin-bottom:10px;">A merchant ships from China. They want to add a flat $5 handling fee on every order going to the US. This fee shows up as its own line item in the landed cost breakdown alongside duties, taxes, and shipping.</p>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;color:var(--text-muted);">
-                                <div><span style="color:var(--text-dim);">Label:</span> US Processing Fee</div>
-                                <div><span style="color:var(--text-dim);">Category:</span> Shipping Fee</div>
-                                <div><span style="color:var(--text-dim);">If:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">ship_to_country == 'US'</code></div>
-                                <div><span style="color:var(--text-dim);">Then:</span> <code style="color:var(--teal);background:rgba(0,185,183,0.1);padding:1px 5px;border-radius:3px;font-size:0.92em;">5 usd</code></div>
-                                <div><span style="color:var(--text-dim);">Ship From:</span> CN</div>
-                                <div><span style="color:var(--text-dim);">Ship To:</span> US</div>
-                            </div>
-                            <p style="color:var(--text-dim);font-size:0.9em;margin-top:10px;margin-bottom:0;font-style:italic;">Try it: click "Fixed $5 US Processing Fee" below to load this into the form.</p>
-                        </div>
-
                         <!-- Store Fee examples -->
                         <div style="margin-top:16px;">
                             <p style="color:var(--text-dim);font-size:0.78em;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Quick Examples — click to load</p>
@@ -4257,7 +4242,7 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
             document.getElementById('rulesBuilder').classList.add('visible');
             document.getElementById('friendlyView').classList.remove('visible');
 
-            document.getElementById('explanationTitle').textContent = 'Rule Playground';
+            document.getElementById('explanationTitle').textContent = 'Rule Builder';
             document.getElementById('explanationContent').innerHTML = `
                 <h4>Two Rule Systems</h4>
                 <p>Zonos has two rule engines. Use the tabs below to switch between them.</p>
@@ -4273,7 +4258,19 @@ mutation ItemsExtract($input: ItemsExtractInput!) {
                     <li><strong>Tax Adjustments</strong> — modify or exempt taxes</li>
                 </ul>
                 <h4>2. Store Fee Rules</h4>
-                <p>Custom fee rules using SpEL (Spring Expression Language). Requires a <strong>detail category</strong> and at least one <strong>shipping context</strong> (country, carrier, or service level).</p>
+                <p>Add <strong>new fee line items</strong> to landed cost quotes — processing fees, brokerage fees, handling charges. Unlike RuleDgs (which modify existing values), Store Fee rules create a new charge that appears as its own line in the cost breakdown.</p>
+                <div class="analogy" style="margin-top:10px;">
+                    <strong>Example: $5 processing fee for US-bound shipments</strong><br>
+                    <span style="color:var(--text-dim);font-size:0.9em;">A merchant ships from China and wants a flat $5 handling fee on every US order.</span><br>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:6px;font-size:0.9em;">
+                        <div><strong>Label:</strong> US Processing Fee</div>
+                        <div><strong>Category:</strong> Shipping Fee</div>
+                        <div><strong>If:</strong> <code style="font-size:0.85em">ship_to_country == 'US'</code></div>
+                        <div><strong>Then:</strong> <code style="font-size:0.85em">5 usd</code></div>
+                        <div><strong>Ship From:</strong> CN</div>
+                        <div><strong>Ship To:</strong> US</div>
+                    </div>
+                </div>
                 <p><strong>Note:</strong> Rules are powerful — mistakes can cause unintended calculations. Test thoroughly before deploying to production.</p>
             `;
             document.getElementById('explanationContent').classList.remove('collapsed');
